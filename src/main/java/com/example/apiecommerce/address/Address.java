@@ -1,5 +1,6 @@
 package com.example.apiecommerce.address;
 
+import com.example.apiecommerce.order.Order;
 import com.example.apiecommerce.user.User;
 import jakarta.persistence.*;
 
@@ -17,6 +18,8 @@ public class Address {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+    @OneToOne(mappedBy = "address")
+    private Order order;
 
     public Long getId() {
         return id;

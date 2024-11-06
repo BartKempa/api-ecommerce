@@ -2,6 +2,7 @@ package com.example.apiecommerce.user;
 
 import com.example.apiecommerce.address.Address;
 import com.example.apiecommerce.cart.Cart;
+import com.example.apiecommerce.order.Order;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -26,6 +27,8 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private Set<Address> addresses = new HashSet<>();
+    @OneToMany(mappedBy = "user")
+    private Set<Order> orders = new HashSet<>();
 
     public Long getId() {
         return id;

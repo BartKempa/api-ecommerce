@@ -2,6 +2,7 @@ package com.example.apiecommerce.product;
 
 import com.example.apiecommerce.cartItem.CartItem;
 import com.example.apiecommerce.category.Category;
+import com.example.apiecommerce.orderItem.OrderItem;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -24,4 +25,6 @@ public class Product {
     private Category category;
     @OneToMany(mappedBy = "product")
     private Set<CartItem> cartItems = new HashSet<>();
+    @OneToMany(mappedBy = "product")
+    private Set<OrderItem> orderItems = new HashSet<>();
 }
