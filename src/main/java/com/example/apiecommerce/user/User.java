@@ -1,6 +1,7 @@
 package com.example.apiecommerce.user;
 
 import com.example.apiecommerce.address.Address;
+import com.example.apiecommerce.cart.Cart;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,9 @@ public class User {
     private String lastName;
     private String phoneNumber;
     private LocalDateTime creationDate;
+    @OneToOne
+    @JoinColumn(name = "cart_id", referencedColumnName = "id")
+    private Cart cart;
 
     @OneToMany(mappedBy = "user")
     private Set<Address> addresses = new HashSet<>();
