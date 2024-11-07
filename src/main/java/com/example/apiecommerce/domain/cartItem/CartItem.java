@@ -1,7 +1,7 @@
-package com.example.apiecommerce.cartItem;
+package com.example.apiecommerce.domain.cartItem;
 
-import com.example.apiecommerce.cart.Cart;
-import com.example.apiecommerce.product.Product;
+import com.example.apiecommerce.domain.cart.Cart;
+import com.example.apiecommerce.domain.product.Product;
 import jakarta.persistence.*;
 
 @Entity

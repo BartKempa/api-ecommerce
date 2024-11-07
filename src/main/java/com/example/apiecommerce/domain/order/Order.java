@@ -1,8 +1,8 @@
-package com.example.apiecommerce.order;
+package com.example.apiecommerce.domain.order;
 
-import com.example.apiecommerce.address.Address;
-import com.example.apiecommerce.orderItem.OrderItem;
-import com.example.apiecommerce.user.User;
+import com.example.apiecommerce.domain.address.Address;
+import com.example.apiecommerce.domain.orderItem.OrderItem;
+import com.example.apiecommerce.domain.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

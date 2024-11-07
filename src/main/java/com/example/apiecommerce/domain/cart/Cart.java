@@ -1,7 +1,7 @@
-package com.example.apiecommerce.cart;
+package com.example.apiecommerce.domain.cart;
 
-import com.example.apiecommerce.cartItem.CartItem;
-import com.example.apiecommerce.user.User;
+import com.example.apiecommerce.domain.cartItem.CartItem;
+import com.example.apiecommerce.domain.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;

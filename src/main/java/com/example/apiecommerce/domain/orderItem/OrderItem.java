@@ -1,7 +1,7 @@
-package com.example.apiecommerce.orderItem;
+package com.example.apiecommerce.domain.orderItem;
 
-import com.example.apiecommerce.order.Order;
-import com.example.apiecommerce.product.Product;
+import com.example.apiecommerce.domain.order.Order;
+import com.example.apiecommerce.domain.product.Product;
 import jakarta.persistence.*;
 
 @Entity

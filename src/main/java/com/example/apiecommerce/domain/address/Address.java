@@ -1,7 +1,7 @@
-package com.example.apiecommerce.address;
+package com.example.apiecommerce.domain.address;
 
-import com.example.apiecommerce.order.Order;
-import com.example.apiecommerce.user.User;
+import com.example.apiecommerce.domain.order.Order;
+import com.example.apiecommerce.domain.user.User;
 import jakarta.persistence.*;
 
 @Entity
