@@ -18,8 +18,4 @@ public class Cart {
     private User user;
     @OneToMany(mappedBy = "cart")
     private Set<CartItem> cartItems = new HashSet<>();
-
-
-
-
 }
