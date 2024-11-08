@@ -6,7 +6,7 @@
 
     <changeSet id="0001-1" author="admin">
         <createTable tableName="category">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="category_name" type="VARCHAR(100)"/>

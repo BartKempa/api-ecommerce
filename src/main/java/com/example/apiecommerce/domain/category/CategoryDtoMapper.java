@@ -9,4 +9,11 @@ class CategoryDtoMapper {
                 category.getCategoryName()
         );
     }
+
+    static Category map(CategoryDto categoryDto){
+        return new Category(
+                categoryDto.getId(),
+                categoryDto.getCategoryName()
+        );
+    }
 }
