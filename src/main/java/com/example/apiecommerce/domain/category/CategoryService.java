@@ -40,4 +40,9 @@ public class CategoryService {
         Category updatedCategory = categoryRepository.save(categoryToUpdate);
         return Optional.of(CategoryDtoMapper.map(updatedCategory));
     }
+
+    @Transactional
+    public void deleteCategory(Long categoryId){
+        categoryRepository.deleteById(categoryId);
+    }
 }

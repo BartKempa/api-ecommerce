@@ -39,4 +39,10 @@ public class CategoryController {
                 .map(c -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @DeleteMapping("/categories/{id}")
+    ResponseEntity<?> deleteCategory(@PathVariable Long id){
+        categoryService.deleteCategory(id);
+        return ResponseEntity.noContent().build();
+    }
 }
