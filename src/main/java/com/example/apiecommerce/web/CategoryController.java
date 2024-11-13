@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequestMapping("/categories")
 public class CategoryController {
 
     private final CategoryService categoryService;
@@ -18,7 +19,7 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @PostMapping("/categories")
+    @PostMapping
     ResponseEntity<CategoryDto> addCategory(@RequestBody CategoryDto categoryDto){
         CategoryDto savedCategoryDto = categoryService.addCategory(categoryDto);
         URI savedCategoryDtoUri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -28,19 +29,19 @@ public class CategoryController {
         return ResponseEntity.created(savedCategoryDtoUri).body(savedCategoryDto);
     }
 
-    @GetMapping("/categories")
+    @GetMapping
     List<CategoryDto> getCategories(){
         return categoryService.findAllCategories();
     }
 
-    @PutMapping("/categories/{id}")
+    @PutMapping("/{id}")
     ResponseEntity<?> replaceCategory(@PathVariable Long id, @RequestBody CategoryDto categoryDto){
         return categoryService.replaceCategory(id, categoryDto)
                 .map(c -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/categories/{id}")
+    @DeleteMapping("/{id}")
     ResponseEntity<?> deleteCategory(@PathVariable Long id){
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();

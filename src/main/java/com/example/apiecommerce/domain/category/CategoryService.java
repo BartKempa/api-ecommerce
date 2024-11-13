@@ -1,6 +1,7 @@
 package com.example.apiecommerce.domain.category;
 
 import com.example.apiecommerce.domain.category.dto.CategoryDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +12,6 @@ import java.util.stream.StreamSupport;
 @Service
 public class CategoryService {
     private final CategoryRepository categoryRepository;
-
 
     public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
@@ -43,6 +43,9 @@ public class CategoryService {
 
     @Transactional
     public void deleteCategory(Long categoryId){
+        if (!categoryRepository.existsById(categoryId)){
+            throw new EntityNotFoundException("Category not found");
+        }
         categoryRepository.deleteById(categoryId);
     }
 }

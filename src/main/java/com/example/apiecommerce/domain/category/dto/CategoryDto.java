@@ -1,7 +1,12 @@
 package com.example.apiecommerce.domain.category.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 public class CategoryDto {
     private Long id;
+    @NotBlank(message = "Category name cannot be empty")
+    @Size(min = 2)
     private String categoryName;
 
     public CategoryDto(Long id, String categoryName) {
