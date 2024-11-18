@@ -1,7 +1,9 @@
 package com.example.apiecommerce.domain.cart;
 
 import com.example.apiecommerce.domain.cart.dto.CartDto;
+import org.springframework.stereotype.Service;
 
+@Service
 class CartDtoMapper {
 
     static Cart map(CartDto cartDto){
