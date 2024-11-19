@@ -2,7 +2,6 @@ package com.example.apiecommerce.web;
 
 import com.example.apiecommerce.domain.cart.CartService;
 import com.example.apiecommerce.domain.cart.dto.CartDto;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -35,4 +34,9 @@ public class CartController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @DeleteMapping("/{id}")
+    ResponseEntity<?> deleteCart(@PathVariable Long id){
+        cartService.deleteCart(id);
+        return ResponseEntity.noContent().build();
+    }
 }
