@@ -19,7 +19,7 @@ public class Product {
     private String description;
     private LocalDateTime creationDate;
     private Long productQuantity;
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
     @OneToMany(mappedBy = "product")
