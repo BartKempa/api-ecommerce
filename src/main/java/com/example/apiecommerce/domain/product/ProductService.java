@@ -4,6 +4,9 @@ import com.example.apiecommerce.domain.product.dto.ProductDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.StreamSupport;
+
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
@@ -19,5 +22,11 @@ public class ProductService {
         Product productToSave = productDtoMapper.map(productDto);
         Product savedProduct = productRepository.save(productToSave);
         return productDtoMapper.map(savedProduct);
+    }
+
+    public List<ProductDto> findAllProducts(){
+        return StreamSupport.stream(productRepository.findAll().spliterator(), false)
+                .map(productDtoMapper::map)
+                .toList();
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/product")
@@ -26,4 +27,13 @@ public class ProductController {
                 .toUri();
         return ResponseEntity.created(savedProductUri).body(savedProduct);
     }
+
+    @GetMapping
+    List<ProductDto> getAllProducts(){
+        return productService.findAllProducts();
+    }
+
+
+
+
 }
