@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @Service
@@ -28,5 +29,12 @@ public class ProductService {
         return StreamSupport.stream(productRepository.findAll().spliterator(), false)
                 .map(productDtoMapper::map)
                 .toList();
+    }
+
+    public Optional<ProductDto> findProductById(Long productId){
+        if (!productRepository.existsById(productId)){
+            return Optional.empty();
+        }
+        return productRepository.findById(productId).map(productDtoMapper::map);
     }
 }
