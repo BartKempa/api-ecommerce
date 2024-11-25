@@ -1,6 +1,7 @@
 package com.example.apiecommerce.domain.product;
 
 import com.example.apiecommerce.domain.product.dto.ProductDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,5 +37,13 @@ public class ProductService {
             return Optional.empty();
         }
         return productRepository.findById(productId).map(productDtoMapper::map);
+    }
+
+    @Transactional
+    public void deleteProduct(Long productId){
+        if (!productRepository.existsById(productId)){
+            throw new EntityNotFoundException("Product not found");
+        }
+        productRepository.deleteById(productId);
     }
 }
