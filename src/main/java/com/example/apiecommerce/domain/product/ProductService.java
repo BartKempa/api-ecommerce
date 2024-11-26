@@ -46,4 +46,15 @@ public class ProductService {
         }
         productRepository.deleteById(productId);
     }
+
+    @Transactional
+    public Optional<ProductDto> replaceProduct(Long productId, ProductDto productDto){
+        if (!productRepository.existsById(productId)){
+            return Optional.empty();
+        }
+        productDto.setId(productId);
+        Product productToUpdate = productDtoMapper.map(productDto);
+        Product updatedProduct = productRepository.save(productToUpdate);
+        return Optional.of(productDtoMapper.map(updatedProduct));
+    }
 }

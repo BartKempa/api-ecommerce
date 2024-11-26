@@ -46,7 +46,10 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-
-
-
+    @PutMapping("/{id}")
+    ResponseEntity<?> replaceProduct(@PathVariable Long id, @RequestBody ProductDto productDto){
+        return productService.replaceProduct(id, productDto)
+                .map(c -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
