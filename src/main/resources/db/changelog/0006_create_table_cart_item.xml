@@ -6,7 +6,7 @@
 
     <changeSet id="0006-1" author="admin">
         <createTable tableName="cart_item">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="cart_item_quantity" type="BIGINT"/>
