@@ -1,6 +1,7 @@
 package com.example.apiecommerce.domain.cartItem;
 
 import com.example.apiecommerce.domain.cartItem.dto.CartItemDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,5 +20,13 @@ public class CartItemService {
         CartItem cartItemToSave = cartItemDtoMapper.map(cartItemDto);
         CartItem savedCartItem = cartItemRepository.save(cartItemToSave);
         return cartItemDtoMapper.map(savedCartItem);
+    }
+
+    @Transactional
+    public void deleteCartItem(Long cartItemId){
+        if (!cartItemRepository.existsById(cartItemId)){
+            throw new EntityNotFoundException("CartItem not found");
+        }
+        cartItemRepository.deleteById(cartItemId);
     }
 }
