@@ -33,4 +33,11 @@ public class CartItemController {
         cartItemService.deleteCartItem(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}")
+    ResponseEntity<CartItemDto> getCartItemById(@PathVariable Long id){
+        return cartItemService.findCartItemById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

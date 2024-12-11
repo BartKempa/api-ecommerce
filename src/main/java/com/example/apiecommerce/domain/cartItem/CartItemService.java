@@ -5,6 +5,8 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class CartItemService {
     private final CartItemRepository cartItemRepository;
@@ -28,5 +30,12 @@ public class CartItemService {
             throw new EntityNotFoundException("CartItem not found");
         }
         cartItemRepository.deleteById(cartItemId);
+    }
+
+    public Optional<CartItemDto> findCartItemById(Long cartItemId){
+        if (!cartItemRepository.existsById(cartItemId)){
+            return Optional.empty();
+        }
+        return cartItemRepository.findById(cartItemId).map(cartItemDtoMapper::map);
     }
 }
