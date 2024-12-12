@@ -5,6 +5,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -37,5 +38,16 @@ public class CartItemService {
             return Optional.empty();
         }
         return cartItemRepository.findById(cartItemId).map(cartItemDtoMapper::map);
+    }
+
+    @Transactional
+    public Optional<CartItemDto> replaceCartItem(Long cartItemId, CartItemDto cartItemDto){
+        if (!cartItemRepository.existsById(cartItemId)){
+            return Optional.empty();
+        }
+        cartItemDto.setId(cartItemId);
+        CartItem cartItemToUpdate = cartItemDtoMapper.map(cartItemDto);
+        CartItem updatedCartItem = cartItemRepository.save(cartItemToUpdate);
+        return Optional.of(cartItemDtoMapper.map(updatedCartItem));
     }
 }

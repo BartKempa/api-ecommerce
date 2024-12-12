@@ -40,4 +40,11 @@ public class CartItemController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @PutMapping("/{id}")
+    ResponseEntity<?> replaceCartItem(@PathVariable Long id, @RequestBody CartItemDto cartItemDto){
+        return cartItemService.replaceCartItem(id, cartItemDto)
+                .map(c -> ResponseEntity.noContent().build())
+                .orElse(ResponseEntity.notFound().build());
+    }
 }
