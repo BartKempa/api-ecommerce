@@ -2,15 +2,17 @@ package com.example.apiecommerce.web;
 
 import com.example.apiecommerce.domain.product.ProductService;
 import com.example.apiecommerce.domain.product.dto.ProductDto;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/product")
+@RequestMapping("/products")
 public class ProductController {
     private final ProductService productService;
 
@@ -32,6 +34,17 @@ public class ProductController {
     List<ProductDto> getAllProducts(){
         return productService.findAllProducts();
     }
+
+    @GetMapping("/page/{pageNo}")
+    Page<ProductDto> getAllProductsPaginated(@PathVariable Optional<Integer> pageNo,
+                                             @RequestParam(value = "pageSize", defaultValue = "3") Integer pageSize,
+                                             @RequestParam(value = "sortField", defaultValue = "productName") String sortField,
+                                             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection){
+        int pageNumber = pageNo.orElse(1);
+        return productService.findAllPaginatedProducts(pageNumber, pageSize, sortField, sortDirection);
+    }
+
+
 
     @GetMapping("/{id}")
     ResponseEntity<ProductDto> getProductById(@PathVariable Long id){
