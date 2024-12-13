@@ -44,7 +44,15 @@ public class ProductController {
         return productService.findAllPaginatedProducts(pageNumber, pageSize, sortField, sortDirection);
     }
 
-
+    @GetMapping("/page/{pageNo}/category/{categoryName}")
+    Page<ProductDto> getAllProductsFromCategoryPaginated(@PathVariable Optional<Integer> pageNo,
+                                                         @RequestParam(value = "pageSize", defaultValue = "3") Integer pageSize,
+                                                         @RequestParam(value = "sortField", defaultValue = "productName") String sortField,
+                                                         @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
+                                                         @PathVariable String categoryName){
+        int pageNumber = pageNo.orElse(1);
+        return productService.findProductsFromCategoryPaginated(pageNumber, pageSize, sortField, sortDirection, categoryName);
+    }
 
     @GetMapping("/{id}")
     ResponseEntity<ProductDto> getProductById(@PathVariable Long id){

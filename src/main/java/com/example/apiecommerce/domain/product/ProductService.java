@@ -43,6 +43,13 @@ public class ProductService {
                 .map(productDtoMapper::map);
     }
 
+    public Page<ProductDto> findProductsFromCategoryPaginated(int pageNumber, int pageSize, String sortField, String sortDirection, String categoryName){
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
+        return productRepository.findAllByCategory_CategoryNameIgnoreCase(categoryName, pageable)
+                .map(productDtoMapper::map);
+    }
+
     public Optional<ProductDto> findProductById(Long productId){
         if (!productRepository.existsById(productId)){
             return Optional.empty();
