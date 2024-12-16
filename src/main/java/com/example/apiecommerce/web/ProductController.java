@@ -73,4 +73,11 @@ public class ProductController {
                 .map(c -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("{id}/quantity")
+    ResponseEntity<?> getProductQuantity(@PathVariable Long id){
+        return productService.countQuantityOfProduct(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

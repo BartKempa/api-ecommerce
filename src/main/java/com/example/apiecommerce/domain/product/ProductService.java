@@ -75,4 +75,11 @@ public class ProductService {
         Product updatedProduct = productRepository.save(productToUpdate);
         return Optional.of(productDtoMapper.map(updatedProduct));
     }
+
+    public Optional<Long> countQuantityOfProduct(Long productId){
+        if (!productRepository.existsById(productId)){
+            return Optional.empty();
+        }
+        return productRepository.findById(productId).map(Product::getProductQuantity);
+    }
 }
