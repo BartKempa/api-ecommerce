@@ -82,4 +82,8 @@ public class ProductService {
         }
         return productRepository.findById(productId).map(Product::getProductQuantity);
     }
+
+/*    public void updateProductQuantity(){
+       aktualizacja ilośi produktu po dokonaniu zamówienia
+    }*/
 }

@@ -1,14 +1,25 @@
 package com.example.apiecommerce.domain.product.dto;
 
+import jakarta.validation.constraints.*;
+
 import java.time.LocalDateTime;
 
 public class ProductDto {
     private Long id;
+    @NotBlank(message = "Product name cannot be empty")
+    @Size(min = 2, max = 100)
     private String productName;
+    @NotNull
+    @Positive
     private Double productPrice;
+    @NotBlank(message = "Product description cannot be empty")
+    @Size(min = 2, max = 2000)
     private String description;
     private LocalDateTime creationDate;
+    @NotNull
+    @PositiveOrZero
     private Long productQuantity;
+    @NotNull
     private Long categoryId;
     private String categoryName;
 

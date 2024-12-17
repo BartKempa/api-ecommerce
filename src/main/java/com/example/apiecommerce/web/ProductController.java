@@ -2,6 +2,7 @@ package com.example.apiecommerce.web;
 
 import com.example.apiecommerce.domain.product.ProductService;
 import com.example.apiecommerce.domain.product.dto.ProductDto;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class ProductController {
     }
 
     @PostMapping
-    ResponseEntity<ProductDto> addProduct(@RequestBody ProductDto productDto){
+    ResponseEntity<ProductDto> addProduct(@Valid @RequestBody ProductDto productDto){
         ProductDto savedProduct = productService.saveProduct(productDto);
         URI savedProductUri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
@@ -44,12 +45,12 @@ public class ProductController {
         return productService.findAllPaginatedProducts(pageNumber, pageSize, sortField, sortDirection);
     }
 
-    @GetMapping("/page/{pageNo}/category/{categoryName}")
+    @GetMapping("/page/{pageNo}/category")
     Page<ProductDto> getAllProductsFromCategoryPaginated(@PathVariable Optional<Integer> pageNo,
                                                          @RequestParam(value = "pageSize", defaultValue = "3") Integer pageSize,
                                                          @RequestParam(value = "sortField", defaultValue = "productName") String sortField,
                                                          @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection,
-                                                         @PathVariable String categoryName){
+                                                         @RequestParam(value = "categoryName") String categoryName){
         int pageNumber = pageNo.orElse(1);
         return productService.findProductsFromCategoryPaginated(pageNumber, pageSize, sortField, sortDirection, categoryName);
     }
@@ -68,7 +69,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    ResponseEntity<?> replaceProduct(@PathVariable Long id, @RequestBody ProductDto productDto){
+    ResponseEntity<?> replaceProduct(@Valid @PathVariable Long id, @RequestBody ProductDto productDto){
         return productService.replaceProduct(id, productDto)
                 .map(c -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());

@@ -3,20 +3,19 @@ package com.example.apiecommerce.domain.product;
 import com.example.apiecommerce.domain.category.Category;
 import com.example.apiecommerce.domain.category.CategoryRepository;
 import com.example.apiecommerce.domain.product.dto.ProductDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
 @Service
-class ProductDtoMapper {
+public class ProductDtoMapper {
     private final CategoryRepository categoryRepository;
 
     ProductDtoMapper(CategoryRepository categoryRepository) {
 
         this.categoryRepository = categoryRepository;
     }
-
-
 
     ProductDto map(Product product){
         ProductDto productDto = new ProductDto();
@@ -39,7 +38,8 @@ class ProductDtoMapper {
         product.setDescription(productDto.getDescription());
         product.setCreationDate(LocalDateTime.now());
         product.setProductQuantity(productDto.getProductQuantity());
-        Category category = categoryRepository.findById(productDto.getCategoryId()).orElseThrow();
+        Category category = categoryRepository.findById(productDto.getCategoryId())
+                .orElseThrow(() -> new EntityNotFoundException("Category not found"));
         product.setCategory(category);
         return product;
     }
