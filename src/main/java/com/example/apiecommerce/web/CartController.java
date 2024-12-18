@@ -9,7 +9,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/api/v1/cart")
 public class CartController {
     private final CartService cartService;
 

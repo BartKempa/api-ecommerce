@@ -84,6 +84,6 @@ public class ProductService {
     }
 
 /*    public void updateProductQuantity(){
-       aktualizacja ilośi produktu po dokonaniu zamówienia
+       TODO - aktualizacja ilośi produktu po dokonaniu zamówienia
     }*/
 }
