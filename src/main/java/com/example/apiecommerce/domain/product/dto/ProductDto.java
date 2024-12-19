@@ -3,6 +3,7 @@ package com.example.apiecommerce.domain.product.dto;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class ProductDto {
     private Long id;
@@ -99,5 +100,17 @@ public class ProductDto {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ProductDto that)) return false;
+        return Objects.equals(id, that.id) && Objects.equals(productName, that.productName) && Objects.equals(productPrice, that.productPrice) && Objects.equals(description, that.description) && Objects.equals(creationDate, that.creationDate) && Objects.equals(productQuantity, that.productQuantity) && Objects.equals(categoryId, that.categoryId) && Objects.equals(categoryName, that.categoryName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, productName, productPrice, description, creationDate, productQuantity, categoryId, categoryName);
     }
 }

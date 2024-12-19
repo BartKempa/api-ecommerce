@@ -17,7 +17,7 @@ public class ProductDtoMapper {
         this.categoryRepository = categoryRepository;
     }
 
-    ProductDto map(Product product){
+    public ProductDto map(Product product){
         if (product == null){
             return null;
         }
