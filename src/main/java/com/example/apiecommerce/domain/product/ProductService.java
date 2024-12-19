@@ -1,7 +1,9 @@
 package com.example.apiecommerce.domain.product;
 
+import com.example.apiecommerce.domain.DataTimeProvider;
 import com.example.apiecommerce.domain.product.dto.ProductDto;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -17,14 +20,18 @@ import java.util.stream.StreamSupport;
 public class ProductService {
     private final ProductRepository productRepository;
     private final ProductDtoMapper productDtoMapper;
+    private final DataTimeProvider dataTimeProvider;
 
-    public ProductService(ProductRepository productRepository, ProductDtoMapper productDtoMapper) {
+    public ProductService(ProductRepository productRepository, ProductDtoMapper productDtoMapper, DataTimeProvider dataTimeProvider) {
         this.productRepository = productRepository;
         this.productDtoMapper = productDtoMapper;
+        this.dataTimeProvider = dataTimeProvider;
     }
 
     @Transactional
     public ProductDto saveProduct(ProductDto productDto){
+        LocalDateTime now = dataTimeProvider.getCurrentTime();
+        productDto.setCreationDate(now);
         Product productToSave = productDtoMapper.map(productDto);
         Product savedProduct = productRepository.save(productToSave);
         return productDtoMapper.map(savedProduct);

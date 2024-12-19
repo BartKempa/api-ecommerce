@@ -42,7 +42,7 @@ public class ProductDtoMapper {
         product.setProductName(productDto.getProductName());
         product.setProductPrice(productDto.getProductPrice());
         product.setDescription(productDto.getDescription());
-        product.setCreationDate(LocalDateTime.now());
+        product.setCreationDate(productDto.getCreationDate());
         product.setProductQuantity(productDto.getProductQuantity());
         Category category = categoryRepository.findById(productDto.getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
