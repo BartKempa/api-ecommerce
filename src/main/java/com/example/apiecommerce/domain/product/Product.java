@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -112,5 +113,17 @@ public class Product {
                 ", cartItems=" + cartItems +
                 ", orderItems=" + orderItems +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Product product)) return false;
+        return Objects.equals(id, product.id) && Objects.equals(productName, product.productName) && Objects.equals(productPrice, product.productPrice) && Objects.equals(description, product.description) && Objects.equals(creationDate, product.creationDate) && Objects.equals(productQuantity, product.productQuantity) && Objects.equals(category, product.category) && Objects.equals(cartItems, product.cartItems) && Objects.equals(orderItems, product.orderItems);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, productName, productPrice, description, creationDate, productQuantity, category, cartItems, orderItems);
     }
 }

@@ -23,6 +23,20 @@ public class ProductDto {
     private Long categoryId;
     private String categoryName;
 
+    public ProductDto() {
+    }
+
+    public ProductDto(Long id, String productName, Double productPrice, String description, LocalDateTime creationDate, Long productQuantity, Long categoryId, String categoryName) {
+        this.id = id;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.description = description;
+        this.creationDate = creationDate;
+        this.productQuantity = productQuantity;
+        this.categoryId = categoryId;
+        this.categoryName = categoryName;
+    }
+
     public Long getId() {
         return id;
     }
