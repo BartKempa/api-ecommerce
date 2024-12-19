@@ -44,8 +44,7 @@ public class ProductController {
                               "productQuantity": 20,
                               "categoryId": 1,
                               "categoryName": "Piwo"
-                            }
-                        """))),
+                            }"""))),
             @ApiResponse(responseCode = "400",
                     description = "Invalid input provided",
                     content = @Content) })
@@ -161,7 +160,7 @@ public class ProductController {
                     content = @Content(mediaType = "application/json",
                             schema = @Schema(implementation = ProductDto.class))),
             @ApiResponse(responseCode = "404",
-                    description = "product not found",
+                    description = "Product not found",
                     content = @Content) })
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteProductById(@Parameter(description = "id of product to be deleted", required = true, example = "1")
@@ -192,7 +191,7 @@ public class ProductController {
                     description = "Invalid input provided",
                     content = @Content),
             @ApiResponse(responseCode = "404",
-                    description = "product not found",
+                    description = "Product not found",
                     content = @Content) })
     @PutMapping("/{id}")
     ResponseEntity<?> replaceProduct(@io.swagger.v3.oas.annotations.parameters.RequestBody(
