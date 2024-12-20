@@ -19,10 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -363,7 +360,48 @@ class ProductServiceTest {
 
 
     @Test
-    void findProductById() {
+    void shouldFindProductById() {
+        //given
+        Category category = new Category();
+        category.setId(1L);
+        category.setCategoryName("Piwo");
+
+        Product product = new Product();
+        product.setId(1L);
+        product.setProductName("Pilsner urquell");
+        product.setProductPrice(8.60);
+        product.setDescription("Klasyczne czeskie piwo");
+        product.setProductQuantity(20L);
+        LocalDateTime now = LocalDateTime.now();
+        product.setCategory(category);
+        product.setCreationDate(now);
+
+        Mockito.when(productRepositoryMock.existsById(1L)).thenReturn(true);
+        Mockito.when(productDtoMapperMock.map(product)).thenReturn(new ProductDto(1L, "Pilsner urquell", 8.60, "Klasyczne czeskie piwo", now, 20L, 1L, "Piwo"));
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
+
+        //when
+        ProductDto productDto = productService.findProductById(1L).orElseThrow();
+
+        //then
+        assertEquals(productDto.getProductName(), "Pilsner urquell");
+        assertEquals(productDto.getProductQuantity(), 20L);
+        assertEquals(productDto.getProductPrice(), 8.6, 0.01);
+        assertEquals(productDto.getDescription(), "Klasyczne czeskie piwo");
+        assertEquals(productDto.getCreationDate(), now);
+        assertEquals(productDto.getCategoryName(), "Piwo");
+    }
+
+    @Test
+    void shouldReturnEmptyOptionalWhenProductNotExist() {
+        //given
+        Mockito.when(productRepositoryMock.existsById(111L)).thenReturn(false);
+
+        //when
+        Optional<ProductDto> result = productService.findProductById(111L);
+
+        //then
+        assertTrue(result.isEmpty());
     }
 
     @Test
