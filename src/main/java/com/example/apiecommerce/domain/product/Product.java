@@ -28,6 +28,19 @@ public class Product {
     @OneToMany(mappedBy = "product")
     private Set<OrderItem> orderItems = new HashSet<>();
 
+    public Product() {
+    }
+
+    public Product(Long id, String productName, Double productPrice, String description, LocalDateTime creationDate, Long productQuantity, Category category) {
+        this.id = id;
+        this.productName = productName;
+        this.productPrice = productPrice;
+        this.description = description;
+        this.creationDate = creationDate;
+        this.productQuantity = productQuantity;
+        this.category = category;
+    }
+
     public Long getId() {
         return id;
     }

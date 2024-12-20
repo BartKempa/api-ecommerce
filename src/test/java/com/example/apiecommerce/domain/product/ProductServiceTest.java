@@ -395,21 +395,106 @@ class ProductServiceTest {
     @Test
     void shouldReturnEmptyOptionalWhenProductNotExist() {
         //given
-        Mockito.when(productRepositoryMock.existsById(111L)).thenReturn(false);
+        Long nonExistingProductId = 1L;
+        Mockito.when(productRepositoryMock.existsById(nonExistingProductId)).thenReturn(false);
 
         //when
-        Optional<ProductDto> result = productService.findProductById(111L);
+        Optional<ProductDto> result = productService.findProductById(nonExistingProductId);
 
         //then
         assertTrue(result.isEmpty());
     }
 
     @Test
-    void deleteProduct() {
+    void shouldDeleteProduct() {
+        //given
+        Long existingProductId = 1L;
+        Mockito.when(productRepositoryMock.existsById(existingProductId)).thenReturn(true);
+
+        //when
+        productService.deleteProduct(existingProductId);
+
+        //then
+        Mockito.verify(productRepositoryMock, Mockito.times(1)).deleteById(Mockito.eq(existingProductId));
     }
 
     @Test
-    void replaceProduct() {
+    void shouldThrowExceptionWhenDeleteNotExistsProduct() {
+        //given
+        Long nonExistingProductId = 1L;
+        Mockito.when(productRepositoryMock.existsById(nonExistingProductId)).thenReturn(false);
+
+        //when
+        EntityNotFoundException exc = assertThrows(EntityNotFoundException.class, () -> productService.deleteProduct(nonExistingProductId));
+
+        //then
+        assertThat(exc.getMessage(), is("Product not found"));
+        Mockito.verify(productRepositoryMock, Mockito.never()).deleteById(Mockito.anyLong());
+    }
+
+    @Test
+    void shouldReturnEmptyOptionalWhenReplaceNotExistProduct() {
+        //given
+        ProductDto productDto = new ProductDto();
+        Long nonExistingProductId = 1L;
+        Mockito.when(productRepositoryMock.existsById(nonExistingProductId)).thenReturn(false);
+
+        //when
+        Optional<ProductDto> result = productService.replaceProduct(nonExistingProductId, productDto);
+
+        //then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void shouldReplaceProduct() {
+        //given
+        Category category = new Category();
+        category.setId(1L);
+        category.setCategoryName("Piwo");
+
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setProductName("Pilsner urquell");
+        product1.setProductPrice(8.60);
+        product1.setDescription("Klasyczne czeskie piwo");
+        product1.setProductQuantity(20L);
+        LocalDateTime now = LocalDateTime.now();
+        product1.setCategory(category);
+        product1.setCreationDate(now);
+
+        ProductDto productDto = new ProductDto();
+        productDto.setProductName("Zloty bazant");
+        productDto.setProductPrice(6.60);
+        productDto.setDescription("Klasyczne slowackie piwo");
+        productDto.setProductQuantity(10L);
+        productDto.setCategoryName("Piwo");
+        productDto.setCategoryId(1L);
+        LocalDateTime now2 = LocalDateTime.now();
+        productDto.setCreationDate(now2);
+
+        Product product = new Product(1L, "Zloty bazant", 6.60, "Klasyczne slowackie piwo", now2, 10L, category);
+
+        Mockito.when(productRepositoryMock.existsById(1L)).thenReturn(true);
+        Mockito.when(productDtoMapperMock.map(productDto)).thenReturn(product);
+        Mockito.when(productRepositoryMock.save(product)).thenReturn(product);
+        Mockito.when(productDtoMapperMock.map(product)).thenReturn(new ProductDto(1L, "Zloty bazant", 6.60, "Klasyczne slowackie piwo", now2, 10L, 1L, "Piwo"));
+
+        //when
+        Optional<ProductDto> result = productService.replaceProduct(1L, productDto);
+
+        //then
+        ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
+        Mockito.verify(productRepositoryMock).save(productArgumentCaptor.capture());
+
+        assertTrue(result.isPresent());
+        ProductDto resultProductDto = result.get();
+        assertEquals("Zloty bazant", resultProductDto.getProductName());
+        assertEquals(6.60, resultProductDto.getProductPrice());
+        assertEquals(10L, resultProductDto.getProductQuantity());
+        assertEquals("Klasyczne slowackie piwo", resultProductDto.getDescription());
+        assertEquals(1L, resultProductDto.getCategoryId());
+        assertEquals("Piwo", resultProductDto.getCategoryName());
     }
 
     @Test
