@@ -1,9 +1,9 @@
 package com.example.apiecommerce.domain.product;
 
 import com.example.apiecommerce.domain.DataTimeProvider;
+import com.example.apiecommerce.domain.category.CategoryRepository;
 import com.example.apiecommerce.domain.product.dto.ProductDto;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +19,13 @@ import java.util.stream.StreamSupport;
 @Service
 public class ProductService {
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final ProductDtoMapper productDtoMapper;
     private final DataTimeProvider dataTimeProvider;
 
-    public ProductService(ProductRepository productRepository, ProductDtoMapper productDtoMapper, DataTimeProvider dataTimeProvider) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, ProductDtoMapper productDtoMapper, DataTimeProvider dataTimeProvider) {
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
         this.productDtoMapper = productDtoMapper;
         this.dataTimeProvider = dataTimeProvider;
     }
@@ -51,6 +53,9 @@ public class ProductService {
     }
 
     public Page<ProductDto> findProductsFromCategoryPaginated(int pageNumber, int pageSize, String sortField, String sortDirection, String categoryName){
+        if (!categoryRepository.existsCategoryByCategoryNameIgnoreCase(categoryName)){
+            throw new EntityNotFoundException("Category not found");
+        }
         Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
         Pageable pageable = PageRequest.of(pageNumber - 1, pageSize, sort);
         return productRepository.findAllByCategory_CategoryNameIgnoreCase(categoryName, pageable)

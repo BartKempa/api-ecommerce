@@ -2,7 +2,9 @@ package com.example.apiecommerce.domain.product;
 
 import com.example.apiecommerce.domain.DataTimeProvider;
 import com.example.apiecommerce.domain.category.Category;
+import com.example.apiecommerce.domain.category.CategoryRepository;
 import com.example.apiecommerce.domain.product.dto.ProductDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,12 +22,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
@@ -39,12 +41,15 @@ class ProductServiceTest {
     @Mock
     private DataTimeProvider dataTimeProviderMock;
 
+    @Mock
+    private CategoryRepository categoryRepositoryMock;
+
     private ProductService productService;
 
 
     @BeforeEach
     void init(){
-        productService = new ProductService(productRepositoryMock, productDtoMapperMock, dataTimeProviderMock);
+        productService = new ProductService(productRepositoryMock, categoryRepositoryMock, productDtoMapperMock, dataTimeProviderMock);
     }
 
 
@@ -261,8 +266,101 @@ class ProductServiceTest {
     }
 
     @Test
-    void findProductsFromCategoryPaginated() {
+    void shouldFindTwoProductsFromCategoryIgnoringCasePaginated() {
+        //given
+        Category category = new Category();
+        category.setId(1L);
+        category.setCategoryName("Piwo");
+
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setProductName("Pilsner urquell");
+        product1.setProductPrice(8.60);
+        product1.setDescription("Klasyczne czeskie piwo");
+        product1.setProductQuantity(20L);
+        LocalDateTime now = LocalDateTime.now();
+        product1.setCategory(category);
+        product1.setCreationDate(now);
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setProductName("Zloty bazant");
+        product2.setProductPrice(6.60);
+        product2.setDescription("Klasyczne slowackie piwo");
+        product2.setProductQuantity(10L);
+        product2.setCategory(category);
+        LocalDateTime now2 = LocalDateTime.now();
+        product2.setCreationDate(now2);
+
+        List<Product> productsList = new ArrayList<>();
+        productsList.add(product1);
+        productsList.add(product2);
+        productsList.sort(Comparator.comparing(Product::getProductPrice));
+        PageImpl<Product> page = new PageImpl<>(productsList);
+
+        Mockito.when(categoryRepositoryMock.existsCategoryByCategoryNameIgnoreCase(eq("piwo"))).thenReturn(true);
+        Mockito.when(productRepositoryMock.findAllByCategory_CategoryNameIgnoreCase(eq("piwo"), Mockito.any(Pageable.class))).thenReturn(page);
+
+        Mockito.when(productDtoMapperMock.map(product1)).thenReturn(new ProductDto(1L, "Pilsner urquell", 8.60, "Klasyczne czeskie piwo", now, 20L, 1L, "Piwo"));
+        Mockito.when(productDtoMapperMock.map(product2)).thenReturn(new ProductDto(2L, "Zloty bazant", 6.60, "Klasyczne slowackie piwo", now2, 10L, 1L, "Piwo"));
+
+        int pageNumber = 1;
+        int pageSize = 3;
+        String sortField = "productPrice";
+        String sortDirection = "ASC";
+
+        //when
+        Page<ProductDto> paginatedProducts = productService.findProductsFromCategoryPaginated(pageNumber, pageSize, sortField, sortDirection, "piwo");
+
+        //then
+        assertThat(paginatedProducts.getTotalElements(), is(2L));
+        assertThat(paginatedProducts.getContent().get(0).getProductName(), is("Zloty bazant"));
+        assertThat(paginatedProducts.getContent().get(1).getProductName(), is("Pilsner urquell"));
     }
+
+    @Test
+    void shouldFindZeroProductsFromCategoryIgnoringCasePaginated() {
+        //given
+        Category category = new Category();
+        category.setId(1L);
+        category.setCategoryName("Piwo");
+
+        List<Product> productsList = new ArrayList<>();
+        PageImpl<Product> page = new PageImpl<>(productsList);
+
+        Mockito.when(categoryRepositoryMock.existsCategoryByCategoryNameIgnoreCase(eq("piwo"))).thenReturn(true);
+        Mockito.when(productRepositoryMock.findAllByCategory_CategoryNameIgnoreCase(eq("piwo"), Mockito.any(Pageable.class))).thenReturn(page);
+
+        int pageNumber = 1;
+        int pageSize = 3;
+        String sortField = "productPrice";
+        String sortDirection = "ASC";
+
+        //when
+        Page<ProductDto> paginatedProducts = productService.findProductsFromCategoryPaginated(pageNumber, pageSize, sortField, sortDirection, "piwo");
+
+        //then
+        assertThat(paginatedProducts.getTotalElements(), is(0L));
+        assertThat(paginatedProducts.getContent(), is(empty()));
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenCategoryNotExist() {
+        //given
+        int pageNumber = 1;
+        int pageSize = 3;
+        String sortField = "productPrice";
+        String sortDirection = "ASC";
+
+        Mockito.when(categoryRepositoryMock.existsCategoryByCategoryNameIgnoreCase(eq("NieistniejącaKategoria"))).thenReturn(false);
+
+        //when
+        //then
+        EntityNotFoundException exc = assertThrows(EntityNotFoundException.class, () -> productService.findProductsFromCategoryPaginated(pageNumber, pageSize, sortField, sortDirection, "NieistniejącaKategoria"));
+        assertThat(exc.getMessage(), is("Category not found"));
+    }
+
 
     @Test
     void findProductById() {
