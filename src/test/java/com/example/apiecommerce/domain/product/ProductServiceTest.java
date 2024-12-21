@@ -498,6 +498,62 @@ class ProductServiceTest {
     }
 
     @Test
-    void countQuantityOfProduct() {
+    void shouldReturnEmptyOptionalWhenCountQuantityNotExistProduct() {
+        //given
+        Long nonExistingProductId = 1L;
+        Mockito.when(productRepositoryMock.existsById(nonExistingProductId)).thenReturn(false);
+
+        //when
+        Optional<Long> result = productService.countQuantityOfProduct(nonExistingProductId);
+
+        //then
+        Mockito.verify(productRepositoryMock, Mockito.times(1)).existsById(nonExistingProductId);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void shouldReturnQuantityOfProduct() {
+        //given
+        Category category = new Category();
+        category.setId(1L);
+        category.setCategoryName("Piwo");
+
+        Product product = new Product();
+        product.setId(1L);
+        product.setProductName("Pilsner urquell");
+        product.setProductPrice(8.60);
+        product.setDescription("Klasyczne czeskie piwo");
+        product.setProductQuantity(20L);
+        LocalDateTime now = LocalDateTime.now();
+        product.setCategory(category);
+        product.setCreationDate(now);
+
+        Mockito.when(productRepositoryMock.existsById(1L)).thenReturn(true);
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
+
+        //when
+        Long result = productService.countQuantityOfProduct(1L).orElseThrow();
+
+        //then
+        Mockito.verify(productRepositoryMock, Mockito.times(1)).existsById(1L);
+        Mockito.verify(productRepositoryMock, Mockito.times(1)).findById(1L);
+        assertEquals(result, 20L);
+    }
+
+    @Test
+    void shouldReturnZeroQuantityOfProduct() {
+        //given
+        Product product = new Product();
+        product.setId(1L);
+        product.setProductQuantity(0L);
+
+        Mockito.when(productRepositoryMock.existsById(1L)).thenReturn(true);
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
+
+        //when
+        Long result = productService.countQuantityOfProduct(1L).orElseThrow();
+
+        //then
+        assertEquals(0L, result);
     }
 }
