@@ -14,6 +14,10 @@ public class CategoryDto {
         this.categoryName = categoryName;
     }
 
+    public CategoryDto() {
+
+    }
+
     public Long getId() {
         return id;
     }
