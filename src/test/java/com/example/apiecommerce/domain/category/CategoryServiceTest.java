@@ -1,6 +1,8 @@
 package com.example.apiecommerce.domain.category;
 
 import com.example.apiecommerce.domain.category.dto.CategoryDto;
+import com.example.apiecommerce.domain.product.Product;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,11 +12,10 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDateTime;
+import java.util.*;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -140,7 +141,7 @@ class CategoryServiceTest {
     }
 
     @Test
-    void shouldReturnEmptyOptionalWhenNotExistCategory() {
+    void shouldReturnEmptyOptionalWhenNotExistCategoryAndTryUpdateIt() {
         //given
         CategoryDto categoryDto = new CategoryDto();
         Long nonExistingCategory = 1L;
@@ -158,6 +159,31 @@ class CategoryServiceTest {
 
 
     @Test
-    void deleteCategory() {
+    void shouldThrowNotFoundExceptionTryDeleteNonExistCategory() {
+        //given
+        Long nonExistingCategory = 1L;
+
+        Mockito.when(categoryRepositoryMock.existsById(nonExistingCategory)).thenReturn(false);
+
+        //when
+        EntityNotFoundException exc = assertThrows(EntityNotFoundException.class, () -> categoryService.deleteCategory(nonExistingCategory));
+
+        //then
+        assertEquals(exc.getMessage(), "Category not found");
+        Mockito.verify(categoryRepositoryMock, Mockito.never()).deleteById(nonExistingCategory);
+    }
+
+    @Test
+    void shouldDeleteCategory() {
+        //given
+        Long existingCategory = 1L;
+
+        Mockito.when(categoryRepositoryMock.existsById(existingCategory)).thenReturn(true);
+
+        //when
+        categoryService.deleteCategory(existingCategory);
+
+        //then
+        Mockito.verify(categoryRepositoryMock, Mockito.times(1)).deleteById(existingCategory);
     }
 }
