@@ -113,6 +113,49 @@ class CategoryServiceTest {
         Mockito.verify(categoryRepositoryMock, Mockito.times(1)).findAll();
     }
 
+    @Test
+    void shouldReplaceCategory() {
+        //given
+        Category category = new Category();
+        category.setId(1L);
+        category.setCategoryName("Wino");
+
+        CategoryDto categoryDto = new CategoryDto();
+        categoryDto.setCategoryName("Piwo");
+
+        Category category1 = new Category();
+        category1.setId(1L);
+        category1.setCategoryName("Piwo");
+
+        Mockito.when(categoryRepositoryMock.existsById(1L)).thenReturn(true);
+        Mockito.when(categoryRepositoryMock.save(Mockito.any(Category.class))).thenReturn(category1);
+
+        //when
+        Optional<CategoryDto> result = categoryService.replaceCategory(1L, categoryDto);
+
+        //then
+        assertTrue(result.isPresent());
+        CategoryDto resultCategoryDto = result.get();
+        assertEquals("Piwo", resultCategoryDto.getCategoryName());
+    }
+
+    @Test
+    void shouldReturnEmptyOptionalWhenNotExistCategory() {
+        //given
+        CategoryDto categoryDto = new CategoryDto();
+        Long nonExistingCategory = 1L;
+
+        Mockito.when(categoryRepositoryMock.existsById(nonExistingCategory)).thenReturn(false);
+
+        //when
+        Optional<CategoryDto> result = categoryService.replaceCategory(1L, categoryDto);
+
+        //then
+        assertTrue(result.isEmpty());
+        Mockito.verify(categoryRepositoryMock, Mockito.times(1)).existsById(nonExistingCategory);
+        Mockito.verifyNoMoreInteractions(categoryRepositoryMock);
+    }
+
 
     @Test
     void deleteCategory() {
