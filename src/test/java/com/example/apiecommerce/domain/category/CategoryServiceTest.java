@@ -8,6 +8,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -54,13 +60,59 @@ class CategoryServiceTest {
     }
 
     @Test
-    void findAllCategories() {
+    void shouldFindTwoCategories() {
+        //given
+        Category category1 = new Category();
+        category1.setId(1L);
+        category1.setCategoryName("Piwo");
 
+        Category category2 = new Category();
+        category2.setId(2L);
+        category2.setCategoryName("Wino");
+
+        List<Category> categories = new ArrayList<>();
+        categories.add(category1);
+        categories.add(category2);
+
+        PageImpl<Category> categoryPage = new PageImpl<>(categories);
+
+        Mockito.when(categoryRepositoryMock.findAll()).thenReturn(categories);
+
+        //when
+        List<CategoryDto> result = categoryService.findAllCategories();
+
+        //then
+        assertEquals(2, result.size());
+        assertEquals("Piwo", result.get(0).getCategoryName());
+        assertEquals("Wino", result.get(1).getCategoryName());
     }
 
     @Test
-    void replaceCategory() {
+    void shouldReturnEmptyListWhenCategoriesNotExist() {
+        //given
+        List<Category> categories = new ArrayList<>();
+
+        Mockito.when(categoryRepositoryMock.findAll()).thenReturn(categories);
+
+        //when
+        List<CategoryDto> result = categoryService.findAllCategories();
+
+        //then
+        assertEquals(0, result.size());
     }
+
+    @Test
+    void shouldCallFindAllOnce() {
+        //given
+        Mockito.when(categoryRepositoryMock.findAll()).thenReturn(Collections.emptyList());
+
+        //when
+        categoryService.findAllCategories();
+
+        //then
+        Mockito.verify(categoryRepositoryMock, Mockito.times(1)).findAll();
+    }
+
 
     @Test
     void deleteCategory() {
