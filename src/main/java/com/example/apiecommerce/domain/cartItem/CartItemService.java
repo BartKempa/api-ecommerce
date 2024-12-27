@@ -18,7 +18,7 @@ public class CartItemService {
     }
 
     @Transactional
-    public CartItemDto saveCartItem(CartItemDto cartItemDto){
+    public CartItemDto addCartItemToCart( CartItemDto cartItemDto){
         CartItem cartItemToSave = cartItemDtoMapper.map(cartItemDto);
         CartItem savedCartItem = cartItemRepository.save(cartItemToSave);
         return cartItemDtoMapper.map(savedCartItem);

@@ -2,7 +2,6 @@ package com.example.apiecommerce.web;
 
 import com.example.apiecommerce.domain.category.CategoryService;
 import com.example.apiecommerce.domain.category.dto.CategoryDto;
-import com.example.apiecommerce.domain.product.dto.ProductDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;

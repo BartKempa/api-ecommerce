@@ -9,7 +9,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api/v1/cartItem")
+@RequestMapping("/api/v1/cartItems")
 public class CartItemController {
     private final CartItemService cartItemService;
 
@@ -19,7 +19,7 @@ public class CartItemController {
 
     @PostMapping
     ResponseEntity<CartItemDto> addCartItem(@RequestBody CartItemDto cartItemDto){
-        CartItemDto savedCartItem = cartItemService.saveCartItem(cartItemDto);
+        CartItemDto savedCartItem = cartItemService.addCartItemToCart(cartItemDto);
         URI savedCartItemUri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(savedCartItem.getId())
