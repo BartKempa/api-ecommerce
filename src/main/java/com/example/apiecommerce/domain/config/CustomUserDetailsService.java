@@ -23,7 +23,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .map(this::createUserDetails)
                 .orElseThrow(() -> new EntityNotFoundException("User with email %s not found".formatted(username)));
     }
-
     private UserDetails createUserDetails(UserCredentialsDto credentials) {
         return User.builder()
                 .username(credentials.getEmail())

@@ -7,7 +7,7 @@
     <changeSet id="0003-1" author="admin">
         <createTable tableName="users">
             <column name="id" type="BIGINT" autoIncrement="true">
-                <constraints nullable="false" primaryKey="true"/>
+                <constraints primaryKey="true" nullable="false"/>
             </column>
             <column name="email" type="VARCHAR(100)">
                 <constraints unique="true"/>
@@ -18,8 +18,7 @@
             <column name="phone_number" type="VARCHAR(20)"/>
             <column name="creation_date" type="DATETIME"/>
             <column name="cart_id" type="BIGINT">
-                <constraints nullable="false"
-                             foreignKeyName="fk_users_cart"
+                <constraints foreignKeyName="fk_users_cart"
                              referencedTableName="cart"
                              referencedColumnNames="id"
                              />

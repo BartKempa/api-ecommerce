@@ -3,6 +3,7 @@ package com.example.apiecommerce.domain.user.dto;
 import jakarta.validation.constraints.*;
 
 public class UserRegistrationDto {
+    private Long id;
     @NotBlank
     @Email
     private String email;
@@ -16,6 +17,14 @@ public class UserRegistrationDto {
     private String lastName;
     @NotEmpty
     private String phoneNumber;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getEmail() {
         return email;
