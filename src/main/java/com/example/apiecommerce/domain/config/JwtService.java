@@ -8,6 +8,7 @@ import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -28,7 +29,6 @@ class JwtService {
             throw new RuntimeException(e);
         }
     }
-
     String createSignedJwt(String username, List<String> authorities){
         JWSHeader header = new JWSHeader(jwsAlgorithm);
         LocalDateTime nowPlus7Days = LocalDateTime.now().plusSeconds(EXP_TIME_SEC);
@@ -46,6 +46,19 @@ class JwtService {
         }
         return signedJWT.serialize();
     }
+
+    void verifySignature(SignedJWT signedJWT){
+        try {
+            boolean verified = signedJWT.verify(verifier);
+            if (!verified) {
+                throw new JwtAuthenticationException("JWT signature verification failed for token %s".formatted(signedJWT.serialize()))
+            }
+        } catch (JOSEException e) {
+            throw new JwtAuthenticationException("JWT signature verification failed for token %s".formatted(signedJWT.serialize()));
+        }
+    }
+
+
 
 
 }
