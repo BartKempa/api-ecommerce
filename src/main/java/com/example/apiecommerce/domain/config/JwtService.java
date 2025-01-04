@@ -58,6 +58,22 @@ class JwtService {
         }
     }
 
+    void verifyExpirationDte(SignedJWT signedJWT){
+        try {
+            JWTClaimsSet jwtClaimsSet = signedJWT.getJWTClaimsSet();
+            LocalDateTime expirationDateTime = jwtClaimsSet
+                    .getDateClaim("exp")
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+            if (LocalDateTime.now().isAfter(expirationDateTime)){
+                throw new JwtAuthenticationException("Token expired af %s".formatted(expirationDateTime));
+            }
+        } catch (ParseException e) {
+            throw new JwtAuthenticationException("Token does not have exp claim");
+        }
+    }
+
 
 
 
