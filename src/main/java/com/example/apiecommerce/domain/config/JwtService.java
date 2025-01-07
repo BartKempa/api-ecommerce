@@ -6,6 +6,11 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -74,7 +79,18 @@ class JwtService {
         }
     }
 
-
-
+    Authentication createAuthentication(SignedJWT signedJWT){
+        List<String> authorities;
+        String subject;
+        try {
+            JWTClaimsSet jwtClaimsSet = signedJWT.getJWTClaimsSet();
+            subject = jwtClaimsSet.getSubject();
+            authorities = jwtClaimsSet.getStringListClaim("authorities");
+        } catch (ParseException e) {
+            throw new JwtAuthenticationException("Missing claims subject or authorities");
+        }
+        List<SimpleGrantedAuthority> grantedAuthorities = authorities.stream().map(SimpleGrantedAuthority::new).toList();
+        return new UsernamePasswordAuthenticationToken(subject, null, grantedAuthorities);
+    }
 
 }
