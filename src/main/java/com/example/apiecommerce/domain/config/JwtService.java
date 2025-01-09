@@ -54,7 +54,7 @@ class JwtService {
         try {
             boolean verified = signedJWT.verify(verifier);
             if (!verified) {
-                throw new JwtAuthenticationException("JWT signature verification failed for token %s".formatted(signedJWT.serialize()))
+                throw new JwtAuthenticationException("JWT signature verification failed for token %s".formatted(signedJWT.serialize()));
             }
         } catch (JOSEException e) {
             throw new JwtAuthenticationException("JWT signature verification failed for token %s".formatted(signedJWT.serialize()));
