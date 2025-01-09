@@ -37,6 +37,7 @@ public class SecurityConfig {
                                            AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
         AuthenticationManager authenticationManager = authenticationManagerBuilder.getOrBuild();
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtService);
+        BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(jwtService);
         http.authorizeHttpRequests(request -> request
                         .requestMatchers(mvc.pattern(HttpMethod.POST, "/api/v1/**")).hasRole(ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.PUT, "/api/v1/**")).hasRole(ADMIN_ROLE)
@@ -46,7 +47,8 @@ public class SecurityConfig {
                         .anyRequest().permitAll())
                 .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
-                .addFilterBefore(jwtAuthenticationFilter, AuthorizationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, AuthorizationFilter.class)
+                .addFilterBefore(bearerTokenFilter, AuthorizationFilter.class);
         return http.build();
     }
 
