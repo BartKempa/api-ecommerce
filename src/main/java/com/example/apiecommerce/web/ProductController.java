@@ -139,9 +139,6 @@ public class ProductController {
                               "categoryName": "Piwo"
                             }
                         """))),
-            @ApiResponse(responseCode = "400",
-                    description = "Invalid id supplied",
-                    content = @Content),
             @ApiResponse(responseCode = "404",
                     description = "product not found",
                     content = @Content) })

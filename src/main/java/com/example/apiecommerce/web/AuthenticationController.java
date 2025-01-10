@@ -1,6 +1,5 @@
 package com.example.apiecommerce.web;
 
-import com.example.apiecommerce.domain.product.dto.ProductDto;
 import com.example.apiecommerce.domain.user.UserService;
 import com.example.apiecommerce.domain.user.auth.AuthenticationRequest;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
@@ -31,7 +30,7 @@ public class AuthenticationController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Create a new user", description = "Create a new user and add it to the database")
+    @Operation(summary = "Create a new user", description = "Register a new user with default role and save to the database.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201",
                     description = "User created successfully",
@@ -51,7 +50,7 @@ public class AuthenticationController {
                     content = @Content) })
     @PostMapping("/register")
     ResponseEntity<UserRegistrationDto> registerUser(@io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "User to register", required = true,
+            description = "Details of the user to register.", required = true,
             content = @Content(mediaType = "application/json",
             schema = @Schema(implementation = UserRegistrationDto.class),
             examples = @ExampleObject(value = """
@@ -71,19 +70,21 @@ public class AuthenticationController {
         return ResponseEntity.created(savedUserUri).body(savedUserDto);
     }
 
-    @Operation(summary = "Login user", description = "Login user and get token")
+    @Operation(summary = "Login user", description = "Authenticate the user and return a JWT token.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    description = "user has been logged in and get token",
+                    description = "User logged in successfully and token returned.",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = """
-                                    "token":"eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE3MzcxMDg0MTUsInN1YiI6ImJhcnRla0BtYWlsLmNvbSIsImF1dGhvcml0aWVzIjpbIlJPTEVfVVNFUiJdfQ.zuBxoEa6PHgd8Khd-1lKvicm5pt3Q1mYfQzOzdNqAmc\""""))),
+                                 {
+                                    "token": "eyJhbGciOiJIUzI1NiJ9..."
+                                }"""))),
             @ApiResponse(responseCode = "401",
                     description = "Invalid username or password",
                     content = @Content) })
     @PostMapping("/login")
     public ResponseEntity<?> login(@io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "User details to login - email and password", required = true,
+            description = "User credentials for login.", required = true,
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = AuthenticationRequest.class),
                     examples = @ExampleObject(value = """

@@ -9,16 +9,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Service
-public class UserService {
-    private static final String DEFAULT_USER_ROLE = "USER";
-    private final UserRepository userRepository;
-    private final UserRoleRepository userRoleRepository;
-    private final DataTimeProvider dataTimeProvider;
-    private final PasswordEncoder passwordEncoder;
+    @Service
+    public class UserService {
+        private static final String DEFAULT_USER_ROLE = "USER";
+        private final UserRepository userRepository;
+        private final UserRoleRepository userRoleRepository;
+        private final DataTimeProvider dataTimeProvider;
+        private final PasswordEncoder passwordEncoder;
 
 
-    public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder) {
+        public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
         this.dataTimeProvider = dataTimeProvider;
@@ -43,5 +43,12 @@ public class UserService {
         user.getRoles().add(userRole);
         userRepository.save(user);
         return UserRegistrationDtoMapper.map(user);
+    }
+
+    public Optional<UserRegistrationDto> findUserById(long userId){
+       if (!userRepository.existsById(userId)){
+           return Optional.empty();
+       }
+        return userRepository.findById(userId).map(UserRegistrationDtoMapper::map);
     }
 }
