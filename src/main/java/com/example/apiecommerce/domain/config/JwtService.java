@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-class JwtService {
+public class JwtService {
     private static  final int EXP_TIME_SEC = 7 * 24 * 60 * 60;
     private final JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
     private final JWSSigner signer;
@@ -32,7 +32,7 @@ class JwtService {
             throw new RuntimeException(e);
         }
     }
-    String createSignedJwt(String username, List<String> authorities){
+    public String createSignedJwt(String username, List<String> authorities){
         JWSHeader header = new JWSHeader(jwsAlgorithm);
         LocalDateTime nowPlus7Days = LocalDateTime.now().plusSeconds(EXP_TIME_SEC);
         Date expirationDate = Date.from(nowPlus7Days.atZone(ZoneId.systemDefault()).toInstant());
@@ -61,7 +61,7 @@ class JwtService {
         }
     }
 
-    void verifyExpirationDte(SignedJWT signedJWT){
+    void verifyExpirationDate(SignedJWT signedJWT){
         try {
             JWTClaimsSet jwtClaimsSet = signedJWT.getJWTClaimsSet();
             LocalDateTime expirationDateTime = jwtClaimsSet

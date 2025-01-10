@@ -1,5 +1,6 @@
 package com.example.apiecommerce.domain.config;
 
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -8,6 +9,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,16 +41,20 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, jwtService);
         BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(jwtService);
         http.authorizeHttpRequests(request -> request
-                        .requestMatchers(mvc.pattern(HttpMethod.POST, "/api/v1/**")).hasRole(ADMIN_ROLE)
+                     //   .requestMatchers(mvc.pattern(HttpMethod.POST, "/api/v1/**")).hasRole(ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.PUT, "/api/v1/**")).hasRole(ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.PATCH, "/api/v1/**")).hasRole(ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/api/v1/**")).hasRole(ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
+                        .requestMatchers("/api/v1/auth/register").permitAll()
                         .anyRequest().permitAll())
                 .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(jwtAuthenticationFilter, AuthorizationFilter.class)
-                .addFilterBefore(bearerTokenFilter, AuthorizationFilter.class);
+                .addFilterBefore(bearerTokenFilter, AuthorizationFilter.class)
+                .headers(config -> config.frameOptions(
+                HeadersConfigurer.FrameOptionsConfig::sameOrigin
+        ));
         return http.build();
     }
 

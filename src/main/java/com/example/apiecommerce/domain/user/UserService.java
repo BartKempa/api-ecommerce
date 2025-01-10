@@ -17,6 +17,7 @@ public class UserService {
     private final DataTimeProvider dataTimeProvider;
     private final PasswordEncoder passwordEncoder;
 
+
     public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.userRoleRepository = userRoleRepository;
@@ -30,7 +31,7 @@ public class UserService {
     }
 
     @Transactional
-    public void registerWithDefaultRole(UserRegistrationDto userRegistrationDto){
+    public UserRegistrationDto registerWithDefaultRole(UserRegistrationDto userRegistrationDto){
         User user = new User();
         user.setEmail(userRegistrationDto.getEmail());
         user.setPassword(passwordEncoder.encode(userRegistrationDto.getPassword()));
@@ -41,5 +42,6 @@ public class UserService {
         UserRole userRole = userRoleRepository.findByName(DEFAULT_USER_ROLE).orElseThrow();
         user.getRoles().add(userRole);
         userRepository.save(user);
+        return UserRegistrationDtoMapper.map(user);
     }
 }

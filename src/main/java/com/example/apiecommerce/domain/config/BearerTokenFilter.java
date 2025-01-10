@@ -42,7 +42,7 @@ public class BearerTokenFilter extends HttpFilter {
             try {
                 signedJWT = SignedJWT.parse(compactJwt);
                 jwtService.verifySignature(signedJWT);
-                jwtService.verifyExpirationDte(signedJWT);
+                jwtService.verifyExpirationDate(signedJWT);
                 setSecurityContext(signedJWT);
                 chain.doFilter(request, response);
             } catch (ParseException e) {
