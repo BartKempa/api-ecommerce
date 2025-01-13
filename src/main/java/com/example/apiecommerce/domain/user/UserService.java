@@ -3,10 +3,13 @@ package com.example.apiecommerce.domain.user;
 import com.example.apiecommerce.domain.DataTimeProvider;
 import com.example.apiecommerce.domain.user.dto.UserCredentialsDto;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
+import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
     @Service
@@ -53,8 +56,29 @@ import java.util.Optional;
         return userRepository.findById(userId).map(userRegistrationDtoMapper::map);
     }
 
-    public void updateUser(UserRegistrationDto userRegistrationDto){
-        User user = userRegistrationDtoMapper.map(userRegistrationDto);
+    @Transactional
+    public void updateUser(long id, UserUpdateDto userUpdateDto){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (userUpdateDto.getFirstName() != null){
+                user.setFirstName(userUpdateDto.getFirstName());
+            }
+        if (userUpdateDto.getLastName() != null){
+            user.setLastName(userUpdateDto.getLastName());
+        }
+        if (userUpdateDto.getPhoneNumber() != null){
+            user.setPhoneNumber(userUpdateDto.getPhoneNumber());
+        }
+
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(long id){
+         if (!userRepository.existsById(id)){
+             throw new EntityNotFoundException("User not found");
+         }
+         userRepository.deleteById(id);
     }
 }

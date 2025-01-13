@@ -105,11 +105,6 @@
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>10.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.fge</groupId>
-            <artifactId>json-patch</artifactId>
-            <version>1.9</version>
-        </dependency>
 
     </dependencies>
 

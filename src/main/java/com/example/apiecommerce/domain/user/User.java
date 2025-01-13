@@ -47,18 +47,7 @@ public class User {
         this.roles = roles;
     }
 
-    public User(Long id, String email, String firstName, String lastName, String phoneNumber, LocalDateTime creationDate, Set<UserRole> roles) {
-        this.id = id;
-        this.email = email;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.phoneNumber = phoneNumber;
-        this.creationDate = creationDate;
-        this.roles = roles;
-    }
-
     public User() {
-
     }
 
     public Long getId() {
