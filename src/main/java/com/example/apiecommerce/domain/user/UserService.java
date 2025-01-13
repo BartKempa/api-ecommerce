@@ -16,16 +16,17 @@ import java.util.Optional;
         private final UserRoleRepository userRoleRepository;
         private final DataTimeProvider dataTimeProvider;
         private final PasswordEncoder passwordEncoder;
+        private final UserRegistrationDtoMapper userRegistrationDtoMapper;
 
+        public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper) {
+            this.userRepository = userRepository;
+            this.userRoleRepository = userRoleRepository;
+            this.dataTimeProvider = dataTimeProvider;
+            this.passwordEncoder = passwordEncoder;
+            this.userRegistrationDtoMapper = userRegistrationDtoMapper;
+        }
 
-        public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.userRoleRepository = userRoleRepository;
-        this.dataTimeProvider = dataTimeProvider;
-        this.passwordEncoder = passwordEncoder;
-    }
-
-    public Optional<UserCredentialsDto> findCredentialsByEmail(String email){
+        public Optional<UserCredentialsDto> findCredentialsByEmail(String email){
         return userRepository.findByEmail(email)
                 .map(UserCredentialDtoMapper::map);
     }
@@ -42,13 +43,18 @@ import java.util.Optional;
         UserRole userRole = userRoleRepository.findByName(DEFAULT_USER_ROLE).orElseThrow();
         user.getRoles().add(userRole);
         userRepository.save(user);
-        return UserRegistrationDtoMapper.map(user);
+        return userRegistrationDtoMapper.map(user);
     }
 
     public Optional<UserRegistrationDto> findUserById(long userId){
        if (!userRepository.existsById(userId)){
            return Optional.empty();
        }
-        return userRepository.findById(userId).map(UserRegistrationDtoMapper::map);
+        return userRepository.findById(userId).map(userRegistrationDtoMapper::map);
+    }
+
+    public void updateUser(UserRegistrationDto userRegistrationDto){
+        User user = userRegistrationDtoMapper.map(userRegistrationDto);
+        userRepository.save(user);
     }
 }

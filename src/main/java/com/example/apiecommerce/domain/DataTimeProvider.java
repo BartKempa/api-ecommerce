@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Component
 public class DataTimeProvider {
 
-    public LocalDateTime getCurrentTime(){
+    public static LocalDateTime getCurrentTime(){
         return LocalDateTime.now();
     }
 }
