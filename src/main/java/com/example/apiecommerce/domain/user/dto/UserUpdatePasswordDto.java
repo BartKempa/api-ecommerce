@@ -1,10 +1,12 @@
 package com.example.apiecommerce.domain.user.dto;
 
+import com.example.apiecommerce.domain.user.validation.PasswordCriteria;
 import jakarta.validation.constraints.NotBlank;
 
 public class UserUpdatePasswordDto {
         private Long id;
         @NotBlank
+        @PasswordCriteria
         private String password;
 
     public Long getId() {

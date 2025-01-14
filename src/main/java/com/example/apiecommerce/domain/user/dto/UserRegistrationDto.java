@@ -1,5 +1,6 @@
 package com.example.apiecommerce.domain.user.dto;
 
+import com.example.apiecommerce.domain.user.validation.PasswordCriteria;
 import jakarta.validation.constraints.*;
 
 public class UserRegistrationDto {
@@ -8,6 +9,7 @@ public class UserRegistrationDto {
     @Email
     private String email;
     @NotBlank
+    @PasswordCriteria
     private String password;
     @NotBlank
     @Size(min = 2, max = 100)
