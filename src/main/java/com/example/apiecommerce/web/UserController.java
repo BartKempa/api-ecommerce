@@ -3,6 +3,7 @@ package com.example.apiecommerce.web;
 import com.example.apiecommerce.domain.user.UserService;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
+import com.example.apiecommerce.domain.user.dto.UserUpdatePasswordDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -75,6 +76,10 @@ public class UserController {
             @ApiResponse(
                     responseCode = "404",
                     description = "User not found."
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input provided"
             )
     })
     @PatchMapping("/{id}")
@@ -126,6 +131,47 @@ public class UserController {
             @PathVariable Long id) {
         try {
             userService.deleteUser(id);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(
+            summary = "Update user password",
+            description = "Update user password by its ID. Only password can be updated."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "User password updated successfully (no content returned)."
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found."
+            )
+    })
+    @PatchMapping("/password/{id}")
+    public ResponseEntity<?> updateUserPassword(
+            @Parameter(description = "ID of the user to be updated", required = true, example = "4")
+            @PathVariable Long id,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Password of the user to update.",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserUpdatePasswordDto.class),
+                            examples = @ExampleObject(value = """
+                        {
+                            "password" : "P@ssw0rd123!"                      
+                        }
+                        """)
+                    )
+            )
+            @Valid @RequestBody UserUpdatePasswordDto userUpdatePasswordDto) {
+        try {
+            userService.updateUserPassword(id, userUpdatePasswordDto);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }

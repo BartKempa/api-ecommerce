@@ -4,6 +4,7 @@ import com.example.apiecommerce.domain.DataTimeProvider;
 import com.example.apiecommerce.domain.user.dto.UserCredentialsDto;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
+import com.example.apiecommerce.domain.user.dto.UserUpdatePasswordDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -60,7 +61,6 @@ import java.util.Optional;
     public void updateUser(long id, UserUpdateDto userUpdateDto){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-
         if (userUpdateDto.getFirstName() != null){
                 user.setFirstName(userUpdateDto.getFirstName());
             }
@@ -70,7 +70,6 @@ import java.util.Optional;
         if (userUpdateDto.getPhoneNumber() != null){
             user.setPhoneNumber(userUpdateDto.getPhoneNumber());
         }
-
         userRepository.save(user);
     }
 
@@ -80,5 +79,15 @@ import java.util.Optional;
              throw new EntityNotFoundException("User not found");
          }
          userRepository.deleteById(id);
+    }
+
+    @Transactional
+        public void updateUserPassword(long id, UserUpdatePasswordDto userUpdatePasswordDto){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (userUpdatePasswordDto.getPassword() != null){
+            user.setPassword(passwordEncoder.encode(userUpdatePasswordDto.getPassword()));
+        }
+        userRepository.save(user);
     }
 }
