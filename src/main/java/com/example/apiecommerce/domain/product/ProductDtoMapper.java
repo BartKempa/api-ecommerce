@@ -38,7 +38,6 @@ public class ProductDtoMapper {
             return null;
         }
         Product product = new Product();
-        product.setId(productDto.getId());
         product.setProductName(productDto.getProductName());
         product.setProductPrice(productDto.getProductPrice());
         product.setDescription(productDto.getDescription());

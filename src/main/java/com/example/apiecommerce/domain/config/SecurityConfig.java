@@ -47,7 +47,6 @@ public class SecurityConfig {
                         .requestMatchers(mvc.pattern(HttpMethod.PATCH, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
-                        .requestMatchers("/api/v1/auth/register").permitAll()
                         .anyRequest().permitAll())
                 .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)

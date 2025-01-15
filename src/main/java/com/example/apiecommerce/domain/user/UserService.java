@@ -1,6 +1,8 @@
 package com.example.apiecommerce.domain.user;
 
 import com.example.apiecommerce.domain.DataTimeProvider;
+import com.example.apiecommerce.domain.address.AddressDtoMapper;
+import com.example.apiecommerce.domain.address.dto.AddressDto;
 import com.example.apiecommerce.domain.user.dto.UserCredentialsDto;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
@@ -10,7 +12,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.NoSuchElementException;
+import java.security.Principal;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
     @Service
@@ -21,13 +25,15 @@ import java.util.Optional;
         private final DataTimeProvider dataTimeProvider;
         private final PasswordEncoder passwordEncoder;
         private final UserRegistrationDtoMapper userRegistrationDtoMapper;
+        private final AddressDtoMapper addressDtoMapper;
 
-        public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper) {
+        public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper, AddressDtoMapper addressDtoMapper) {
             this.userRepository = userRepository;
             this.userRoleRepository = userRoleRepository;
             this.dataTimeProvider = dataTimeProvider;
             this.passwordEncoder = passwordEncoder;
             this.userRegistrationDtoMapper = userRegistrationDtoMapper;
+            this.addressDtoMapper = addressDtoMapper;
         }
 
         public Optional<UserCredentialsDto> findCredentialsByEmail(String email){
@@ -82,7 +88,7 @@ import java.util.Optional;
     }
 
     @Transactional
-        public void updateUserPassword(long id, UserUpdatePasswordDto userUpdatePasswordDto){
+    public void updateUserPassword(long id, UserUpdatePasswordDto userUpdatePasswordDto){
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (userUpdatePasswordDto.getPassword() != null){
@@ -90,4 +96,14 @@ import java.util.Optional;
         }
         userRepository.save(user);
     }
+
+    public List<AddressDto> findAllUserAddresses(long userId){
+            return userRepository.findById(userId)
+                    .map(User::getAddresses)
+                    .orElse(Collections.emptySet())
+                    .stream()
+                    .map(addressDtoMapper::map)
+                    .toList();
+    }
+
 }
