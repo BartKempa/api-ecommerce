@@ -152,10 +152,9 @@ public class ProductController {
 
     @Operation(summary = "Delete a product", description = "Delete a product by its id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Product deleted",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = ProductDto.class))),
+            @ApiResponse(responseCode = "204",
+                    description = "Product deleted"
+            ),
             @ApiResponse(responseCode = "404",
                     description = "Product not found",
                     content = @Content) })

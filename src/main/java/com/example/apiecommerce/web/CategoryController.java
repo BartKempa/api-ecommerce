@@ -108,10 +108,9 @@ public class CategoryController {
 
     @Operation(summary = "Delete a category", description = "Delete a category by its id")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Category deleted",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CategoryDto.class))),
+            @ApiResponse(responseCode = "204",
+                    description = "Category successfully deleted"
+            ),
             @ApiResponse(responseCode = "404",
                     description = "Category not found",
                     content = @Content) })

@@ -3,6 +3,7 @@ package com.example.apiecommerce.web;
 import com.example.apiecommerce.domain.address.AddressService;
 import com.example.apiecommerce.domain.address.dto.AddressDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/addresses")
@@ -82,5 +82,28 @@ public class AddressController {
                 .buildAndExpand(savedAddress.getId())
                 .toUri();
         return ResponseEntity.created(savedAddressUri).body(savedAddress);
+    }
+
+
+    @Operation(
+            summary = "Delete an address",
+            description = "Delete an address by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Address successfully deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Address not found",
+                    content = @Content)
+    })
+    @DeleteMapping("/{id}")
+    ResponseEntity<?> deleteAddress(
+            @Parameter(description = "ID of the address to be deleted", required = true, example = "1")
+            @PathVariable Long id) {
+        addressService.deleteAddress(id);
+        return ResponseEntity.noContent().build();
     }
 }

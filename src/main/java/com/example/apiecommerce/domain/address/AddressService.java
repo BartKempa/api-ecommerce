@@ -1,10 +1,9 @@
 package com.example.apiecommerce.domain.address;
 
 import com.example.apiecommerce.domain.address.dto.AddressDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class AddressService {
@@ -21,6 +20,14 @@ public class AddressService {
         Address addressToSave = addressDtoMapper.map(addressDto);
         Address savedAddress = addressRepository.save(addressToSave);
         return addressDtoMapper.map(savedAddress);
+    }
+
+    @Transactional
+    public void deleteAddress(long id){
+        if (!addressRepository.existsById(id)){
+            throw new EntityNotFoundException("Address not found");
+        }
+        addressRepository.deleteById(id);
     }
 
 
