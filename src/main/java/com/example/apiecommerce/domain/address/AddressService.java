@@ -1,6 +1,7 @@
 package com.example.apiecommerce.domain.address;
 
 import com.example.apiecommerce.domain.address.dto.AddressDto;
+import com.example.apiecommerce.domain.address.dto.AddressUpdateDto;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,25 @@ public class AddressService {
         addressRepository.deleteById(id);
     }
 
-
-
-
+    @Transactional
+    public void updateAddress(long addressId, AddressUpdateDto addressUpdateDto){
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+        if (addressUpdateDto.getStreetName() != null){
+            address.setStreetName(addressUpdateDto.getStreetName());
+        }
+        if (addressUpdateDto.getBuildingNumber() != null){
+            address.setBuildingNumber(addressUpdateDto.getBuildingNumber());
+        }
+        if (addressUpdateDto.getApartmentNumber() != null){
+            address.setApartmentNumber(addressUpdateDto.getApartmentNumber());
+        }
+        if (addressUpdateDto.getZipCode() != null){
+            address.setZipCode(addressUpdateDto.getZipCode());
+        }
+        if (addressUpdateDto.getCity() != null){
+            address.setCity(addressUpdateDto.getCity());
+        }
+       addressRepository.save(address);
+    }
 }

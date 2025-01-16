@@ -182,60 +182,10 @@ public class UserController {
                     )
             )
             @Valid @RequestBody UserUpdatePasswordDto userUpdatePasswordDto) {
-        try {
             userService.updateUserPassword(id, userUpdatePasswordDto);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.noContent().build();
+            return ResponseEntity.noContent().build();
     }
 
-
-   /* @Operation(
-            summary = "Get user addresses by its id",
-            description = "Retrieve a list of user addresses by its id"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Found the list od user addresses",
-                    content =  @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = AddressDto.class),
-                            examples = @ExampleObject(value = """
-                                        [
-                                             {
-                                                 "id": 1,
-                                                 "streetName": "Pawia",
-                                                 "buildingNumber": "123",
-                                                 "apartmentNumber": "321",
-                                                 "zipCode": "80800",
-                                                 "city": "Sopot",
-                                                 "userId": 3
-                                             }
-                                         ]
-                                    """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found",
-                    content = @Content) })
-    @PreAuthorize("@userService.isAuthorized(#id, principal.name)")
-    @GetMapping("/{id}/addresses")
-    ResponseEntity<List<AddressDto>> getUserAddresses(
-            @Parameter(description = "id of user to be searched", required = true, example = "3")
-            @PathVariable Long id,
-            Principal principal){
-        if (!principal.getName().equals(userService.findUserById(id).orElseThrow().getEmail())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
-        if (userService.findUserById(id).isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(userService.findAllUserAddresses(id));
-    }*/
 
     @Operation(
             summary = "Get user addresses by its id",

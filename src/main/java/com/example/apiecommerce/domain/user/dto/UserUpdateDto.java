@@ -7,13 +7,8 @@ import jakarta.validation.constraints.Size;
 
 public class UserUpdateDto {
     private Long id;
-    @NotBlank
-    @Size(min = 2, max = 100)
     private String firstName;
-    @NotBlank
-    @Size(min = 2, max = 100)
     private String lastName;
-    @NotEmpty
     private String phoneNumber;
 
     public Long getId() {
