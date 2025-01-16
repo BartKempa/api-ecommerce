@@ -1,11 +1,9 @@
 package com.example.apiecommerce.domain.config;
 
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -23,9 +21,11 @@ public class SecurityConfig {
     private final JwtService jwtService;
     private static final String USER_ROLE = "USER";
     private static final String ADMIN_ROLE = "ADMIN";
+    private final UserSecurity userSecurity;
 
-    public SecurityConfig(JwtService jwtService) {
+    public SecurityConfig(JwtService jwtService, UserSecurity userSecurity) {
         this.jwtService = jwtService;
+        this.userSecurity = userSecurity;
     }
 
     @Bean
@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(mvc.pattern(HttpMethod.PUT, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.PATCH, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
+                        .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/v1/users/{id}/addresses")).access(userSecurity)
                         .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
                         .anyRequest().permitAll())
                 .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

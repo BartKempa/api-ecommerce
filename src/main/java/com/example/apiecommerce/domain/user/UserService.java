@@ -8,6 +8,7 @@ import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdatePasswordDto;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,5 +106,4 @@ import java.util.Optional;
                     .map(addressDtoMapper::map)
                     .toList();
     }
-
-}
+    }
