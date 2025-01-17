@@ -5,8 +5,6 @@ import com.example.apiecommerce.domain.user.UserService;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdatePasswordDto;
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.jwt.JWTClaimsSet;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,16 +14,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
-import java.text.ParseException;
 import java.util.List;
 
 @RestController

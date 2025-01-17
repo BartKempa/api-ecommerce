@@ -22,7 +22,7 @@ public class User {
     private String phoneNumber;
     private LocalDateTime creationDate;
     @OneToOne
-    @JoinColumn(name = "cart_id", unique = true, referencedColumnName = "id")
+    @JoinColumn(name = "cart_id", unique = true)
     private Cart cart;
     @OneToMany(mappedBy = "user")
     private Set<Address> addresses = new HashSet<>();
@@ -120,5 +120,13 @@ public class User {
 
     public void setRoles(Set<UserRole> roles) {
         this.roles = roles;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 }

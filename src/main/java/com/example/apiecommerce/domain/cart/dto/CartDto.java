@@ -6,9 +6,11 @@ public class CartDto {
     private Long id;
     private LocalDateTime creationDate;
 
+
     public CartDto(Long id, LocalDateTime creationDate) {
         this.id = id;
         this.creationDate = creationDate;
+
     }
 
     public Long getId() {
@@ -26,4 +28,6 @@ public class CartDto {
     public void setCreationDate(LocalDateTime creationDate) {
         this.creationDate = creationDate;
     }
+
+
 }

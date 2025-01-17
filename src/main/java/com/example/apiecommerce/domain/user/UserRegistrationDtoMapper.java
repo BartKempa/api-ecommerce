@@ -10,9 +10,11 @@ import java.util.stream.Collectors;
 public class UserRegistrationDtoMapper {
     private static final String DEFAULT_USER_ROLE = "USER";
     private final UserRoleRepository userRoleRepository;
+    private final DataTimeProvider dataTimeProvider;
 
-    public UserRegistrationDtoMapper(UserRoleRepository userRoleRepository) {
+    public UserRegistrationDtoMapper(UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider) {
         this.userRoleRepository = userRoleRepository;
+        this.dataTimeProvider = dataTimeProvider;
     }
 
 
@@ -35,7 +37,7 @@ public class UserRegistrationDtoMapper {
                 userRegistrationDto.getFirstName(),
                 userRegistrationDto.getLastName(),
                 userRegistrationDto.getPhoneNumber(),
-                DataTimeProvider.getCurrentTime(),
+                dataTimeProvider.getCurrentTime(),
                 userRoleRepository.findByName(DEFAULT_USER_ROLE).stream().collect(Collectors.toSet())
         );
     }
