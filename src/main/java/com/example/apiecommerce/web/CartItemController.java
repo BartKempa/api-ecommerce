@@ -4,6 +4,7 @@ import com.example.apiecommerce.domain.cartItem.CartItemService;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -81,8 +82,25 @@ public class CartItemController {
         return ResponseEntity.created(savedCartItemUri).body(savedCartItemFullDto);
     }
 
+
+    @Operation(
+            summary = "Delete an cart item",
+            description = "Delete an cart item by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Cart item successfully deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Cart item not found",
+                    content = @Content)
+    })
     @DeleteMapping("/{id}")
-    ResponseEntity<?> deleteCartItemById(@PathVariable Long id){
+    ResponseEntity<?> deleteCartItemById(
+            @Parameter(description = "ID of the cart item to be deleted", required = true, example = "1")
+            @PathVariable Long id){
         cartItemService.deleteCartItem(id);
         return ResponseEntity.noContent().build();
     }
