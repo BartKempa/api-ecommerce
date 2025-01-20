@@ -57,6 +57,47 @@ public class CartController {
                     description = "Internal server error",
                     content = @Content) })
     @PostMapping
+    ResponseEntity<CartDto> createCart(Authentication authentication){
+        String username = authentication.getName();
+        CartDto savedCartDto = cartService.createCart(username);
+        URI savedCartDtoUri = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(savedCartDto.getId())
+                .toUri();
+        return ResponseEntity.created(savedCartDtoUri).body(savedCartDto);
+    }
+
+
+  /*  @Operation(
+            summary = "Create a new cart",
+            description = "Create a new cart and add it to the database"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Cart created successfully",
+                    content =  @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CartDto.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                      "id": 1,
+                                      "creationDate": "2024-12-18T12:00:00",
+                                      "userId": 1
+                                    }
+                                    """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input provided",
+                    content = @Content),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content) })
+    @PostMapping
     ResponseEntity<CartDto> createCart(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Details of cart to save.",
@@ -79,7 +120,8 @@ public class CartController {
                 .buildAndExpand(savedCartDto.getId())
                 .toUri();
         return ResponseEntity.created(savedCartDtoUri).body(savedCartDto);
-    }
+    }*/
+
 
     @GetMapping("/{id}")
     ResponseEntity<CartDto> getCart(@PathVariable Long id){

@@ -22,6 +22,17 @@ public class CartService {
     }
 
     @Transactional
+    public CartDto createCart(String userMail){
+        Cart cart = new Cart();
+        cart.setCreationDate(LocalDateTime.now());
+        Cart savedCart = cartRepository.save(cart);
+        userRepository.findByEmail(userMail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"))
+                .setCart(savedCart);
+        return cartDtoMapper.map(savedCart);
+    }
+
+/*    @Transactional
     public CartDto createCart(CartDto cartDto, String userMail){
         Cart cart = cartDtoMapper.map(cartDto);
         cart.setCreationDate(LocalDateTime.now());
@@ -30,7 +41,7 @@ public class CartService {
                 .orElseThrow(() -> new EntityNotFoundException("User not found"))
                 .setCart(savedCart);
         return cartDtoMapper.map(savedCart);
-    }
+    }*/
 
     public Optional<CartDto> getCartById(Long id){
         return cartRepository.findById(id)

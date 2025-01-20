@@ -8,35 +8,22 @@ import org.springframework.stereotype.Service;
 @Service
 class CartItemDtoMapper {
     private final ProductRepository productRepository;
-    private final CartRepository cartRepository;
+
+    private static final Long startCartItemQuantity = 1L;
 
 
-    CartItemDtoMapper(ProductRepository productRepository, CartRepository cartRepository) {
+    CartItemDtoMapper(ProductRepository productRepository) {
         this.productRepository = productRepository;
-        this.cartRepository = cartRepository;
     }
 
     CartItem map(CartItemDto cartItemDto){
         if (cartItemDto == null){
             return null;
         }
-        return new CartItem(
-                cartItemDto.getId(),
-                cartItemDto.getCartItemQuantity(),
-                cartRepository.findById(cartItemDto.getCartId()).orElseThrow(),
-                productRepository.findById(cartItemDto.getProductId()).orElseThrow()
-        );
+        CartItem cartItem = new CartItem();
+        cartItem.setCartItemQuantity(startCartItemQuantity);
+        cartItem.setProduct(productRepository.findById(cartItemDto.getProductId()).orElseThrow());
+        return cartItem;
     }
 
-    CartItemDto map(CartItem cartItem){
-        if (cartItem == null){
-            return null;
-        }
-        return new CartItemDto(
-                cartItem.getId(),
-                cartItem.getCartItemQuantity(),
-                cartItem.getCart().getId(),
-                cartItem.getProduct().getId()
-        );
-    }
 }
