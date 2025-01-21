@@ -5,6 +5,7 @@ import com.example.apiecommerce.domain.cart.CartRepository;
 import com.example.apiecommerce.domain.cart.CartService;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
+import com.example.apiecommerce.domain.cartItem.dto.CartItemUpdateQuantityDto;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -31,6 +32,7 @@ public class CartItemService {
         this.cartItemFullDtoMapper = cartItemFullDtoMapper;
     }
 
+
     @Transactional
     public CartItemFullDto addCartItemToCart(String userMail, CartItemDto cartItemDto){
         User user = userRepository.findByEmail(userMail)
@@ -53,6 +55,36 @@ public class CartItemService {
         cartItemRepository.deleteById(cartItemId);
     }
 
+    @Transactional
+    public void updateCartItemQuantity(long cartItemId, CartItemUpdateQuantityDto cartItemUpdateQuantityDto){
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+        if (cartItemUpdateQuantityDto.getCartItemQuantity() != null){
+            cartItem.setCartItemQuantity(cartItemUpdateQuantityDto.getCartItemQuantity());
+        }
+        cartItemRepository.save(cartItem);
+    }
+
+    @Transactional
+    public void increaseCartItemQuantityByOne(long cartItemId){
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+        cartItem.setCartItemQuantity(cartItem.getCartItemQuantity() + 1);
+        cartItemRepository.save(cartItem);
+    }
+
+    @Transactional
+    public void reduceCartItemQuantityByOne(long cartItemId){
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+        cartItem.setCartItemQuantity(cartItem.getCartItemQuantity() - 1);
+        if (cartItem.getCartItemQuantity() <= 0){
+            throw new IllegalArgumentException("Quantity cannot be less than 1");
+        }
+        cartItemRepository.save(cartItem);
+    }
+
+
 /*    public Optional<CartItemDto> findCartItemById(Long cartItemId){
         if (!cartItemRepository.existsById(cartItemId)){
             return Optional.empty();
@@ -60,14 +92,5 @@ public class CartItemService {
         return cartItemRepository.findById(cartItemId).map(cartItemDtoMapper::map);
     }
 
-    @Transactional
-    public Optional<CartItemDto> replaceCartItem(Long cartItemId, CartItemDto cartItemDto){
-        if (!cartItemRepository.existsById(cartItemId)){
-            return Optional.empty();
-        }
-        cartItemDto.setId(cartItemId);
-        CartItem cartItemToUpdate = cartItemDtoMapper.map(cartItemDto);
-        CartItem updatedCartItem = cartItemRepository.save(cartItemToUpdate);
-        return Optional.of(cartItemDtoMapper.map(updatedCartItem));
-    }*/
+  */
 }

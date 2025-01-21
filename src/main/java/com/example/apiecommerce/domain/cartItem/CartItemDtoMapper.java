@@ -6,7 +6,7 @@ import com.example.apiecommerce.domain.product.ProductRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-class CartItemDtoMapper {
+public class CartItemDtoMapper {
     private final ProductRepository productRepository;
 
     private static final Long startCartItemQuantity = 1L;

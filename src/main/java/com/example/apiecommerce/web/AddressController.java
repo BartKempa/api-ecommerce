@@ -102,7 +102,11 @@ public class AddressController {
     })
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteAddress(
-            @Parameter(description = "ID of the address to be deleted", required = true, example = "1")
+            @Parameter(
+                    description = "ID of the address to be deleted",
+                    required = true,
+                    example = "1"
+            )
             @PathVariable Long id) {
         addressService.deleteAddress(id);
         return ResponseEntity.noContent().build();
@@ -128,8 +132,12 @@ public class AddressController {
             )
     })
     @PatchMapping("/{id}")
-    public ResponseEntity<?> updateAddress(
-            @Parameter(description = "ID of the address to be updated", required = true, example = "1")
+    ResponseEntity<?> updateAddress(
+            @Parameter(
+                    description = "ID of the address to be updated",
+                    required = true,
+                    example = "1"
+            )
             @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Details of the address to update. Only non-null fields will be updated.",
