@@ -1,18 +1,19 @@
 package com.example.apiecommerce.web;
 
 import com.example.apiecommerce.domain.cart.CartService;
+import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cart.dto.CartDto;
+import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -68,67 +69,50 @@ public class CartController {
     }
 
 
-  /*  @Operation(
-            summary = "Create a new cart",
-            description = "Create a new cart and add it to the database"
-    )
+    @Operation(
+            summary = "Get details about cart by its id",
+            description = "Retrieve details about all cart items form cart by its id and total cost of this cart" )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "201",
-                    description = "Cart created successfully",
+                    responseCode = "200",
+                    description = "Found the cart",
                     content =  @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = CartDto.class),
+                            schema = @Schema(implementation = CartDetailsDto.class),
                             examples = @ExampleObject(value = """
                                     {
-                                      "id": 1,
-                                      "creationDate": "2024-12-18T12:00:00",
-                                      "userId": 1
+                                        "cartItems": [
+                                            {
+                                                "id": 1,
+                                                "cartItemQuantity": 10,
+                                                "cartId": 1,
+                                                "productId": 3,
+                                                "productName": "Porter",
+                                                "productPrice": 12.0
+                                            }
+                                        ],
+                                        "totalCost": 120.0
                                     }
-                                    """
-                            )
+                                    """)
                     )
             ),
             @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid input provided",
-                    content = @Content),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error",
+                    responseCode = "404",
+                    description = "Cart not found",
                     content = @Content) })
-    @PostMapping
-    ResponseEntity<CartDto> createCart(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Details of cart to save.",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CartDto.class),
-                            examples = @ExampleObject(value = """
-                            {
-                                "userId": 1
-                            }
-                            """)
-                    )
-            )
-            @Valid @RequestBody CartDto cartDto, Authentication authentication){
-        String username = authentication.getName();
-        CartDto savedCartDto = cartService.createCart(cartDto, username);
-        URI savedCartDtoUri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedCartDto.getId())
-                .toUri();
-        return ResponseEntity.created(savedCartDtoUri).body(savedCartDto);
-    }*/
-
-
     @GetMapping("/{id}")
-    ResponseEntity<CartDto> getCart(@PathVariable Long id){
-        return cartService.getCartById(id)
+    ResponseEntity<CartDetailsDto> getCartDetails(
+            @Parameter(
+                    description = "Id of cart to be searched.",
+                    required = true,
+                    example = "1"
+            )
+            @PathVariable @Min(1) Long id){
+        return cartService.getCartDetailsById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
 
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteCart(@PathVariable Long id){

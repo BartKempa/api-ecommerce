@@ -1,5 +1,6 @@
 package com.example.apiecommerce.domain.cart;
 
+import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cart.dto.CartDto;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -14,11 +15,13 @@ public class CartService {
     private final CartRepository cartRepository;
     private final CartDtoMapper cartDtoMapper;
     private final UserRepository userRepository;
+    private final CartDetailsDtoMapper cartDetailsDtoMapper;
 
-    public CartService(CartRepository cartRepository, CartDtoMapper cartDtoMapper, UserRepository userRepository) {
+    public CartService(CartRepository cartRepository, CartDtoMapper cartDtoMapper, UserRepository userRepository, CartDetailsDtoMapper cartDetailsDtoMapper) {
         this.cartRepository = cartRepository;
         this.cartDtoMapper = cartDtoMapper;
         this.userRepository = userRepository;
+        this.cartDetailsDtoMapper = cartDetailsDtoMapper;
     }
 
     @Transactional
@@ -32,20 +35,9 @@ public class CartService {
         return cartDtoMapper.map(savedCart);
     }
 
-/*    @Transactional
-    public CartDto createCart(CartDto cartDto, String userMail){
-        Cart cart = cartDtoMapper.map(cartDto);
-        cart.setCreationDate(LocalDateTime.now());
-        Cart savedCart = cartRepository.save(cart);
-        userRepository.findByEmail(userMail)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"))
-                .setCart(savedCart);
-        return cartDtoMapper.map(savedCart);
-    }*/
-
-    public Optional<CartDto> getCartById(Long id){
+    public Optional<CartDetailsDto> getCartDetailsById(Long id){
         return cartRepository.findById(id)
-                .map(cartDtoMapper::map);
+                .map(cartDetailsDtoMapper::map);
     }
 
     @Transactional

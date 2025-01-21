@@ -10,7 +10,9 @@ public class CartItemFullDtoMapper {
                 cartItem.getId(),
                 cartItem.getCartItemQuantity(),
                 cartItem.getCart().getId(),
-                cartItem.getProduct().getId()
+                cartItem.getProduct().getId(),
+                cartItem.getProduct().getProductName(),
+                cartItem.getProduct().getProductPrice()
         );
     }
 }

@@ -84,13 +84,10 @@ public class CartItemService {
         cartItemRepository.save(cartItem);
     }
 
-
-/*    public Optional<CartItemDto> findCartItemById(Long cartItemId){
+    public Optional<CartItemFullDto> findCartItemById(Long cartItemId){
         if (!cartItemRepository.existsById(cartItemId)){
             return Optional.empty();
         }
-        return cartItemRepository.findById(cartItemId).map(cartItemDtoMapper::map);
+        return cartItemRepository.findById(cartItemId).map(cartItemFullDtoMapper::map);
     }
-
-  */
 }

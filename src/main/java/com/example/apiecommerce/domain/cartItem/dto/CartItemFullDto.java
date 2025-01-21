@@ -5,12 +5,16 @@ public class CartItemFullDto {
     private Long cartItemQuantity;
     private Long cartId;
     private Long productId;
+    private String productName;
+    private double productPrice;
 
-    public CartItemFullDto(Long id, Long cartItemQuantity, Long cartId, Long productId) {
+    public CartItemFullDto(Long id, Long cartItemQuantity, Long cartId, Long productId, String productName, double productPrice) {
         this.id = id;
         this.cartItemQuantity = cartItemQuantity;
         this.cartId = cartId;
         this.productId = productId;
+        this.productName = productName;
+        this.productPrice = productPrice;
     }
 
     public Long getId() {
@@ -43,5 +47,21 @@ public class CartItemFullDto {
 
     public void setProductId(Long productId) {
         this.productId = productId;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public double getProductPrice() {
+        return productPrice;
+    }
+
+    public void setProductPrice(double productPrice) {
+        this.productPrice = productPrice;
     }
 }

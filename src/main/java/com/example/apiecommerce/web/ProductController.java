@@ -121,11 +121,15 @@ public class ProductController {
         return productService.findProductsFromCategoryPaginated(pageNumber, pageSize, sortField, sortDirection, categoryName);
     }
 
-    @Operation(summary = "Get a product by its id", description = "Retrieve a product by its id" )
+    @Operation(
+            summary = "Get a product by its id",
+            description = "Retrieve a product by its id" )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
+            @ApiResponse(
+                    responseCode = "200",
                     description = "Found the product",
-                    content =  @Content(mediaType = "application/json",
+                    content =  @Content(
+                            mediaType = "application/json",
                             schema = @Schema(implementation = ProductDto.class),
                             examples = @ExampleObject(value = """
                             {
@@ -138,13 +142,21 @@ public class ProductController {
                               "categoryId": 1,
                               "categoryName": "Piwo"
                             }
-                        """))),
-            @ApiResponse(responseCode = "404",
+                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
                     description = "product not found",
                     content = @Content) })
     @GetMapping("/{id}")
-    ResponseEntity<ProductDto> getProductById(@Parameter(description = "id of product to be searched", required = true, example = "1")
-                                              @PathVariable Long id){
+    ResponseEntity<ProductDto> getProductById(
+            @Parameter(
+                    description = "id of product to be searched",
+                    required = true,
+                    example = "1"
+            )
+            @PathVariable Long id){
         return productService.findProductById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());

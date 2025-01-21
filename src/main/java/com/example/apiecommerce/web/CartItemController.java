@@ -4,6 +4,7 @@ import com.example.apiecommerce.domain.cartItem.CartItemService;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemUpdateQuantityDto;
+import com.example.apiecommerce.domain.product.dto.ProductDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -207,21 +209,40 @@ public class CartItemController {
     }
 
 
-
-
-
-
-/*    @GetMapping("/{id}")
-    ResponseEntity<CartItemDto> getCartItemById(@PathVariable Long id){
+    @Operation(
+            summary = "Get a cart item by its id",
+            description = "Retrieve a cart item by its id" )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Found the cart item",
+                    content =  @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CartItemFullDto.class),
+                            examples = @ExampleObject(value = """
+                                        {
+                                          "id": 1,
+                                          "cartItemQuantity": 1,
+                                          "cartId": 1,
+                                          "productId": 1
+                                        }
+                                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Cart item not found",
+                    content = @Content) })
+   @GetMapping("/{id}")
+    ResponseEntity<CartItemFullDto> getCartItemById(
+            @Parameter(
+                    description = "Id of cart item to be searched.",
+                    required = true,
+                    example = "1"
+            )
+            @PathVariable @Min(1) Long id){
         return cartItemService.findCartItemById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
-    @PutMapping("/{id}")
-    ResponseEntity<?> replaceCartItem(@PathVariable Long id, @RequestBody CartItemDto cartItemDto){
-        return cartItemService.replaceCartItem(id, cartItemDto)
-                .map(c -> ResponseEntity.noContent().build())
-                .orElse(ResponseEntity.notFound().build());
-    }*/
 }
