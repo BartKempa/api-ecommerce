@@ -5,6 +5,7 @@ import com.example.apiecommerce.domain.cartItem.dto.CartItemDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemUpdateQuantityDto;
 import com.example.apiecommerce.domain.product.dto.ProductDto;
+import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -56,11 +57,32 @@ public class CartItemController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Invalid input provided",
-                    content = @Content),
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Invalid input",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
+            ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal server error",
-                    content = @Content) })
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Internal server error",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
+            )
+    })
     @PostMapping
     ResponseEntity<CartItemFullDto> addCartItemToCart(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -98,8 +120,18 @@ public class CartItemController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Cart item not found",
-                    content = @Content)
+                    description = "Cart not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Cart not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
     })
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteCartItemById(
@@ -121,11 +153,31 @@ public class CartItemController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Cart item not found."
+                    description = "Cart not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Cart not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid input provided"
+                    description = "Invalid input provided",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Invalid input",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
             )
     })
     @PatchMapping("/{id}")
@@ -166,10 +218,20 @@ public class CartItemController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Cart item not found."
+                    description = "Cart not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Cart not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
             )
     })
-    @PatchMapping("/{id}/increaseQuantity")
+    @PatchMapping("/{id}/quantity/increment ")
     ResponseEntity<?> increaseCartItemQuantityByOne(
             @Parameter(
                     description = "ID of the cart item to be increased",
@@ -193,10 +255,20 @@ public class CartItemController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Cart item not found."
+                    description = "Cart not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Cart not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
             )
     })
-    @PatchMapping("/{id}/reduceQuantity")
+    @PatchMapping("/{id}/quantity/decrement")
     ResponseEntity<?> reduceCartItemQuantityByOne(
             @Parameter(
                     description = "ID of the cart item to be reduced",
@@ -209,7 +281,7 @@ public class CartItemController {
     }
 
 
-    /*@Operation(
+    @Operation(
             summary = "Get a cart item by its id",
             description = "Retrieve a cart item by its id" )
     @ApiResponses(value = {
@@ -231,8 +303,19 @@ public class CartItemController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Cart item not found",
-                    content = @Content) })
+                    description = "Cart not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Cart not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
    @GetMapping("/{id}")
     ResponseEntity<CartItemFullDto> getCartItemById(
             @Parameter(
@@ -244,8 +327,5 @@ public class CartItemController {
         return cartItemService.findCartItemById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }*/
-
-
-
-}
+    }
+    }
