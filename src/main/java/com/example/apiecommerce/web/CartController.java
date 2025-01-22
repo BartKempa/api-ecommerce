@@ -4,6 +4,7 @@ import com.example.apiecommerce.domain.cart.CartService;
 import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cart.dto.CartDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
+import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,7 +12,9 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.Min;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -36,27 +39,47 @@ public class CartController {
             @ApiResponse(
                     responseCode = "201",
                     description = "Cart created successfully",
-                    content =  @Content(
+                    content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = CartDto.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                      "id": 1,
-                                      "creationDate": "2024-12-18T12:00:00",
-                                      "userId": 1
-                                    }
-                                    """
-                            )
+                    {
+                      "id": 1,
+                      "creationDate": "2025-01-21T14:45:00",
+                      "userId": 1
+                    }
+                    """)
                     )
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "Invalid input provided",
-                    content = @Content),
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Invalid input",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
+            ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal server error",
-                    content = @Content) })
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Internal server error",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
+            )
+    })
     @PostMapping
     ResponseEntity<CartDto> createCart(Authentication authentication){
         String username = authentication.getName();
@@ -99,9 +122,20 @@ public class CartController {
             @ApiResponse(
                     responseCode = "404",
                     description = "Cart not found",
-                    content = @Content) })
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Cart not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                            )
+                    )
+    })
     @GetMapping("/{id}")
-    ResponseEntity<CartDetailsDto> getCartDetails(
+    ResponseEntity<?> getCartDetails(
             @Parameter(
                     description = "Id of cart to be searched.",
                     required = true,
@@ -110,8 +144,9 @@ public class CartController {
             @PathVariable @Min(1) Long id){
         return cartService.getCartDetailsById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
     }
+
 
 
     @DeleteMapping("/{id}")

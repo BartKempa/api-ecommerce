@@ -2,6 +2,7 @@ package com.example.apiecommerce.domain.cart;
 
 import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cart.dto.CartDto;
+import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -26,12 +27,17 @@ public class CartService {
 
     @Transactional
     public CartDto createCart(String userMail){
+        User user = userRepository.findByEmail(userMail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (user.getCart() != null) {
+            throw new IllegalStateException("User already has a cart");
+        }
         Cart cart = new Cart();
         cart.setCreationDate(LocalDateTime.now());
         Cart savedCart = cartRepository.save(cart);
-        userRepository.findByEmail(userMail)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"))
-                .setCart(savedCart);
+        user.setCart(savedCart);
+        userRepository.save(user);
+
         return cartDtoMapper.map(savedCart);
     }
 
@@ -43,7 +49,7 @@ public class CartService {
     @Transactional
     public void deleteCart(Long cartId){
         if (!cartRepository.existsById(cartId)){
-            throw  new EntityNotFoundException("Cart not found");
+            throw new EntityNotFoundException("Cart not found");
         }
         cartRepository.deleteById(cartId);
     }

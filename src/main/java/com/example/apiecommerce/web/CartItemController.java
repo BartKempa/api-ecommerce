@@ -209,7 +209,7 @@ public class CartItemController {
     }
 
 
-    @Operation(
+    /*@Operation(
             summary = "Get a cart item by its id",
             description = "Retrieve a cart item by its id" )
     @ApiResponses(value = {
@@ -244,5 +244,8 @@ public class CartItemController {
         return cartItemService.findCartItemById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
+    }*/
+
+
+
 }

@@ -23,20 +23,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    ResponseEntity<String> handleNotFound(EntityNotFoundException exc) {
+    ResponseEntity<ApiError> handleNotFound(EntityNotFoundException exc) {
         logger.error("Entity not found: {}", exc.getMessage());
+        ApiError apiError = new ApiError(exc.getMessage());
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body("Error: " + exc.getMessage());
+                .body(apiError);
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    ResponseEntity<String> handleException(Exception exc) {
+    ResponseEntity<ApiError> handleException(Exception exc) {
         logger.error("Internal server error: {}", exc.getMessage(), exc);
+        ApiError apiError = new ApiError("An unexpected error occurred: " + exc.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred: " + exc.getMessage());
+                .body(apiError);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -50,5 +52,4 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errors);
     }
-
 }
