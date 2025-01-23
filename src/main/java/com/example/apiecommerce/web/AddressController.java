@@ -3,6 +3,8 @@ package com.example.apiecommerce.web;
 import com.example.apiecommerce.domain.address.AddressService;
 import com.example.apiecommerce.domain.address.dto.AddressDto;
 import com.example.apiecommerce.domain.address.dto.AddressUpdateDto;
+import com.example.apiecommerce.domain.product.dto.ProductDto;
+import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,7 +12,9 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -55,7 +59,18 @@ public class AddressController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Invalid input provided",
-                    content = @Content) })
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Invalid input",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
+            )
+    })
     @PostMapping
     ResponseEntity<AddressDto> addAddress(
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -98,7 +113,17 @@ public class AddressController {
             @ApiResponse(
                     responseCode = "404",
                     description = "Address not found",
-                    content = @Content)
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Address not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
     })
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteAddress(
@@ -124,11 +149,31 @@ public class AddressController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Address not found."
+                    description = "Address not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Address not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid input provided"
+                    description = "Invalid input provided",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Invalid input",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
             )
     })
     @PatchMapping("/{id}")
@@ -147,11 +192,12 @@ public class AddressController {
                             schema = @Schema(implementation = AddressUpdateDto.class),
                             examples = @ExampleObject(value = """
                         {
-                                "streetName": "Szara",
-                                "buildingNumber": "789",
-                                "apartmentNumber": "123",
-                                "zipCode": "16400",
-                                "city": "Suwalki"
+                                "streetName": "Pawia",
+                                "buildingNumber": "123",
+                                "apartmentNumber": "321",
+                                "zipCode": "80800",
+                                "city": "Sopot",
+                                "
                         }
                         """)
                     )
@@ -159,5 +205,56 @@ public class AddressController {
             @Valid @RequestBody AddressUpdateDto addressUpdateDto) {
             addressService.updateAddress(id, addressUpdateDto);
             return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(
+            summary = "Get a address by its id",
+            description = "Retrieve a address by its id" )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Found the address",
+                    content =  @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = AddressDto.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "id": 1,
+                              "streetName": "Pawia",
+                              "buildingNumber": "123",
+                              "apartmentNumber": "321",
+                              "zipCode": "80800",
+                              "city": "Sopot",
+                              "userId": 1
+                            }
+                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Address not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Address not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
+    @GetMapping("/{id}")
+    ResponseEntity<AddressDto> getAddressById(
+            @Parameter(
+                    description = "Id of address to be searched.",
+                    required = true,
+                    example = "1")
+            @PathVariable @Min(1) Long id){
+        return addressService.findAddressById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
     }
 }

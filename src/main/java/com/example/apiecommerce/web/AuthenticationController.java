@@ -3,6 +3,7 @@ package com.example.apiecommerce.web;
 import com.example.apiecommerce.domain.user.UserService;
 import com.example.apiecommerce.domain.user.auth.AuthenticationRequest;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
+import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -30,13 +31,19 @@ public class AuthenticationController {
         this.userService = userService;
     }
 
-    @Operation(summary = "Create a new user", description = "Register a new user with default role and save to the database.")
+
+    @Operation(
+            summary = "Create a new user",
+            description = "Register a new user with default role and save to the database."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201",
+            @ApiResponse(
+                    responseCode = "201",
                     description = "User created successfully",
-                    content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = UserRegistrationDto.class),
-                    examples = @ExampleObject(value = """
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserRegistrationDto.class),
+                            examples = @ExampleObject(value = """
                             {
                                 "id": 1,
                                 "email": "bartek@mail.com",
@@ -44,23 +51,46 @@ public class AuthenticationController {
                                 "firstName": "Bartek",
                                 "lastName": "Kempiak",
                                 "phoneNumber": "123456789"
-                            }"""))),
-            @ApiResponse(responseCode = "400",
+                            }
+                            """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
                     description = "Invalid input provided",
-                    content = @Content) })
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Invalid input",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
+            )
+    })
     @PostMapping("/register")
-    ResponseEntity<UserRegistrationDto> registerUser(@io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Details of the user to register.", required = true,
-            content = @Content(mediaType = "application/json",
-            schema = @Schema(implementation = UserRegistrationDto.class),
-            examples = @ExampleObject(value = """
+    ResponseEntity<UserRegistrationDto> registerUser(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Details of the user to register.",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = UserRegistrationDto.class),
+                            examples = @ExampleObject(value = """
                     {
                         "email" : "bartek@mail.com",
                         "password" : "super",
                         "firstName" : "Bartek",
                         "lastName" : "Kempiak",
                         "phoneNumber" : "123456789"
-                    }""")))
+                    }
+                    """
+                            )
+                    )
+            )
             @Valid @RequestBody UserRegistrationDto userRegistrationDto){
         UserRegistrationDto savedUserDto = userService.registerWithDefaultRole(userRegistrationDto);
         URI savedUserUri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -70,28 +100,45 @@ public class AuthenticationController {
         return ResponseEntity.created(savedUserUri).body(savedUserDto);
     }
 
-    @Operation(summary = "Login user", description = "Authenticate the user and return a JWT token.")
+
+    @Operation(
+            summary = "Login user",
+            description = "Authenticate the user and return a JWT token."
+    )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
+            @ApiResponse(
+                    responseCode = "200",
                     description = "User logged in successfully and token returned.",
-                    content = @Content(mediaType = "application/json",
+                    content = @Content(
+                            mediaType = "application/json",
                             examples = @ExampleObject(value = """
                                  {
                                     "token": "eyJhbGciOiJIUzI1NiJ9..."
-                                }"""))),
-            @ApiResponse(responseCode = "401",
+                                }"""
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "401",
                     description = "Invalid username or password",
                     content = @Content) })
     @PostMapping("/login")
-    public ResponseEntity<?> login(@io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "User credentials for login.", required = true,
-            content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = AuthenticationRequest.class),
-                    examples = @ExampleObject(value = """
+    public ResponseEntity<?> login(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "User credentials for login.",
+                    required = true,
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = AuthenticationRequest.class),
+                            examples = @ExampleObject(value = """
                             {
                                 "username" : "bartek@mail.com",
                                 "password" : "super"
-                            }""")))
+                            }
+                            """
+                            )
+                    )
+            )
             @RequestBody AuthenticationRequest authenticationRequest) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication.getName().equals(authenticationRequest.getUsername())) {

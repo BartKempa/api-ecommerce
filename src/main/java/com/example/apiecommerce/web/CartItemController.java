@@ -120,13 +120,13 @@ public class CartItemController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Cart not found",
+                    description = "Cart item not found",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value = """
                                     {
-                                        "message": "Cart not found",
+                                        "message": "Cart item not found",
                                         "timestamp": "2025-01-21T14:45:00"
                                     }
                                     """)
@@ -153,13 +153,13 @@ public class CartItemController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Cart not found",
+                    description = "Cart item not found",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value = """
                                     {
-                                        "message": "Cart not found",
+                                        "message": "Cart item not found",
                                         "timestamp": "2025-01-21T14:45:00"
                                     }
                                     """)
@@ -218,13 +218,13 @@ public class CartItemController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Cart not found",
+                    description = "Cart item not found",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value = """
                                     {
-                                        "message": "Cart not found",
+                                        "message": "Cart item not found",
                                         "timestamp": "2025-01-21T14:45:00"
                                     }
                                     """)
@@ -255,13 +255,13 @@ public class CartItemController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Cart not found",
+                    description = "Cart item not found",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value = """
                                     {
-                                        "message": "Cart not found",
+                                        "message": "Cart item not found",
                                         "timestamp": "2025-01-21T14:45:00"
                                     }
                                     """)
@@ -303,13 +303,13 @@ public class CartItemController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Cart not found",
+                    description = "Cart item not found",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value = """
                                     {
-                                        "message": "Cart not found",
+                                        "message": "Cart item not found",
                                         "timestamp": "2025-01-21T14:45:00"
                                     }
                                     """)
@@ -317,7 +317,7 @@ public class CartItemController {
             )
     })
    @GetMapping("/{id}")
-    ResponseEntity<CartItemFullDto> getCartItemById(
+   ResponseEntity<CartItemFullDto> getCartItemById(
             @Parameter(
                     description = "Id of cart item to be searched.",
                     required = true,

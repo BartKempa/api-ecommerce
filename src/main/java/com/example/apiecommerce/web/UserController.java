@@ -5,6 +5,7 @@ import com.example.apiecommerce.domain.user.UserService;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdatePasswordDto;
+import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -56,10 +57,24 @@ public class UserController {
             @ApiResponse(
                     responseCode = "404",
                     description = "User not found",
-                    content = @Content) })
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "User not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
     @GetMapping("/{id}")
     ResponseEntity<UserRegistrationDto> getUserById(
-            @Parameter(description = "id of user to be searched", required = true, example = "3")
+            @Parameter(
+                    description = "id of user to be searched",
+                    required = true,
+                    example = "3")
             @PathVariable Long id){
         return userService.findUserById(id)
                 .map(ResponseEntity::ok)
@@ -78,16 +93,39 @@ public class UserController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User not found."
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "User not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid input provided"
+                    description = "Invalid input provided",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Invalid input",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
             )
     })
     @PatchMapping("/{id}")
     public ResponseEntity<?> updateUser(
-            @Parameter(description = "ID of the user to be updated", required = true, example = "4")
+            @Parameter(
+                    description = "ID of the user to be updated",
+                    required = true,
+                    example = "4")
             @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Details of the user to update. Only non-null fields will be updated.",
@@ -125,12 +163,25 @@ public class UserController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User not found."
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "User not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
             )
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(
-            @Parameter(description = "ID of the user to be deleted", required = true, example = "4")
+            @Parameter(
+                    description = "ID of the user to be deleted",
+                    required = true,
+                    example = "4")
             @PathVariable Long id) {
         try {
             userService.deleteUser(id);
@@ -152,12 +203,25 @@ public class UserController {
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User not found."
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "User not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
             )
     })
     @PatchMapping("/password/{id}")
     public ResponseEntity<?> updateUserPassword(
-            @Parameter(description = "ID of the user to be updated", required = true, example = "4")
+            @Parameter(
+                    description = "ID of the user to be updated",
+                    required = true,
+                    example = "1")
             @PathVariable Long id,
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     description = "Password of the user to update.",
@@ -208,12 +272,25 @@ public class UserController {
             @ApiResponse(
                     responseCode = "404",
                     description = "User not found",
-                    content = @Content) })
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "User not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
     @GetMapping("/{id}/addresses")
     ResponseEntity<List<AddressDto>> getUserAddresses(
-            @Parameter(description = "id of user to be searched", required = true, example = "3")
-            @PathVariable Long id
-    ){
+            @Parameter(
+                    description = "id of user to be searched",
+                    required = true,
+                    example = "3")
+            @PathVariable Long id){
         var addresses = userService.findAllUserAddresses(id);
         return ResponseEntity.ok(addresses);
     }

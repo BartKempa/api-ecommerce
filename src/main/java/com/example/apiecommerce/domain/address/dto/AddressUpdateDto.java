@@ -1,9 +1,5 @@
 package com.example.apiecommerce.domain.address.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-
 public class AddressUpdateDto {
     private Long id;
 
