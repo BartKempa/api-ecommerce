@@ -16,12 +16,15 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
+@Validated
 @RestController
 @RequestMapping("/api/v1/carts")
 public class CartController {
@@ -80,6 +83,7 @@ public class CartController {
                     )
             )
     })
+    @PostAuthorize("isAuthenticated()")
     @PostMapping
     ResponseEntity<CartDto> createCart(Authentication authentication){
         String username = authentication.getName();
@@ -148,11 +152,38 @@ public class CartController {
     }
 
 
-
+    @Operation(
+            summary = "Delete a cart",
+            description = "Delete a cart by its id")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Cart deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Cart not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value =
+                                    """
+                                    {
+                                        "message": "Cart not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
     @DeleteMapping("/{id}")
-    ResponseEntity<?> deleteCart(@PathVariable Long id){
+    ResponseEntity<?> deleteCart(
+            @Parameter(
+                    description = "id of cart to be deleted",
+                    required = true,
+                    example = "1")
+            @PathVariable Long id){
         cartService.deleteCart(id);
         return ResponseEntity.noContent().build();
     }
-
 }

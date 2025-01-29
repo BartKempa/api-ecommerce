@@ -3,6 +3,7 @@ package com.example.apiecommerce.domain.order;
 import com.example.apiecommerce.domain.DataTimeProvider;
 import com.example.apiecommerce.domain.address.Address;
 import com.example.apiecommerce.domain.address.AddressRepository;
+import com.example.apiecommerce.domain.cart.CartRepository;
 import com.example.apiecommerce.domain.cart.CartService;
 import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
@@ -30,8 +31,9 @@ public class OrderService {
     private final OrderDtoMapper orderDtoMapper;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final CartRepository cartRepository;
 
-    public OrderService(UserRepository userRepository, CartService cartService, DataTimeProvider dataTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
+    public OrderService(UserRepository userRepository, CartService cartService, DataTimeProvider dataTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository, CartRepository cartRepository) {
         this.userRepository = userRepository;
         this.cartService = cartService;
         this.dataTimeProvider = dataTimeProvider;
@@ -40,7 +42,9 @@ public class OrderService {
         this.orderDtoMapper = orderDtoMapper;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+        this.cartRepository = cartRepository;
     }
+
 
     @Transactional
     public OrderFullDto createOrder(String userMail, long addressId){
@@ -77,7 +81,7 @@ public class OrderService {
         }
 
         orderItemRepository.saveAll(orderItems);
-
+        //cartService.deleteCart(user.getCart().getId());
         return orderDtoMapper.map(savedOrder);
     }
 }

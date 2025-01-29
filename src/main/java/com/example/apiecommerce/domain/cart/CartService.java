@@ -48,9 +48,16 @@ public class CartService {
 
     @Transactional
     public void deleteCart(Long cartId){
-        if (!cartRepository.existsById(cartId)){
-            throw new EntityNotFoundException("Cart not found");
-        }
-        cartRepository.deleteById(cartId);
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+
+        Optional<User> userOpt = userRepository.findByCartId(cartId);
+
+        userOpt.ifPresent(
+                u -> {
+                    u.setCart(null);
+                    userRepository.save(u);
+                });
+        cartRepository.delete(cart);
     }
 }

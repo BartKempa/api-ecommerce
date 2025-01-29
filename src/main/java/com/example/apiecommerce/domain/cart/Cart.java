@@ -13,7 +13,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDateTime creationDate;
-    @OneToMany(mappedBy = "cart")
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.REMOVE)
     private Set<CartItem> cartItems = new HashSet<>();
 
     public Long getId() {
