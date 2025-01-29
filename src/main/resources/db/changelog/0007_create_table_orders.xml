@@ -6,7 +6,7 @@
 
     <changeSet id="0007-1" author="admin">
         <createTable tableName="orders">
-            <column name="id" type="BIGINT">
+            <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="total_price" type="DOUBLE"/>

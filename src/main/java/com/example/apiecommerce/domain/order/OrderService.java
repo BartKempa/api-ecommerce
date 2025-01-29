@@ -8,6 +8,7 @@ import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
 import com.example.apiecommerce.domain.order.dto.OrderFullDto;
 import com.example.apiecommerce.domain.orderItem.OrderItem;
+import com.example.apiecommerce.domain.orderItem.OrderItemRepository;
 import com.example.apiecommerce.domain.product.Product;
 import com.example.apiecommerce.domain.product.ProductRepository;
 import com.example.apiecommerce.domain.user.User;
@@ -21,22 +22,24 @@ import java.util.Set;
 
 @Service
 public class OrderService {
-
     private final UserRepository userRepository;
     private final CartService cartService;
     private final DataTimeProvider dataTimeProvider;
     private final AddressRepository addressRepository;
-
     private final ProductRepository productRepository;
     private final OrderDtoMapper orderDtoMapper;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
 
-    public OrderService(UserRepository userRepository, CartService cartService, DataTimeProvider dataTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper) {
+    public OrderService(UserRepository userRepository, CartService cartService, DataTimeProvider dataTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
         this.userRepository = userRepository;
         this.cartService = cartService;
         this.dataTimeProvider = dataTimeProvider;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
         this.orderDtoMapper = orderDtoMapper;
+        this.orderRepository = orderRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     @Transactional
@@ -47,9 +50,11 @@ public class OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+
         if (!address.getUser().equals(user)){
             throw new IllegalArgumentException("Address not belong to the specified user");
         }
+
         List<CartItemFullDto> cartItems = cart.getCartItems();
         Order order = new Order();
         order.setTotalPrice(cart.getTotalCost());
@@ -57,19 +62,22 @@ public class OrderService {
         order.setUser(user);
         order.setAddress(address);
 
+        Order savedOrder = orderRepository.save(order);
+
         Set<OrderItem> orderItems = order.getOrderItems();
-        cartItems.forEach(cartItemFullDto -> {
+
+        for (CartItemFullDto cartItemFullDto : cartItems) {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrderItemQuantity(cartItemFullDto.getCartItemQuantity());
-            orderItem.setOrder(order);
+            orderItem.setOrder(savedOrder);
             Product product = productRepository.findById(cartItemFullDto.getProductId())
                     .orElseThrow(() -> new EntityNotFoundException("Product not found"));
             orderItem.setProduct(product);
             orderItems.add(orderItem);
-        } );
+        }
 
-        order.setOrderItems(orderItems);
+        orderItemRepository.saveAll(orderItems);
 
-        return orderDtoMapper.map(order);
+        return orderDtoMapper.map(savedOrder);
     }
 }

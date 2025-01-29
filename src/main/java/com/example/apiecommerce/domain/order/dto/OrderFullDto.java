@@ -1,6 +1,5 @@
 package com.example.apiecommerce.domain.order.dto;
 
-import com.example.apiecommerce.domain.address.Address;
 import com.example.apiecommerce.domain.orderItem.dto.OrderItemDto;
 
 import java.util.Set;
@@ -9,7 +8,11 @@ public class OrderFullDto {
     private Long id;
     private Set<OrderItemDto> orderItems;
     private double orderTotalPrice;
-    private Address address;
+    private String streetName;
+    private String buildingNumber;
+    private String apartmentNumber;
+    private String zipCode;
+    private String city;
     private String userFirstName;
     private String userLastName;
     private String userEmail;
@@ -39,12 +42,44 @@ public class OrderFullDto {
         this.orderTotalPrice = orderTotalPrice;
     }
 
-    public Address getAddress() {
-        return address;
+    public String getStreetName() {
+        return streetName;
     }
 
-    public void setAddress(Address address) {
-        this.address = address;
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
+    public String getBuildingNumber() {
+        return buildingNumber;
+    }
+
+    public void setBuildingNumber(String buildingNumber) {
+        this.buildingNumber = buildingNumber;
+    }
+
+    public String getApartmentNumber() {
+        return apartmentNumber;
+    }
+
+    public void setApartmentNumber(String apartmentNumber) {
+        this.apartmentNumber = apartmentNumber;
+    }
+
+    public String getZipCode() {
+        return zipCode;
+    }
+
+    public void setZipCode(String zipCode) {
+        this.zipCode = zipCode;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
     }
 
     public String getUserFirstName() {

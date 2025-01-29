@@ -6,8 +6,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderItemDtoMapper {
 
-
     public OrderItemDto map(OrderItem orderItem){
+        if (orderItem == null){
+            return null;
+        }
         OrderItemDto orderItemDto = new OrderItemDto();
         orderItemDto.setId(orderItem.getId());
         orderItemDto.setOrderItemQuantity(orderItem.getOrderItemQuantity());

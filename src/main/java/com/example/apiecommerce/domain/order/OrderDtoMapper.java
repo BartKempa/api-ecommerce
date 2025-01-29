@@ -14,18 +14,23 @@ public class OrderDtoMapper {
         this.orderItemDtoMapper = orderItemDtoMapper;
     }
 
-    OrderFullDto map(Order order){
+    public OrderFullDto map(Order order){
         if (order == null){
             return null;
         }
         OrderFullDto orderDto = new OrderFullDto();
+        orderDto.setId(order.getId());
         orderDto.setOrderItems(order.getOrderItems().stream().map(orderItemDtoMapper::map).collect(Collectors.toSet()));
         orderDto.setOrderTotalPrice(order.getTotalPrice());
-        orderDto.setAddress(orderDto.getAddress());
-        orderDto.setUserFirstName(orderDto.getUserFirstName());
-        orderDto.setUserLastName(orderDto.getUserFirstName());
-        orderDto.setUserEmail(orderDto.getUserEmail());
-        orderDto.setUserPhoneNumber(orderDto.getUserPhoneNumber());
+        orderDto.setStreetName(order.getAddress().getStreetName());
+        orderDto.setBuildingNumber(order.getAddress().getBuildingNumber());
+        orderDto.setApartmentNumber(order.getAddress().getApartmentNumber());
+        orderDto.setZipCode(order.getAddress().getZipCode());
+        orderDto.setCity(order.getAddress().getCity());
+        orderDto.setUserFirstName(order.getUser().getFirstName());
+        orderDto.setUserLastName(order.getUser().getLastName());
+        orderDto.setUserEmail(order.getUser().getEmail());
+        orderDto.setUserPhoneNumber(order.getUser().getPhoneNumber());
         return orderDto;
     }
 }

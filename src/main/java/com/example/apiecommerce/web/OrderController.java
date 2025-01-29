@@ -3,6 +3,7 @@ package com.example.apiecommerce.web;
 import com.example.apiecommerce.domain.order.OrderService;
 import com.example.apiecommerce.domain.order.dto.OrderDto;
 import com.example.apiecommerce.domain.order.dto.OrderFullDto;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,14 +19,12 @@ import java.net.URI;
 public class OrderController {
     private final OrderService orderService;
 
-
-
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
     }
 
     @PostMapping
-    ResponseEntity<OrderFullDto> createOrderBasedOnCart(@RequestBody OrderDto orderDto, Authentication authentication){
+    ResponseEntity<OrderFullDto> createOrderBasedOnCart(@Valid @RequestBody OrderDto orderDto, Authentication authentication){
         String username = authentication.getName();
         OrderFullDto orderFullDto = orderService.createOrder(username, orderDto.getAddressId());
         URI savedOrderUri = ServletUriComponentsBuilder.fromCurrentRequest()
