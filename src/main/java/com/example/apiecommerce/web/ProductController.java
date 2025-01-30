@@ -116,6 +116,7 @@ public class ProductController {
         return productService.findAllProducts();
     }
 
+
     @Operation(
             summary = "Get all products with pagination",
             description = "Retrieve a paginated list of all products"
@@ -151,6 +152,7 @@ public class ProductController {
         int pageNumber = pageNo.orElse(1);
         return productService.findAllPaginatedProducts(pageNumber, pageSize, sortField, sortDirection);
     }
+
 
     @Operation(
             summary = "Get all products paginated from chosen category",

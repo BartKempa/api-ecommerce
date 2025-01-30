@@ -3,6 +3,8 @@ package com.example.apiecommerce.web;
 import com.example.apiecommerce.domain.order.OrderService;
 import com.example.apiecommerce.domain.order.dto.OrderDto;
 import com.example.apiecommerce.domain.order.dto.OrderFullDto;
+import com.example.apiecommerce.domain.order.dto.OrderMainInfoDto;
+import com.example.apiecommerce.domain.product.dto.ProductDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,12 +15,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Optional;
 
 
 @RestController
@@ -222,4 +226,65 @@ public class OrderController {
     }
 
 
+    @Operation(
+            summary = "Get all orders with pagination",
+            description = "Retrieve a paginated list of all orders"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "List of paginated orders",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(type = "object", implementation = Page.class),
+                            examples = @ExampleObject(value = """
+                                {
+                                    "content": [
+                                        {
+                                            "id": 1,
+                                            "orderDate": "2025-01-30T12:06:39.480092",
+                                            "orderTotalPrice": 8.8,
+                                            "userEmail": "bartek@mail.com",
+                                            "userPhoneNumber": "123456789"
+                                        }
+                                    ],
+                                    "pageable": {
+                                        "pageNumber": 0,
+                                        "pageSize": 6
+                                    },
+                                    "totalElements": 1,
+                                    "totalPages": 1
+                                }
+                                """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid page number or sort field",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class)
+                    )
+            )
+    })
+    @GetMapping("/page")
+    Page<OrderMainInfoDto> getAllOrdersPaginated(
+            @Parameter(
+                    description = "Page number (default: 1)",
+                    required = false)
+            @RequestParam(value = "page", defaultValue = "1") int pageNo,
+            @Parameter(
+                    description = "Page size - number of orders per page (default: 6)",
+                    required = false)
+            @RequestParam(value = "pageSize", defaultValue = "6") int pageSize,
+            @Parameter(
+                    description = "Sort field - the field that determines the order in which orders appears on (default: 'orderDate')",
+                    required = false)
+            @RequestParam(value = "sortField", defaultValue = "orderDate") String sortField,
+            @Parameter(
+                    description = "Sort direction - the field that determines the direction in which orders appears on (default: ascending)",
+                    required = false)
+            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection){
+        return orderService.findAllPaginatedOrders(pageNo, pageSize, sortField, sortDirection);
+    }
 }

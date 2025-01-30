@@ -3,11 +3,11 @@ package com.example.apiecommerce.domain.order;
 import com.example.apiecommerce.domain.DataTimeProvider;
 import com.example.apiecommerce.domain.address.Address;
 import com.example.apiecommerce.domain.address.AddressRepository;
-import com.example.apiecommerce.domain.cart.CartRepository;
 import com.example.apiecommerce.domain.cart.CartService;
 import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
 import com.example.apiecommerce.domain.order.dto.OrderFullDto;
+import com.example.apiecommerce.domain.order.dto.OrderMainInfoDto;
 import com.example.apiecommerce.domain.orderItem.OrderItem;
 import com.example.apiecommerce.domain.orderItem.OrderItemRepository;
 import com.example.apiecommerce.domain.product.Product;
@@ -15,13 +15,16 @@ import com.example.apiecommerce.domain.product.ProductRepository;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Predicate;
 
 @Service
 public class OrderService {
@@ -102,5 +105,17 @@ public class OrderService {
             orderToDelete.getAddress().setOrder(null);
         }
         orderRepository.delete(orderToDelete);
+    }
+
+    public Page<OrderMainInfoDto> findAllPaginatedOrders(int pageNumber, int pageSize, String sortField, String sortDirection){
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+        List<String> allowedFields = List.of("orderDate", "orderTotalPrice", "userEmail", "userPhoneNumber");
+        if (!allowedFields.contains(sortField)) {
+            throw new IllegalArgumentException("Invalid sort field: " + sortField);
+        }
+        int pageIndex = Math.max(pageNumber -1, 0);
+        Pageable pageable = PageRequest.of(pageIndex, pageSize, sort);
+        return orderRepository.findAll(pageable)
+                .map(orderDtoMapper::mapToMainInfo);
     }
 }

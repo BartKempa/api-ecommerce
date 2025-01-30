@@ -1,6 +1,7 @@
 package com.example.apiecommerce.domain.order;
 
 import com.example.apiecommerce.domain.order.dto.OrderFullDto;
+import com.example.apiecommerce.domain.order.dto.OrderMainInfoDto;
 import com.example.apiecommerce.domain.orderItem.OrderItemDtoMapper;
 import org.springframework.stereotype.Service;
 
@@ -32,5 +33,18 @@ public class OrderDtoMapper {
         orderDto.setUserEmail(order.getUser().getEmail());
         orderDto.setUserPhoneNumber(order.getUser().getPhoneNumber());
         return orderDto;
+    }
+
+    public OrderMainInfoDto mapToMainInfo(Order order){
+        if (order == null) {
+            return null;
+        }
+        OrderMainInfoDto orderMainInfoDto = new OrderMainInfoDto();
+        orderMainInfoDto.setId(order.getId());
+        orderMainInfoDto.setOrderDate(order.getOrderDate());
+        orderMainInfoDto.setOrderTotalPrice(order.getTotalPrice());
+        orderMainInfoDto.setUserEmail(order.getUser().getEmail());
+        orderMainInfoDto.setUserPhoneNumber(order.getUser().getPhoneNumber());
+        return orderMainInfoDto;
     }
 }
