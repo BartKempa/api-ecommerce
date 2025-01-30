@@ -19,7 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 @Service
 public class OrderService {
@@ -31,9 +33,9 @@ public class OrderService {
     private final OrderDtoMapper orderDtoMapper;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-    private final CartRepository cartRepository;
 
-    public OrderService(UserRepository userRepository, CartService cartService, DataTimeProvider dataTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository, CartRepository cartRepository) {
+
+    public OrderService(UserRepository userRepository, CartService cartService, DataTimeProvider dataTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
         this.userRepository = userRepository;
         this.cartService = cartService;
         this.dataTimeProvider = dataTimeProvider;
@@ -42,7 +44,6 @@ public class OrderService {
         this.orderDtoMapper = orderDtoMapper;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
-        this.cartRepository = cartRepository;
     }
 
 
@@ -59,7 +60,6 @@ public class OrderService {
             throw new IllegalArgumentException("Address not belong to the specified user");
         }
 
-        List<CartItemFullDto> cartItems = cart.getCartItems();
         Order order = new Order();
         order.setTotalPrice(cart.getTotalCost());
         order.setOrderDate(dataTimeProvider.getCurrentTime());
@@ -68,7 +68,15 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
+        Set<OrderItem> orderItems = getOrderItems(order, cart, savedOrder);
+        cartService.deleteCart(user.getCart().getId());
+        orderItemRepository.saveAll(orderItems);
+        return orderDtoMapper.map(savedOrder);
+    }
+
+    private Set<OrderItem> getOrderItems(Order order, CartDetailsDto cart, Order savedOrder) {
         Set<OrderItem> orderItems = order.getOrderItems();
+        List<CartItemFullDto> cartItems = cart.getCartItems();
 
         for (CartItemFullDto cartItemFullDto : cartItems) {
             OrderItem orderItem = new OrderItem();
@@ -79,9 +87,20 @@ public class OrderService {
             orderItem.setProduct(product);
             orderItems.add(orderItem);
         }
+        return orderItems;
+    }
 
-        orderItemRepository.saveAll(orderItems);
-        //cartService.deleteCart(user.getCart().getId());
-        return orderDtoMapper.map(savedOrder);
+    public Optional<OrderFullDto> getOrderById(Long orderId){
+        return orderRepository.findById(orderId).map(orderDtoMapper::map);
+    }
+
+    @Transactional
+    public void deleteOrderById(Long orderId){
+        Order orderToDelete = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+        if (orderToDelete.getAddress() != null) {
+            orderToDelete.getAddress().setOrder(null);
+        }
+        orderRepository.delete(orderToDelete);
     }
 }

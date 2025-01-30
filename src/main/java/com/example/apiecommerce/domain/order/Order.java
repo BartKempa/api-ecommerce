@@ -24,7 +24,7 @@ public class Order {
     @OneToOne
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
-    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<OrderItem> orderItems = new HashSet<>();
 
     public Long getId() {

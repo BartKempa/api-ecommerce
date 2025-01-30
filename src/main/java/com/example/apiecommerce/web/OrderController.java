@@ -5,21 +5,21 @@ import com.example.apiecommerce.domain.order.dto.OrderDto;
 import com.example.apiecommerce.domain.order.dto.OrderFullDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -117,6 +117,108 @@ public class OrderController {
                 .buildAndExpand(orderFullDto.getId())
                 .toUri();
         return ResponseEntity.created(savedOrderUri).body(orderFullDto);
+    }
+
+
+    @Operation(
+            summary = "Get a order by its id",
+            description = "Retrieve a order by its id" )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Found the order",
+                    content =  @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = OrderFullDto.class),
+                            examples = @ExampleObject(value = """
+                              {
+                                                    "id": 1,
+                                                         "orderItems": [
+                                                             {
+                                                                 "id": 1,
+                                                                 "orderItemQuantity": 1,
+                                                                 "orderId": 1,
+                                                                 "productId": 11,
+                                                                 "productName": "Likier Baileys",
+                                                                 "productPrice": 70.0
+                                                             }
+                                                         ],
+                                                         "orderTotalPrice": 70.0,
+                                                         "streetName": "Suwalska",
+                                                         "buildingNumber": "123",
+                                                         "apartmentNumber": "321",
+                                                         "zipCode": "80800",
+                                                         "city": "Gdansk",
+                                                         "userFirstName": "Bartek",
+                                                         "userLastName": "Kempiak",
+                                                         "userEmail": "bartek@mail.com",
+                                                         "userPhoneNumber": "123456789"
+                                                    }
+                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Order not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Order not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
+    @GetMapping("/{id}")
+    ResponseEntity<OrderFullDto> getOrderById(
+            @Parameter(
+                    description = "id of order to be searched",
+                    required = true,
+                    example = "1"
+            )
+            @PathVariable @Min(1) Long id){
+        return orderService.getOrderById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+
+    @Operation(
+            summary = "Delete an order",
+            description = "Delete an order by its id")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Order deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Order not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value =
+                                    """
+                                    {
+                                        "message": "Order not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
+    @DeleteMapping("/{id}")
+    ResponseEntity<?> deleteOrderById(
+            @Parameter(
+                    description = "id of order to be deleted",
+                    required = true,
+                    example = "1")
+            @PathVariable @Min(1) Long id){
+        orderService.deleteOrderById(id);
+        return ResponseEntity.noContent().build();
     }
 
 
