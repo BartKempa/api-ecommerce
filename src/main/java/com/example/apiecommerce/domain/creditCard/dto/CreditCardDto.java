@@ -7,13 +7,13 @@ import org.hibernate.validator.constraints.CreditCardNumber;
 public class CreditCardDto {
 
     private Long id;
+
     @NotNull
-    @CreditCardNumber
+    @CreditCardNumber(message = "Invalid credit card number")
     private String cardNumber;
-    @Pattern(regexp = "[0-9]{2}/[0-9]{2,4}", message = "Invalid validity. Enter in MM/YY or MM/YYYY format")
+
+    @Pattern(regexp = "(0[1-9]|1[0-2])/(\\d{2}|\\d{4})", message = "Invalid format. Use MM/YY or MM/YYYY")
     private String cardValidity;
-    @Pattern(regexp = "^[0-9]{3}$")
-    private String cardCVV;
 
     public Long getId() {
         return id;
@@ -39,11 +39,4 @@ public class CreditCardDto {
         this.cardValidity = cardValidity;
     }
 
-    public String getCardCVV() {
-        return cardCVV;
-    }
-
-    public void setCardCVV(String cardCVV) {
-        this.cardCVV = cardCVV;
-    }
 }

@@ -3,16 +3,13 @@ package com.example.apiecommerce.domain.creditCard;
 import com.example.apiecommerce.domain.user.User;
 import jakarta.persistence.*;
 
-
 @Entity
 public class CreditCard {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String cardNumber;
     private String cardValidity;
-    private String cardCVV;
     @ManyToOne()
     @JoinColumn(name = "user_id")
     private User user;
@@ -39,14 +36,6 @@ public class CreditCard {
 
     public void setCardValidity(String cardValidity) {
         this.cardValidity = cardValidity;
-    }
-
-    public String getCardCVV() {
-        return cardCVV;
-    }
-
-    public void setCardCVV(String cardCVV) {
-        this.cardCVV = cardCVV;
     }
 
     public User getUser() {

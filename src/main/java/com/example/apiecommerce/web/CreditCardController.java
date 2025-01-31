@@ -1,24 +1,23 @@
 package com.example.apiecommerce.web;
 
-import com.example.apiecommerce.domain.category.dto.CategoryDto;
 import com.example.apiecommerce.domain.creditCard.CreditCardService;
 import com.example.apiecommerce.domain.creditCard.dto.CreditCardDto;
 import com.example.apiecommerce.domain.creditCard.dto.CreditCardForReturnDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -44,11 +43,13 @@ public class CreditCardController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = CreditCardForReturnDto.class),
                             examples = @ExampleObject(value = """
-                                {
-                                        "id": 1,
-                                        "categoryName": "Piwo"
-                                }
-                                """
+                                        {
+                                             "id": 1,
+                                             "abbreviationCardNumber": "42108 **** **** ****",
+                                             "abbreviationCardValidity": "1*/**",
+                                             "abbreviationCardCVV": "1**"
+                                         }
+                                    """
                             )
                     )
             ),
@@ -67,24 +68,9 @@ public class CreditCardController {
                     )
             )
     })
-    @PostAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
-    ResponseEntity<CreditCardForReturnDto> addCreditCard(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Credit card to created",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CreditCardDto.class),
-                            examples = @ExampleObject(value = """
-                    {
-                        "categoryName":"Piwo"
-                    }
-                    """)
-                    )
-            )
-            @Valid @RequestBody CreditCardDto creditCardDto,
-            Authentication authentication){
+    ResponseEntity<CreditCardForReturnDto> addCreditCard(@Valid @RequestBody CreditCardDto creditCardDto, Authentication authentication){
         String email = authentication.getName();
         CreditCardForReturnDto addedCreditCard = creditCardService.addCreditCard(email, creditCardDto);
         URI addedCreditCardUri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -94,4 +80,54 @@ public class CreditCardController {
         return ResponseEntity.created(addedCreditCardUri).body(addedCreditCard);
     }
 
+
+    @Operation(
+            summary = "Get a credit card by its id",
+            description = "Retrieve a credit card by its id" )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Found the credit card",
+                    content =  @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CreditCardDto.class),
+                            examples = @ExampleObject(value = """
+                            {
+                              "id": 1,
+                              "streetName": "Pawia",
+                              "buildingNumber": "123",
+                              "apartmentNumber": "321",
+                              "zipCode": "80800",
+                              "city": "Sopot",
+                              "userId": 1
+                            }
+                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Credit card not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Credit card not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
+    @GetMapping("/{id}")
+    ResponseEntity<CreditCardDto> findCreditCardById(
+            @Parameter(
+                    description = "id of credit card to be searched.",
+                    required = true,
+                    example = "1")
+            @PathVariable @Valid @Min(1) Long id){
+        return creditCardService.getCreditCardById(id)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new EntityNotFoundException("Credit card not found"));
+    }
 }

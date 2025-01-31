@@ -41,7 +41,7 @@ public class CartService {
         return cartDtoMapper.map(savedCart);
     }
 
-    public Optional<CartDetailsDto> getCartDetailsById(Long id){
+    public Optional<CartDetailsDto> findCartDetailsById(Long id){
         return cartRepository.findById(id)
                 .map(cartDetailsDtoMapper::map);
     }

@@ -3,7 +3,6 @@ package com.example.apiecommerce.web;
 import com.example.apiecommerce.domain.cart.CartService;
 import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cart.dto.CartDto;
-import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,9 +13,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.Min;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -83,7 +81,7 @@ public class CartController {
                     )
             )
     })
-    @PostAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     ResponseEntity<CartDto> createCart(Authentication authentication){
         String username = authentication.getName();
@@ -146,7 +144,7 @@ public class CartController {
                     example = "1"
             )
             @PathVariable @Min(1) Long id){
-        return cartService.getCartDetailsById(id)
+        return cartService.findCartDetailsById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
     }

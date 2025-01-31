@@ -8,6 +8,10 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+
 @Service
 public class CreditCardService {
     private final CreditCardRepository creditCardRepository;
@@ -21,14 +25,28 @@ public class CreditCardService {
     }
 
     @Transactional
-    public CreditCardForReturnDto addCreditCard(String userMail, CreditCardDto creditCardDto){
+    public CreditCardForReturnDto addCreditCard(String userMail, CreditCardDto creditCardDto) {
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        validateCardValidity(creditCardDto.getCardValidity());
+
         CreditCard creditCard = creditCardDtoMapper.map(creditCardDto);
         creditCard.setUser(user);
         CreditCard savedCreditCard = creditCardRepository.save(creditCard);
         return creditCardDtoMapper.mapForReturn(savedCreditCard);
     }
 
-    
+    private void validateCardValidity(String validity) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yy");
+        YearMonth cardExpiry = YearMonth.parse(validity, formatter);
+        if (cardExpiry.isBefore(YearMonth.now())) {
+            throw new IllegalArgumentException("Card validity date is expired");
+        }
+    }
+
+    public Optional<CreditCardDto> getCreditCardById(Long id){
+        return creditCardRepository.findById(id)
+                .map(creditCardDtoMapper::map);
+    }
 }

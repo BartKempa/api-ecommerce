@@ -4,7 +4,6 @@ import com.example.apiecommerce.domain.order.OrderService;
 import com.example.apiecommerce.domain.order.dto.OrderDto;
 import com.example.apiecommerce.domain.order.dto.OrderFullDto;
 import com.example.apiecommerce.domain.order.dto.OrderMainInfoDto;
-import com.example.apiecommerce.domain.product.dto.ProductDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Optional;
 
 
 @RestController
@@ -184,7 +182,7 @@ public class OrderController {
                     example = "1"
             )
             @PathVariable @Min(1) Long id){
-        return orderService.getOrderById(id)
+        return orderService.findOrderById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

@@ -52,7 +52,7 @@ public class OrderService {
     public OrderFullDto createOrder(String userMail, long addressId){
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        CartDetailsDto cart = cartService.getCartDetailsById(user.getCart().getId())
+        CartDetailsDto cart = cartService.findCartDetailsById(user.getCart().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new EntityNotFoundException("Address not found"));
@@ -91,7 +91,7 @@ public class OrderService {
         return orderItems;
     }
 
-    public Optional<OrderFullDto> getOrderById(Long orderId){
+    public Optional<OrderFullDto> findOrderById(Long orderId){
         return orderRepository.findById(orderId).map(orderDtoMapper::map);
     }
 
