@@ -2,7 +2,6 @@ package com.example.apiecommerce.domain.user;
 
 import com.example.apiecommerce.domain.address.Address;
 import com.example.apiecommerce.domain.cart.Cart;
-import com.example.apiecommerce.domain.creditCard.CreditCard;
 import com.example.apiecommerce.domain.order.Order;
 import jakarta.persistence.*;
 
@@ -36,8 +35,6 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
     private Set<UserRole> roles = new HashSet<>();
-    @OneToMany(mappedBy = "user")
-    private Set<CreditCard> creditCards = new HashSet<>();
 
     public User(Long id, String email, String password, String firstName, String lastName, String phoneNumber, LocalDateTime creationDate, Set<UserRole> roles) {
         this.id = id;
@@ -141,11 +138,4 @@ public class User {
         this.orders = orders;
     }
 
-    public Set<CreditCard> getCreditCards() {
-        return creditCards;
-    }
-
-    public void setCreditCards(Set<CreditCard> creditCards) {
-        this.creditCards = creditCards;
-    }
 }

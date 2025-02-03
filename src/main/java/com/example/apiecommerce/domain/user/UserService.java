@@ -3,8 +3,6 @@ package com.example.apiecommerce.domain.user;
 import com.example.apiecommerce.domain.DataTimeProvider;
 import com.example.apiecommerce.domain.address.AddressDtoMapper;
 import com.example.apiecommerce.domain.address.dto.AddressDto;
-import com.example.apiecommerce.domain.creditCard.CreditCardDtoMapper;
-import com.example.apiecommerce.domain.creditCard.dto.CreditCardForReturnDto;
 import com.example.apiecommerce.domain.user.dto.UserCredentialsDto;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
@@ -27,16 +25,15 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRegistrationDtoMapper userRegistrationDtoMapper;
     private final AddressDtoMapper addressDtoMapper;
-    private final CreditCardDtoMapper creditCardDtoMapper;
 
-    public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper, AddressDtoMapper addressDtoMapper, CreditCardDtoMapper creditCardDtoMapper) {
+    public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper, AddressDtoMapper addressDtoMapper) {
             this.userRepository = userRepository;
             this.userRoleRepository = userRoleRepository;
             this.dataTimeProvider = dataTimeProvider;
             this.passwordEncoder = passwordEncoder;
             this.userRegistrationDtoMapper = userRegistrationDtoMapper;
             this.addressDtoMapper = addressDtoMapper;
-        this.creditCardDtoMapper = creditCardDtoMapper;
+
     }
 
     public Optional<UserCredentialsDto> findCredentialsByEmail(String email){
@@ -109,12 +106,4 @@ public class UserService {
                     .toList();
     }
 
-    public List<CreditCardForReturnDto> findAllUserCreditCards(long userId){
-        return userRepository.findById(userId)
-                .map(User::getCreditCards)
-                .orElse(Collections.emptySet())
-                .stream()
-                .map(creditCardDtoMapper::mapForReturn)
-                .toList();
-    }
 }

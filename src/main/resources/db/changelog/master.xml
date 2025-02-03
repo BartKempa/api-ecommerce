@@ -17,5 +17,4 @@
    <include file="0006_create_table_cart_item.xml" relativeToChangelogFile="true"/>
    <include file="0007_create_table_orders.xml" relativeToChangelogFile="true"/>
    <include file="0008_create_table_order_item.xml" relativeToChangelogFile="true"/>
-   <include file="0009_create_table_credit_card.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
