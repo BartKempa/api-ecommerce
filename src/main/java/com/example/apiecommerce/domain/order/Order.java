@@ -18,6 +18,8 @@ public class Order {
     private Long id;
     private Double totalPrice;
     private LocalDateTime orderDate;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -73,5 +75,19 @@ public class Order {
 
     public void setOrderItems(Set<OrderItem> orderItems) {
         this.orderItems = orderItems;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
+    public enum PaymentStatus{
+        PENDING,
+        COMPLETED,
+        FAILED
     }
 }

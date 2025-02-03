@@ -27,7 +27,7 @@ public class CreditCardDtoMapper {
         return creditCardDto;
     }
 
-    CreditCardForReturnDto mapForReturn(CreditCard creditCard) {
+    public CreditCardForReturnDto mapForReturn(CreditCard creditCard) {
         if (creditCard == null) {
             return null;
         }

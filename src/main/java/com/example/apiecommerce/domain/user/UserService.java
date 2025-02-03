@@ -3,41 +3,43 @@ package com.example.apiecommerce.domain.user;
 import com.example.apiecommerce.domain.DataTimeProvider;
 import com.example.apiecommerce.domain.address.AddressDtoMapper;
 import com.example.apiecommerce.domain.address.dto.AddressDto;
+import com.example.apiecommerce.domain.creditCard.CreditCardDtoMapper;
+import com.example.apiecommerce.domain.creditCard.dto.CreditCardForReturnDto;
 import com.example.apiecommerce.domain.user.dto.UserCredentialsDto;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdatePasswordDto;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-    @Service
-    public class UserService {
-        private static final String DEFAULT_USER_ROLE = "USER";
-        private final UserRepository userRepository;
-        private final UserRoleRepository userRoleRepository;
-        private final DataTimeProvider dataTimeProvider;
-        private final PasswordEncoder passwordEncoder;
-        private final UserRegistrationDtoMapper userRegistrationDtoMapper;
-        private final AddressDtoMapper addressDtoMapper;
+@Service
+public class UserService {
+    private static final String DEFAULT_USER_ROLE = "USER";
+    private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final DataTimeProvider dataTimeProvider;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRegistrationDtoMapper userRegistrationDtoMapper;
+    private final AddressDtoMapper addressDtoMapper;
+    private final CreditCardDtoMapper creditCardDtoMapper;
 
-        public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper, AddressDtoMapper addressDtoMapper) {
+    public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper, AddressDtoMapper addressDtoMapper, CreditCardDtoMapper creditCardDtoMapper) {
             this.userRepository = userRepository;
             this.userRoleRepository = userRoleRepository;
             this.dataTimeProvider = dataTimeProvider;
             this.passwordEncoder = passwordEncoder;
             this.userRegistrationDtoMapper = userRegistrationDtoMapper;
             this.addressDtoMapper = addressDtoMapper;
-        }
+        this.creditCardDtoMapper = creditCardDtoMapper;
+    }
 
-        public Optional<UserCredentialsDto> findCredentialsByEmail(String email){
+    public Optional<UserCredentialsDto> findCredentialsByEmail(String email){
         return userRepository.findByEmail(email)
                 .map(UserCredentialDtoMapper::map);
     }
@@ -106,4 +108,13 @@ import java.util.Optional;
                     .map(addressDtoMapper::map)
                     .toList();
     }
+
+    public List<CreditCardForReturnDto> findAllUserCreditCards(long userId){
+        return userRepository.findById(userId)
+                .map(User::getCreditCards)
+                .orElse(Collections.emptySet())
+                .stream()
+                .map(creditCardDtoMapper::mapForReturn)
+                .toList();
     }
+}

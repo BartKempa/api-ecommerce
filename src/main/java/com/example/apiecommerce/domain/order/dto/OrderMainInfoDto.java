@@ -6,6 +6,7 @@ public class OrderMainInfoDto {
     private Long id;
     private LocalDateTime orderDate;
     private double orderTotalPrice;
+    private String orderPaymentStatus;
     private String userEmail;
     private String userPhoneNumber;
 
@@ -31,6 +32,14 @@ public class OrderMainInfoDto {
 
     public void setOrderTotalPrice(double orderTotalPrice) {
         this.orderTotalPrice = orderTotalPrice;
+    }
+
+    public String getOrderPaymentStatus() {
+        return orderPaymentStatus;
+    }
+
+    public void setOrderPaymentStatus(String orderPaymentStatus) {
+        this.orderPaymentStatus = orderPaymentStatus;
     }
 
     public String getUserEmail() {

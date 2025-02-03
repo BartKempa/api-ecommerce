@@ -90,16 +90,12 @@ public class CreditCardController {
                     description = "Found the credit card",
                     content =  @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = CreditCardDto.class),
+                            schema = @Schema(implementation = CreditCardForReturnDto.class),
                             examples = @ExampleObject(value = """
                             {
                               "id": 1,
-                              "streetName": "Pawia",
-                              "buildingNumber": "123",
-                              "apartmentNumber": "321",
-                              "zipCode": "80800",
-                              "city": "Sopot",
-                              "userId": 1
+                              "abbreviationCardNumber": "**** **** **** 9350",
+                              "abbreviationCardValidity": "**/**"
                             }
                         """)
                     )
@@ -120,7 +116,7 @@ public class CreditCardController {
             )
     })
     @GetMapping("/{id}")
-    ResponseEntity<CreditCardDto> findCreditCardById(
+    ResponseEntity<CreditCardForReturnDto> findCreditCardById(
             @Parameter(
                     description = "id of credit card to be searched.",
                     required = true,
@@ -129,5 +125,42 @@ public class CreditCardController {
         return creditCardService.getCreditCardById(id)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new EntityNotFoundException("Credit card not found"));
+    }
+
+
+    @Operation(
+            summary = "Delete a credit card",
+            description = "Delete a credit card by its ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Credit card successfully deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Credit card not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Credit card not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
+    @DeleteMapping("/{id}")
+    ResponseEntity<?> deleteCreditCardById(
+            @Parameter(
+                    description = "id of the credit card to be deleted",
+                    required = true,
+                    example = "1"
+            )
+            @PathVariable @Valid @Min(1) Long id) {
+        creditCardService.deleteCreditCard(id);
+        return ResponseEntity.noContent().build();
     }
 }

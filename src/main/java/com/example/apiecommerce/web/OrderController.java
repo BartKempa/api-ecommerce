@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
@@ -284,5 +285,71 @@ public class OrderController {
                     required = false)
             @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection){
         return orderService.findAllPaginatedOrders(pageNo, pageSize, sortField, sortDirection);
+    }
+
+
+    @Operation(
+            summary = "Process a payment order by its id",
+            description = "Process a payment order by its id" )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "payment order was processed successfully",
+                    content =  @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = OrderFullDto.class),
+                            examples = @ExampleObject(value = """
+                              {
+                                                    "id": 1,
+                                                         "orderItems": [
+                                                             {
+                                                                 "id": 1,
+                                                                 "orderItemQuantity": 1,
+                                                                 "orderId": 1,
+                                                                 "productId": 11,
+                                                                 "productName": "Likier Baileys",
+                                                                 "productPrice": 70.0
+                                                             }
+                                                         ],
+                                                         "orderTotalPrice": 70.0,
+                                                         "orderPaymentStatus": "COMPLETED",
+                                                         "streetName": "Suwalska",
+                                                         "buildingNumber": "123",
+                                                         "apartmentNumber": "321",
+                                                         "zipCode": "80800",
+                                                         "city": "Gdansk",
+                                                         "userFirstName": "Bartek",
+                                                         "userLastName": "Kempiak",
+                                                         "userEmail": "bartek@mail.com",
+                                                         "userPhoneNumber": "123456789"
+                                                    }
+                        """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Order not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "Order not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
+    @PostMapping("/{orderId}/payments")
+    ResponseEntity<?> processPayment(
+            @Parameter(
+                    description = "id of order for which payment will be processed",
+                    required = true,
+                    example = "1")
+            @PathVariable @Min(1) Long orderId){
+        return orderService.processPayment(orderId)
+                .map(ResponseEntity::ok)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
     }
 }

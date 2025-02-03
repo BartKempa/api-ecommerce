@@ -20,10 +20,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 @Service
@@ -66,6 +68,7 @@ public class OrderService {
         order.setOrderDate(dataTimeProvider.getCurrentTime());
         order.setUser(user);
         order.setAddress(address);
+        order.setPaymentStatus(Order.PaymentStatus.PENDING);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -116,4 +119,19 @@ public class OrderService {
         return orderRepository.findAll(pageable)
                 .map(orderDtoMapper::mapToMainInfo);
     }
+
+    @Transactional
+    public Optional<OrderFullDto> processPayment(Long orderId){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+
+        boolean isPaymentSuccessful = new Random().nextBoolean();
+        order.setPaymentStatus(isPaymentSuccessful ? Order.PaymentStatus.COMPLETED : Order.PaymentStatus.FAILED);
+
+        orderRepository.save(order);
+
+        return Optional.of(orderDtoMapper.map(order));
+    }
+
+
 }

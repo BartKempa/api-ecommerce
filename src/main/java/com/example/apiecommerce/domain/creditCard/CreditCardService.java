@@ -5,6 +5,7 @@ import com.example.apiecommerce.domain.creditCard.dto.CreditCardForReturnDto;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.checkerframework.checker.optional.qual.OptionalBottom;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,8 +46,18 @@ public class CreditCardService {
         }
     }
 
-    public Optional<CreditCardDto> getCreditCardById(Long id){
+    public Optional<CreditCardForReturnDto> getCreditCardById(Long id){
         return creditCardRepository.findById(id)
-                .map(creditCardDtoMapper::map);
+                .map(creditCardDtoMapper::mapForReturn);
     }
+
+    @Transactional
+    public void deleteCreditCard(Long creditCardId){
+        if (!creditCardRepository.existsById(creditCardId)) {
+            throw new EntityNotFoundException("Credit card not found");
+        }
+        creditCardRepository.deleteById(creditCardId);
+    }
+
+
 }

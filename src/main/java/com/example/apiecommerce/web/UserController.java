@@ -1,6 +1,7 @@
 package com.example.apiecommerce.web;
 
 import com.example.apiecommerce.domain.address.dto.AddressDto;
+import com.example.apiecommerce.domain.creditCard.dto.CreditCardForReturnDto;
 import com.example.apiecommerce.domain.user.UserService;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -249,7 +251,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Found the list od user addresses",
+                    description = "Found the list of user addresses",
                     content =  @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = AddressDto.class),
@@ -293,5 +295,56 @@ public class UserController {
             @PathVariable Long id){
         var addresses = userService.findAllUserAddresses(id);
         return ResponseEntity.ok(addresses);
+    }
+
+
+
+    @Operation(
+            summary = "Get all credit cards of a user",
+            description = "Retrieve a list of user credit cards by its id"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Found the list of user credit cards",
+                    content =  @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = CreditCardForReturnDto.class),
+                            examples = @ExampleObject(value = """
+                                    [
+                                        {
+                                            "id": 1,
+                                            "abbreviationCardNumber": "**** **** **** 9350",
+                                            "abbreviationCardValidity": "**/**"
+                                        }
+                                    ]
+                                    """
+                            )
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                                    {
+                                        "message": "User not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
+    @GetMapping("/{id}/creditCards")
+    ResponseEntity<List<CreditCardForReturnDto>> getUserCreditCards(
+            @Parameter(
+                    description = "id of user to be searched",
+                    required = true,
+                    example = "4")
+            @PathVariable @Valid @Min(1) Long id){
+        var allUserCreditCards = userService.findAllUserCreditCards(id);
+        return ResponseEntity.ok(allUserCreditCards);
     }
 }
