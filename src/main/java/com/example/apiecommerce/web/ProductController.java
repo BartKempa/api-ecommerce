@@ -5,6 +5,7 @@ import com.example.apiecommerce.domain.product.dto.ProductDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -107,7 +108,7 @@ public class ProductController {
                     description = "Got the list of all products",
                     content =  @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ProductDto.class)
+                            array = @ArraySchema(schema = @Schema(implementation = ProductDto.class))
                     )
             )
     })

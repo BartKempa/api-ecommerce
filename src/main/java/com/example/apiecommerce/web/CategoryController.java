@@ -5,6 +5,7 @@ import com.example.apiecommerce.domain.category.dto.CategoryDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -99,7 +100,7 @@ public class CategoryController {
                     description = "Got the list of all categories",
                     content =  @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = CategoryDto.class),
+                            array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)),
                             examples = @ExampleObject(value = """
                             [
                                 {
