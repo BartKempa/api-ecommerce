@@ -26,6 +26,13 @@
                              referencedColumnNames="id"
                              />
             </column>
+            <column name="delivery_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_orders_delivery"
+                             referencedTableName="delivery"
+                             referencedColumnNames="id"
+                             />
+            </column>
         </createTable>
 
     </changeSet>

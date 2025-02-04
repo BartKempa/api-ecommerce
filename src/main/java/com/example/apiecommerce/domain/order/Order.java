@@ -1,6 +1,7 @@
 package com.example.apiecommerce.domain.order;
 
 import com.example.apiecommerce.domain.address.Address;
+import com.example.apiecommerce.domain.delivery.Delivery;
 import com.example.apiecommerce.domain.orderItem.OrderItem;
 import com.example.apiecommerce.domain.user.User;
 import jakarta.persistence.*;
@@ -28,6 +29,10 @@ public class Order {
     private Address address;
     @OneToMany(mappedBy = "order", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<OrderItem> orderItems = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "delivery_id")
+    private Delivery delivery;
 
     public Long getId() {
         return id;
