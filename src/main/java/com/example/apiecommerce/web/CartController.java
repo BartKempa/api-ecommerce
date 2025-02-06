@@ -13,14 +13,18 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.constraints.Min;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Map;
 
 @Validated
 @RestController
@@ -182,6 +186,54 @@ public class CartController {
                     example = "1")
             @PathVariable Long id){
         cartService.deleteCart(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(
+            summary = "Empty a cart",
+            description = "Empty a cart by its id")
+    @ApiResponse(
+            responseCode = "400",
+            description = "User does not have a cart",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = ApiError.class),
+                    examples = @ExampleObject(value =
+                            """
+                            {
+                                "message": "User does not have a cart",
+                                "timestamp": "2025-01-21T14:45:00"
+                            }
+                            """)
+            )
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Cart is empty"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Cart not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value =
+                                    """
+                                    {
+                                        "message": "Cart not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/clear")
+    public ResponseEntity<?> emptyCart(Authentication authentication) {
+        String username = authentication.getName();
+        cartService.clearCart(username);
         return ResponseEntity.noContent().build();
     }
 }

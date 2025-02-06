@@ -11,6 +11,9 @@ public class OrderDto {
     @NotNull
     @Min(1)
     private long addressId;
+    @NotNull
+    @Min(1)
+    private long deliveryId;
 
     public Long getId() {
         return id;
@@ -34,5 +37,13 @@ public class OrderDto {
 
     public void setAddressId(long addressId) {
         this.addressId = addressId;
+    }
+
+    public long getDeliveryId() {
+        return deliveryId;
+    }
+
+    public void setDeliveryId(long deliveryId) {
+        this.deliveryId = deliveryId;
     }
 }

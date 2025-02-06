@@ -2,6 +2,7 @@ package com.example.apiecommerce.domain.cart;
 
 import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cart.dto.CartDto;
+import com.example.apiecommerce.domain.cartItem.CartItemRepository;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -17,12 +18,14 @@ public class CartService {
     private final CartDtoMapper cartDtoMapper;
     private final UserRepository userRepository;
     private final CartDetailsDtoMapper cartDetailsDtoMapper;
+    private final CartItemRepository cartItemRepository;
 
-    public CartService(CartRepository cartRepository, CartDtoMapper cartDtoMapper, UserRepository userRepository, CartDetailsDtoMapper cartDetailsDtoMapper) {
+    public CartService(CartRepository cartRepository, CartDtoMapper cartDtoMapper, UserRepository userRepository, CartDetailsDtoMapper cartDetailsDtoMapper, CartItemRepository cartItemRepository) {
         this.cartRepository = cartRepository;
         this.cartDtoMapper = cartDtoMapper;
         this.userRepository = userRepository;
         this.cartDetailsDtoMapper = cartDetailsDtoMapper;
+        this.cartItemRepository = cartItemRepository;
     }
 
     @Transactional
@@ -59,5 +62,16 @@ public class CartService {
                     userRepository.save(u);
                 });
         cartRepository.delete(cart);
+    }
+
+    @Transactional
+    public void clearCart(String userMail){
+        User user = userRepository.findByEmail(userMail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        Cart cart = Optional.ofNullable(user.getCart())
+                .orElseThrow(() -> new IllegalStateException("User does not have a cart"));
+
+        cartItemRepository.deleteAllByCart_Id(cart.getId());
     }
 }

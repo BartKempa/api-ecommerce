@@ -6,6 +6,8 @@ import com.example.apiecommerce.domain.address.AddressRepository;
 import com.example.apiecommerce.domain.cart.CartService;
 import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
+import com.example.apiecommerce.domain.delivery.Delivery;
+import com.example.apiecommerce.domain.delivery.DeliveryRepository;
 import com.example.apiecommerce.domain.order.dto.OrderFullDto;
 import com.example.apiecommerce.domain.order.dto.OrderMainInfoDto;
 import com.example.apiecommerce.domain.orderItem.OrderItem;
@@ -20,7 +22,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -38,8 +39,9 @@ public class OrderService {
     private final OrderDtoMapper orderDtoMapper;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final DeliveryRepository deliveryRepository;
 
-    public OrderService(UserRepository userRepository, CartService cartService, DataTimeProvider dataTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository) {
+    public OrderService(UserRepository userRepository, CartService cartService, DataTimeProvider dataTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository, DeliveryRepository deliveryRepository) {
         this.userRepository = userRepository;
         this.cartService = cartService;
         this.dataTimeProvider = dataTimeProvider;
@@ -48,27 +50,31 @@ public class OrderService {
         this.orderDtoMapper = orderDtoMapper;
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
+        this.deliveryRepository = deliveryRepository;
     }
 
     @Transactional
-    public OrderFullDto createOrder(String userMail, long addressId){
+    public OrderFullDto createOrder(String userMail, long addressId, long deliveryId){
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         CartDetailsDto cart = cartService.findCartDetailsById(user.getCart().getId())
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new EntityNotFoundException("Delivery not found"));
 
         if (!address.getUser().equals(user)){
             throw new IllegalArgumentException("Address not belong to the specified user");
         }
 
         Order order = new Order();
-        order.setTotalPrice(cart.getTotalCost());
+        order.setTotalPrice(cart.getTotalCost() + delivery.getDeliveryCharge());
         order.setOrderDate(dataTimeProvider.getCurrentTime());
         order.setUser(user);
         order.setAddress(address);
-        order.setPaymentStatus(Order.PaymentStatus.PENDING);
+        order.setPaymentStatus(PaymentStatus.PENDING);
+        order.setDelivery(delivery);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -126,7 +132,7 @@ public class OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
         boolean isPaymentSuccessful = new Random().nextBoolean();
-        order.setPaymentStatus(isPaymentSuccessful ? Order.PaymentStatus.COMPLETED : Order.PaymentStatus.FAILED);
+        order.setPaymentStatus(isPaymentSuccessful ? PaymentStatus.COMPLETED : PaymentStatus.FAILED);
 
         orderRepository.save(order);
         

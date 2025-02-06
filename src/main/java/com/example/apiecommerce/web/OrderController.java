@@ -114,7 +114,7 @@ public class OrderController {
             @Valid @RequestBody OrderDto orderDto,
             Authentication authentication){
         String username = authentication.getName();
-        OrderFullDto orderFullDto = orderService.createOrder(username, orderDto.getAddressId());
+        OrderFullDto orderFullDto = orderService.createOrder(username, orderDto.getAddressId(), orderDto.getDeliveryId());
         URI savedOrderUri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(orderFullDto.getId())
