@@ -4,6 +4,8 @@ import com.example.apiecommerce.domain.order.Order;
 import com.example.apiecommerce.domain.product.Product;
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 public class OrderItem {
 
@@ -48,5 +50,17 @@ public class OrderItem {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderItem orderItem)) return false;
+        return Objects.equals(id, orderItem.id) && Objects.equals(orderItemQuantity, orderItem.orderItemQuantity) && Objects.equals(order, orderItem.order) && Objects.equals(product, orderItem.product);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, orderItemQuantity, order, product);
     }
 }

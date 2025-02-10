@@ -21,6 +21,8 @@ public class Order {
     private LocalDateTime orderDate;
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -82,6 +84,15 @@ public class Order {
         this.orderItems = orderItems;
     }
 
+
+    public Delivery getDelivery() {
+        return delivery;
+    }
+
+    public void setDelivery(Delivery delivery) {
+        this.delivery = delivery;
+    }
+
     public PaymentStatus getPaymentStatus() {
         return paymentStatus;
     }
@@ -90,11 +101,11 @@ public class Order {
         this.paymentStatus = paymentStatus;
     }
 
-    public Delivery getDelivery() {
-        return delivery;
+    public OrderStatus getOrderStatus() {
+        return orderStatus;
     }
 
-    public void setDelivery(Delivery delivery) {
-        this.delivery = delivery;
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 }
