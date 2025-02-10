@@ -1,6 +1,6 @@
 package com.example.apiecommerce.domain.user;
 
-import com.example.apiecommerce.domain.DataTimeProvider;
+import com.example.apiecommerce.domain.DateTimeProvider;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import org.springframework.stereotype.Service;
 
@@ -10,11 +10,11 @@ import java.util.stream.Collectors;
 public class UserRegistrationDtoMapper {
     private static final String DEFAULT_USER_ROLE = "USER";
     private final UserRoleRepository userRoleRepository;
-    private final DataTimeProvider dataTimeProvider;
+    private final DateTimeProvider dateTimeProvider;
 
-    public UserRegistrationDtoMapper(UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider) {
+    public UserRegistrationDtoMapper(UserRoleRepository userRoleRepository, DateTimeProvider dateTimeProvider) {
         this.userRoleRepository = userRoleRepository;
-        this.dataTimeProvider = dataTimeProvider;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
 
@@ -37,7 +37,7 @@ public class UserRegistrationDtoMapper {
                 userRegistrationDto.getFirstName(),
                 userRegistrationDto.getLastName(),
                 userRegistrationDto.getPhoneNumber(),
-                dataTimeProvider.getCurrentTime(),
+                dateTimeProvider.getCurrentTime(),
                 userRoleRepository.findByName(DEFAULT_USER_ROLE).stream().collect(Collectors.toSet())
         );
     }

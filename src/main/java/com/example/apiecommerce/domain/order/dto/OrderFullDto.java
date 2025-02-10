@@ -9,6 +9,7 @@ public class OrderFullDto {
     private Set<OrderItemDto> orderItems;
     private double orderTotalPrice;
     private String orderPaymentStatus;
+    private String orderStatus;
     private String streetName;
     private String buildingNumber;
     private String apartmentNumber;
@@ -49,6 +50,14 @@ public class OrderFullDto {
 
     public void setOrderPaymentStatus(String orderPaymentStatus) {
         this.orderPaymentStatus = orderPaymentStatus;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     public String getStreetName() {
@@ -122,5 +131,4 @@ public class OrderFullDto {
     public void setUserPhoneNumber(String userPhoneNumber) {
         this.userPhoneNumber = userPhoneNumber;
     }
-
 }

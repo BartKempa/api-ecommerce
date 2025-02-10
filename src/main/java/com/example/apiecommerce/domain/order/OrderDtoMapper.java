@@ -24,6 +24,7 @@ public class OrderDtoMapper {
         orderDto.setOrderItems(order.getOrderItems().stream().map(orderItemDtoMapper::map).collect(Collectors.toSet()));
         orderDto.setOrderTotalPrice(order.getTotalPrice());
         orderDto.setOrderPaymentStatus(order.getPaymentStatus().name());
+        orderDto.setOrderStatus(order.getOrderStatus().name());
         orderDto.setStreetName(order.getAddress().getStreetName());
         orderDto.setBuildingNumber(order.getAddress().getBuildingNumber());
         orderDto.setApartmentNumber(order.getAddress().getApartmentNumber());
@@ -45,6 +46,7 @@ public class OrderDtoMapper {
         orderMainInfoDto.setOrderDate(order.getOrderDate());
         orderMainInfoDto.setOrderTotalPrice(order.getTotalPrice());
         orderMainInfoDto.setOrderPaymentStatus(order.getPaymentStatus().name());
+        orderMainInfoDto.setOrderStatus(order.getOrderStatus().name());
         orderMainInfoDto.setUserEmail(order.getUser().getEmail());
         orderMainInfoDto.setUserPhoneNumber(order.getUser().getPhoneNumber());
         return orderMainInfoDto;

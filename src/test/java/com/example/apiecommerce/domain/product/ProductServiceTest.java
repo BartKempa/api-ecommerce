@@ -1,6 +1,6 @@
 package com.example.apiecommerce.domain.product;
 
-import com.example.apiecommerce.domain.DataTimeProvider;
+import com.example.apiecommerce.domain.DateTimeProvider;
 import com.example.apiecommerce.domain.category.Category;
 import com.example.apiecommerce.domain.category.CategoryRepository;
 import com.example.apiecommerce.domain.product.dto.ProductDto;
@@ -36,7 +36,7 @@ class ProductServiceTest {
     private ProductDtoMapper productDtoMapperMock;
 
     @Mock
-    private DataTimeProvider dataTimeProviderMock;
+    private DateTimeProvider dateTimeProviderMock;
 
     @Mock
     private CategoryRepository categoryRepositoryMock;
@@ -46,7 +46,7 @@ class ProductServiceTest {
 
     @BeforeEach
     void init(){
-        productService = new ProductService(productRepositoryMock, categoryRepositoryMock, productDtoMapperMock, dataTimeProviderMock);
+        productService = new ProductService(productRepositoryMock, categoryRepositoryMock, productDtoMapperMock, dateTimeProviderMock);
     }
 
 
@@ -76,7 +76,7 @@ class ProductServiceTest {
         product.setCategory(category);
         product.setCreationDate(now);
 
-        Mockito.when(dataTimeProviderMock.getCurrentTime()).thenReturn(now);
+        Mockito.when(dateTimeProviderMock.getCurrentTime()).thenReturn(now);
         Mockito.when(productDtoMapperMock.map(productDto)).thenReturn(product);
         Mockito.when(productRepositoryMock.save(Mockito.any(Product.class))).thenReturn(product);
 
@@ -110,7 +110,7 @@ class ProductServiceTest {
         LocalDateTime now = LocalDateTime.now();
         productDto.setCreationDate(now);
 
-        Mockito.when(dataTimeProviderMock.getCurrentTime()).thenReturn(now);
+        Mockito.when(dateTimeProviderMock.getCurrentTime()).thenReturn(now);
         Mockito.doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Category not found")).when(productDtoMapperMock).map(productDto);
 
         //when
@@ -132,7 +132,7 @@ class ProductServiceTest {
         productDto.setCategoryId(1L);
 
         LocalDateTime now = LocalDateTime.now();
-        Mockito.when(dataTimeProviderMock.getCurrentTime()).thenReturn(now);
+        Mockito.when(dateTimeProviderMock.getCurrentTime()).thenReturn(now);
 
         Product product = new Product();
         Mockito.when(productDtoMapperMock.map(productDto)).thenReturn(product);

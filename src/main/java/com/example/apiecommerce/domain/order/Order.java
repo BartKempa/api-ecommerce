@@ -26,7 +26,7 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
     @OneToMany(mappedBy = "order", cascade = CascadeType.REMOVE, orphanRemoval = true)

@@ -1,6 +1,6 @@
 package com.example.apiecommerce.domain.user;
 
-import com.example.apiecommerce.domain.DataTimeProvider;
+import com.example.apiecommerce.domain.DateTimeProvider;
 import com.example.apiecommerce.domain.address.AddressDtoMapper;
 import com.example.apiecommerce.domain.address.dto.AddressDto;
 import com.example.apiecommerce.domain.user.dto.UserCredentialsDto;
@@ -21,15 +21,15 @@ public class UserService {
     private static final String DEFAULT_USER_ROLE = "USER";
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
-    private final DataTimeProvider dataTimeProvider;
+    private final DateTimeProvider dateTimeProvider;
     private final PasswordEncoder passwordEncoder;
     private final UserRegistrationDtoMapper userRegistrationDtoMapper;
     private final AddressDtoMapper addressDtoMapper;
 
-    public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DataTimeProvider dataTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper, AddressDtoMapper addressDtoMapper) {
+    public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DateTimeProvider dateTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper, AddressDtoMapper addressDtoMapper) {
             this.userRepository = userRepository;
             this.userRoleRepository = userRoleRepository;
-            this.dataTimeProvider = dataTimeProvider;
+            this.dateTimeProvider = dateTimeProvider;
             this.passwordEncoder = passwordEncoder;
             this.userRegistrationDtoMapper = userRegistrationDtoMapper;
             this.addressDtoMapper = addressDtoMapper;
@@ -49,7 +49,7 @@ public class UserService {
         user.setFirstName(userRegistrationDto.getFirstName());
         user.setLastName(userRegistrationDto.getLastName());
         user.setPhoneNumber(userRegistrationDto.getPhoneNumber());
-        user.setCreationDate(dataTimeProvider.getCurrentTime());
+        user.setCreationDate(dateTimeProvider.getCurrentTime());
         UserRole userRole = userRoleRepository.findByName(DEFAULT_USER_ROLE).orElseThrow();
         user.getRoles().add(userRole);
         userRepository.save(user);

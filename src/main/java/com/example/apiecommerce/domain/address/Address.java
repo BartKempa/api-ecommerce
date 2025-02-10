@@ -4,6 +4,9 @@ import com.example.apiecommerce.domain.order.Order;
 import com.example.apiecommerce.domain.user.User;
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 public class Address {
 
@@ -18,8 +21,8 @@ public class Address {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-    @OneToOne(mappedBy = "address")
-    private Order order;
+    @OneToMany(mappedBy = "address")
+    private Set<Order> orders = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -77,11 +80,11 @@ public class Address {
         this.user = user;
     }
 
-    public Order getOrder() {
-        return order;
+    public Set<Order> getOrders() {
+        return orders;
     }
 
-    public void setOrder(Order order) {
-        this.order = order;
+    public void setOrders(Set<Order> orders) {
+        this.orders = orders;
     }
 }

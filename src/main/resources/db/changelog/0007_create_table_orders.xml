@@ -12,7 +12,7 @@
             <column name="total_price" type="DOUBLE"/>
             <column name="order_date" type="DATETIME"/>
             <column name="payment_status" type="ENUM('PENDING', 'COMPLETED', 'FAILED')"/>
-            <column name="order_status" type="ENUM('NEW', 'SUCCESS', 'CANCELED')"/>
+            <column name="order_status" type="ENUM('NEW', 'SUCCESS', 'CANCELLED')"/>
             <column name="user_id" type="BIGINT">
                 <constraints nullable="false"
                              foreignKeyName="fk_orders_user"

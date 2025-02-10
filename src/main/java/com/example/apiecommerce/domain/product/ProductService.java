@@ -1,6 +1,6 @@
 package com.example.apiecommerce.domain.product;
 
-import com.example.apiecommerce.domain.DataTimeProvider;
+import com.example.apiecommerce.domain.DateTimeProvider;
 import com.example.apiecommerce.domain.category.CategoryRepository;
 import com.example.apiecommerce.domain.product.dto.ProductDto;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,20 +21,20 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductDtoMapper productDtoMapper;
-    private final DataTimeProvider dataTimeProvider;
+    private final DateTimeProvider dateTimeProvider;
 
 
-    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, ProductDtoMapper productDtoMapper, DataTimeProvider dataTimeProvider) {
+    public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, ProductDtoMapper productDtoMapper, DateTimeProvider dateTimeProvider) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.productDtoMapper = productDtoMapper;
 
-        this.dataTimeProvider = dataTimeProvider;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     @Transactional
     public ProductDto saveProduct(ProductDto productDto){
-        LocalDateTime now = dataTimeProvider.getCurrentTime();
+        LocalDateTime now = dateTimeProvider.getCurrentTime();
         productDto.setCreationDate(now);
         Product productToSave = productDtoMapper.map(productDto);
         Product savedProduct = productRepository.save(productToSave);

@@ -352,4 +352,76 @@ public class OrderController {
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
     }
+
+
+    @Operation(
+            summary = "Cancel an order",
+            description = "Cancel an order by its id")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Order Canceled"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Order not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value =
+                                    """
+                                    {
+                                        "message": "Order not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
+    @PatchMapping("/{id}/cancel")
+    ResponseEntity<?> cancelOrderById(
+            @Parameter(
+                    description = "id of order to be canceled",
+                    required = true,
+                    example = "1")
+            @PathVariable @Min(1) Long id){
+        orderService.cancelOrderById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @Operation(
+            summary = "Mark order as SUCCESS",
+            description = "Mark order as SUCCESS by its id")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Order succeed"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Order not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value =
+                                    """
+                                    {
+                                        "message": "Order not found",
+                                        "timestamp": "2025-01-21T14:45:00"
+                                    }
+                                    """)
+                    )
+            )
+    })
+    @PatchMapping("/{id}/success")
+    ResponseEntity<?> successOrderById(
+            @Parameter(
+                    description = "id of the order to mark as SUCCESS",
+                    required = true,
+                    example = "1")
+            @PathVariable @Min(1) Long id){
+        orderService.successOrderById(id);
+        return ResponseEntity.noContent().build();
+    }
 }

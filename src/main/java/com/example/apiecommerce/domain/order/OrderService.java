@@ -1,6 +1,6 @@
 package com.example.apiecommerce.domain.order;
 
-import com.example.apiecommerce.domain.DataTimeProvider;
+import com.example.apiecommerce.domain.DateTimeProvider;
 import com.example.apiecommerce.domain.address.Address;
 import com.example.apiecommerce.domain.address.AddressRepository;
 import com.example.apiecommerce.domain.cart.CartService;
@@ -29,11 +29,12 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
+
 @Service
 public class OrderService {
     private final UserRepository userRepository;
     private final CartService cartService;
-    private final DataTimeProvider dataTimeProvider;
+    private final DateTimeProvider dateTimeProvider;
     private final AddressRepository addressRepository;
     private final ProductRepository productRepository;
     private final OrderDtoMapper orderDtoMapper;
@@ -41,10 +42,10 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final DeliveryRepository deliveryRepository;
 
-    public OrderService(UserRepository userRepository, CartService cartService, DataTimeProvider dataTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository, DeliveryRepository deliveryRepository) {
+    public OrderService(UserRepository userRepository, CartService cartService, DateTimeProvider dateTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository, DeliveryRepository deliveryRepository) {
         this.userRepository = userRepository;
         this.cartService = cartService;
-        this.dataTimeProvider = dataTimeProvider;
+        this.dateTimeProvider = dateTimeProvider;
         this.addressRepository = addressRepository;
         this.productRepository = productRepository;
         this.orderDtoMapper = orderDtoMapper;
@@ -70,10 +71,11 @@ public class OrderService {
 
         Order order = new Order();
         order.setTotalPrice(cart.getTotalCost() + delivery.getDeliveryCharge());
-        order.setOrderDate(dataTimeProvider.getCurrentTime());
+        order.setOrderDate(dateTimeProvider.getCurrentTime());
         order.setUser(user);
         order.setAddress(address);
         order.setPaymentStatus(PaymentStatus.PENDING);
+        order.setOrderStatus(OrderStatus.NEW);
         order.setDelivery(delivery);
 
         Order savedOrder = orderRepository.save(order);
@@ -108,9 +110,6 @@ public class OrderService {
     public void deleteOrderById(Long orderId){
         Order orderToDelete = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
-        if (orderToDelete.getAddress() != null) {
-            orderToDelete.getAddress().setOrder(null);
-        }
         orderRepository.delete(orderToDelete);
     }
 
@@ -139,5 +138,28 @@ public class OrderService {
         return Optional.of(orderDtoMapper.map(order));
     }
 
+    @Transactional
+    public void cancelOrderById(Long orderId){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+        if (!order.getOrderStatus().equals(OrderStatus.NEW)){
+            throw new IllegalArgumentException("Only status 'NEW' can be changed into 'CANCELLED'");
+        }
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        orderRepository.save(order);
+    }
 
+    @Transactional
+    public void successOrderById(Long orderId){
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+        if (!order.getPaymentStatus().equals(PaymentStatus.COMPLETED)) {
+            throw new IllegalArgumentException("Only orders with payment status 'COMPLETED' can be marked as 'SUCCESS'");
+        }
+        if (!order.getOrderStatus().equals(OrderStatus.NEW)) {
+            throw new IllegalArgumentException("Only orders with status 'NEW' can be changed into 'SUCCESS'");
+        }
+        order.setOrderStatus(OrderStatus.SUCCESS);
+        orderRepository.save(order);
+    }
 }
