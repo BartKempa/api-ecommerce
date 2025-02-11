@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-public class ProductDtoMapper {
+class ProductDtoMapper {
     private final CategoryRepository categoryRepository;
 
     ProductDtoMapper(CategoryRepository categoryRepository) {
@@ -17,7 +17,7 @@ public class ProductDtoMapper {
         this.categoryRepository = categoryRepository;
     }
 
-    public ProductDto map(Product product){
+    ProductDto map(Product product){
         if (product == null){
             return null;
         }

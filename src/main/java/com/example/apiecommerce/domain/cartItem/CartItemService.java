@@ -6,6 +6,9 @@ import com.example.apiecommerce.domain.cart.CartService;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemUpdateQuantityDto;
+import com.example.apiecommerce.domain.product.Product;
+import com.example.apiecommerce.domain.product.ProductRepository;
+import com.example.apiecommerce.domain.product.ProductService;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,14 +25,18 @@ public class CartItemService {
     private final CartService cartService;
     private final CartRepository cartRepository;
     private final CartItemFullDtoMapper cartItemFullDtoMapper;
+    private final ProductService productService;
+    private final ProductRepository productRepository;
 
-    public CartItemService(CartItemRepository cartItemRepository, CartItemDtoMapper cartItemDtoMapper, UserRepository userRepository, CartService cartService, CartRepository cartRepository, CartItemFullDtoMapper cartItemFullDtoMapper) {
+    public CartItemService(CartItemRepository cartItemRepository, CartItemDtoMapper cartItemDtoMapper, UserRepository userRepository, CartService cartService, CartRepository cartRepository, CartItemFullDtoMapper cartItemFullDtoMapper, ProductService productService, ProductRepository productRepository) {
         this.cartItemRepository = cartItemRepository;
         this.cartItemDtoMapper = cartItemDtoMapper;
         this.userRepository = userRepository;
         this.cartService = cartService;
         this.cartRepository = cartRepository;
         this.cartItemFullDtoMapper = cartItemFullDtoMapper;
+        this.productService = productService;
+        this.productRepository = productRepository;
     }
 
 
@@ -42,6 +49,7 @@ public class CartItemService {
         CartItem cartItemToSave = cartItemDtoMapper.map(cartItemDto);
         Cart cart = cartRepository.findById(cardId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+        productService.reduceProductQuantityInDbByOne(cartItemDto.getProductId());
         cartItemToSave.setCart(cart);
         CartItem savedCartItem = cartItemRepository.save(cartItemToSave);
         return cartItemFullDtoMapper.map(savedCartItem);
@@ -52,6 +60,9 @@ public class CartItemService {
         if (!cartItemRepository.existsById(cartItemId)){
             throw new EntityNotFoundException("CartItem not found");
         }
+        Product product = productRepository.getProductByCartItemId(cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        productService.updateProductQuantityInDb(product.getId(), -cartItemRepository.findById(cartItemId).orElseThrow().getCartItemQuantity());
         cartItemRepository.deleteById(cartItemId);
     }
 
@@ -59,6 +70,9 @@ public class CartItemService {
     public void updateCartItemQuantity(long cartItemId, CartItemUpdateQuantityDto cartItemUpdateQuantityDto){
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+        Product product = productRepository.getProductByCartItemId(cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        productService.updateProductQuantityInDb(product.getId(), (cartItemUpdateQuantityDto.getCartItemQuantity() - cartItem.getCartItemQuantity()));
         if (cartItemUpdateQuantityDto.getCartItemQuantity() != null){
             cartItem.setCartItemQuantity(cartItemUpdateQuantityDto.getCartItemQuantity());
         }
@@ -69,6 +83,9 @@ public class CartItemService {
     public void increaseCartItemQuantityByOne(long cartItemId){
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+        Product product = productRepository.getProductByCartItemId(cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        productService.reduceProductQuantityInDbByOne(product.getId());
         cartItem.setCartItemQuantity(cartItem.getCartItemQuantity() + 1);
         cartItemRepository.save(cartItem);
     }
@@ -77,6 +94,9 @@ public class CartItemService {
     public void reduceCartItemQuantityByOne(long cartItemId){
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+        Product product = productRepository.getProductByCartItemId(cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        productService.increaseProductQuantityInDbByOne(product.getId());
         cartItem.setCartItemQuantity(cartItem.getCartItemQuantity() - 1);
         if (cartItem.getCartItemQuantity() <= 0){
             throw new IllegalArgumentException("Quantity cannot be less than 1");

@@ -231,7 +231,7 @@ public class CartItemController {
                     )
             )
     })
-    @PatchMapping("/{id}/quantity/increment ")
+    @PatchMapping("/{id}/quantity/increment")
     ResponseEntity<?> increaseCartItemQuantityByOne(
             @Parameter(
                     description = "ID of the cart item to be increased",

@@ -26,7 +26,6 @@ public class ProductDto {
 
     public ProductDto() {
     }
-
     public ProductDto(Long id, String productName, Double productPrice, String description, LocalDateTime creationDate, Long productQuantity, Long categoryId, String categoryName) {
         this.id = id;
         this.productName = productName;

@@ -28,7 +28,6 @@ public class ProductService {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.productDtoMapper = productDtoMapper;
-
         this.dateTimeProvider = dateTimeProvider;
     }
 
@@ -65,10 +64,8 @@ public class ProductService {
     }
 
     public Optional<ProductDto> findProductById(Long productId){
-        if (!productRepository.existsById(productId)){
-            return Optional.empty();
-        }
-        return productRepository.findById(productId).map(productDtoMapper::map);
+        return productRepository.findById(productId)
+                .map(productDtoMapper::map);
     }
 
     @Transactional
@@ -97,7 +94,33 @@ public class ProductService {
         return productRepository.findById(productId).map(Product::getProductQuantity);
     }
 
-/*    public void updateProductQuantity(){
-       TODO - aktualizacja ilośi produktu po dokonaniu zamówienia
-    }*/
+    @Transactional
+    public void reduceProductQuantityInDbByOne(Long productId){
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        if (product.getProductQuantity() < 1){
+            throw new IllegalArgumentException("Product is unavailable");
+        }
+        product.setProductQuantity(product.getProductQuantity() - 1);
+        productRepository.save(product);
+    }
+
+    @Transactional
+    public void increaseProductQuantityInDbByOne(Long productId){
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        product.setProductQuantity(product.getProductQuantity() + 1);
+        productRepository.save(product);
+    }
+
+    @Transactional
+    public void updateProductQuantityInDb(Long productId, long quantityToChange){
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        if (product.getProductQuantity() < quantityToChange){
+            throw new IllegalArgumentException("Not enough quantity in stock");
+        }
+        product.setProductQuantity(product.getProductQuantity() - quantityToChange);
+        productRepository.save(product);
+    }
 }

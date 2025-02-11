@@ -14,6 +14,7 @@ import com.example.apiecommerce.domain.orderItem.OrderItem;
 import com.example.apiecommerce.domain.orderItem.OrderItemRepository;
 import com.example.apiecommerce.domain.product.Product;
 import com.example.apiecommerce.domain.product.ProductRepository;
+import com.example.apiecommerce.domain.product.ProductService;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -41,8 +42,9 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final DeliveryRepository deliveryRepository;
+    private final ProductService productService;
 
-    public OrderService(UserRepository userRepository, CartService cartService, DateTimeProvider dateTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository, DeliveryRepository deliveryRepository) {
+    public OrderService(UserRepository userRepository, CartService cartService, DateTimeProvider dateTimeProvider, AddressRepository addressRepository, ProductRepository productRepository, OrderDtoMapper orderDtoMapper, OrderRepository orderRepository, OrderItemRepository orderItemRepository, DeliveryRepository deliveryRepository, ProductService productService) {
         this.userRepository = userRepository;
         this.cartService = cartService;
         this.dateTimeProvider = dateTimeProvider;
@@ -52,6 +54,7 @@ public class OrderService {
         this.orderRepository = orderRepository;
         this.orderItemRepository = orderItemRepository;
         this.deliveryRepository = deliveryRepository;
+        this.productService = productService;
     }
 
     @Transactional
@@ -81,7 +84,7 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
 
         Set<OrderItem> orderItems = getOrderItems(order, cart, savedOrder);
-        cartService.deleteCart(user.getCart().getId());
+        cartService.deleteCartWithoutIncreasingStock(user.getCart().getId());
         orderItemRepository.saveAll(orderItems);
         return orderDtoMapper.map(savedOrder);
     }
@@ -110,6 +113,10 @@ public class OrderService {
     public void deleteOrderById(Long orderId){
         Order orderToDelete = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+        for (OrderItem orderItem : orderToDelete.getOrderItems()) {
+            Product product = orderItem.getProduct();
+            productService.updateProductQuantityInDb(product.getId(), -orderItem.getOrderItemQuantity());
+        }
         orderRepository.delete(orderToDelete);
     }
 
@@ -144,6 +151,12 @@ public class OrderService {
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
         if (!order.getOrderStatus().equals(OrderStatus.NEW)){
             throw new IllegalArgumentException("Only status 'NEW' can be changed into 'CANCELLED'");
+        }
+
+        for (OrderItem orderItem : order.getOrderItems()) {
+            Product product = orderItem.getProduct();
+            productService.updateProductQuantityInDb(product.getId(), -orderItem.getOrderItemQuantity());
+            orderItem.setOrderItemQuantity(0L);
         }
         order.setOrderStatus(OrderStatus.CANCELLED);
         orderRepository.save(order);

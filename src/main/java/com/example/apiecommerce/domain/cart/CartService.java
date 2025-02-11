@@ -2,7 +2,11 @@ package com.example.apiecommerce.domain.cart;
 
 import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cart.dto.CartDto;
+import com.example.apiecommerce.domain.cartItem.CartItem;
 import com.example.apiecommerce.domain.cartItem.CartItemRepository;
+import com.example.apiecommerce.domain.cartItem.CartItemService;
+import com.example.apiecommerce.domain.product.Product;
+import com.example.apiecommerce.domain.product.ProductService;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,13 +23,15 @@ public class CartService {
     private final UserRepository userRepository;
     private final CartDetailsDtoMapper cartDetailsDtoMapper;
     private final CartItemRepository cartItemRepository;
+    private final ProductService productService;
 
-    public CartService(CartRepository cartRepository, CartDtoMapper cartDtoMapper, UserRepository userRepository, CartDetailsDtoMapper cartDetailsDtoMapper, CartItemRepository cartItemRepository) {
+    public CartService(CartRepository cartRepository, CartDtoMapper cartDtoMapper, UserRepository userRepository, CartDetailsDtoMapper cartDetailsDtoMapper, CartItemRepository cartItemRepository, ProductService productService) {
         this.cartRepository = cartRepository;
         this.cartDtoMapper = cartDtoMapper;
         this.userRepository = userRepository;
         this.cartDetailsDtoMapper = cartDetailsDtoMapper;
         this.cartItemRepository = cartItemRepository;
+        this.productService = productService;
     }
 
     @Transactional
@@ -50,9 +56,29 @@ public class CartService {
     }
 
     @Transactional
-    public void deleteCart(Long cartId){
+    public void deleteCartWithoutIncreasingStock(Long cartId){
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+
+        Optional<User> userOpt = userRepository.findByCartId(cartId);
+
+        userOpt.ifPresent(
+                u -> {
+                    u.setCart(null);
+                    userRepository.save(u);
+                });
+        cartRepository.delete(cart);
+    }
+
+    @Transactional
+    public void deleteCartWithIncreasingStock(Long cartId){
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+        for (CartItem cartItem : cart.getCartItems()) {
+            Product product = cartItem.getProduct();
+            productService.updateProductQuantityInDb(product.getId(), -cartItem.getCartItemQuantity());
+            cartItemRepository.delete(cartItem);
+        }
 
         Optional<User> userOpt = userRepository.findByCartId(cartId);
 
