@@ -123,4 +123,11 @@ public class ProductService {
         product.setProductQuantity(product.getProductQuantity() - quantityToChange);
         productRepository.save(product);
     }
+
+    public Page<ProductDto>findProductsByTextPaginated(String searchText, int pageNumber, int pageSize, String sortField, String sortDirection){
+        Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ? Sort.by(sortField).ascending() : Sort.by(sortField).descending();
+        Pageable pageable = PageRequest.of(pageNumber -1, pageSize, sort);
+        return productRepository.findProductsBySearchText(searchText, pageable)
+                .map(productDtoMapper::map);
+    }
 }

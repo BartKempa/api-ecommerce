@@ -406,4 +406,51 @@ public class ProductController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+
+    @Operation(
+            summary = "Get products by searching text with pagination",
+            description = "Retrieve a paginated list of products by searching text"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Got the list of products by searching text",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProductDto.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/search")
+    Page<ProductDto> findProductsByTextPaginated(
+            @Parameter(
+                    description = "Search text (example: piwo)",
+                    required = true)
+            @RequestParam String searchText,
+
+            @Parameter(
+                    description = "Page number (default: 1)",
+                    required = false)
+            @RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo,
+
+            @Parameter(
+                    description = "Page size - number of products per page (default: 6)",
+                    required = false)
+            @RequestParam(value = "pageSize", defaultValue = "6") Integer pageSize,
+
+            @Parameter(
+                    description = "Sort field (e.g., productName, productPrice). Default: productName",
+                    required = false)
+            @RequestParam(value = "sortField", defaultValue = "productName") String sortField,
+
+            @Parameter(
+                    description = "Sort direction (ASC or DESC). Default: ASC",
+                    required = false)
+            @RequestParam(value = "sortDirection", defaultValue = "ASC") String sortDirection) {
+
+        return productService.findProductsByTextPaginated(searchText, pageNo, pageSize, sortField, sortDirection);
+    }
 }
