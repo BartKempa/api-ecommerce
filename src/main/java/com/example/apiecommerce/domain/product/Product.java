@@ -23,9 +23,9 @@ public class Product {
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
     private Set<CartItem> cartItems = new HashSet<>();
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.REMOVE)
     private Set<OrderItem> orderItems = new HashSet<>();
 
     public Product() {
@@ -132,11 +132,11 @@ public class Product {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Product product)) return false;
-        return Objects.equals(id, product.id) && Objects.equals(productName, product.productName) && Objects.equals(productPrice, product.productPrice) && Objects.equals(description, product.description) && Objects.equals(creationDate, product.creationDate) && Objects.equals(productQuantity, product.productQuantity) && Objects.equals(category, product.category) && Objects.equals(cartItems, product.cartItems) && Objects.equals(orderItems, product.orderItems);
+        return Objects.equals(id, product.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, productName, productPrice, description, creationDate, productQuantity, category, cartItems, orderItems);
+        return Objects.hash(id);
     }
 }

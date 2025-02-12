@@ -4,9 +4,10 @@ import com.example.apiecommerce.domain.address.dto.AddressDto;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
+@Component
 public class AddressDtoMapper {
     private final UserRepository userRepository;
 

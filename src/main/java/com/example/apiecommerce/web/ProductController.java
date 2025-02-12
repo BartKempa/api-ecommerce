@@ -73,23 +73,6 @@ public class ProductController {
     })
     @PostMapping
     ResponseEntity<ProductDto> addProduct(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Product to create",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProductDto.class),
-                            examples = @ExampleObject(value = """
-                     {
-                        "productName": "Pilsner urquell",
-                        "productPrice": 8.60,
-                        "description": "Klasyczne czeskie piwo",
-                        "productQuantity": 20,
-                        "categoryId": 1
-                    }
-                    """)
-                    )
-            )
             @Valid @RequestBody ProductDto productDto){
         ProductDto savedProduct = productService.saveProduct(productDto);
         URI savedProductUri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -165,7 +148,8 @@ public class ProductController {
                     description = "Got the paginated list of all products from chosen category",
                     content =  @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ProductDto.class)
+                            array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)
+                            )
                     )
             )
     })
@@ -174,7 +158,7 @@ public class ProductController {
             @Parameter(
                     description = "Page number",
                     required = false)
-            @PathVariable(required = false) Optional<Integer> pageNo,
+            @PathVariable Optional<Integer> pageNo,
             @Parameter(
                     description = "Page size - number of products per page",
                     required = false)
@@ -206,7 +190,7 @@ public class ProductController {
                     description = "Found the product",
                     content =  @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ProductDto.class),
+                            array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)),
                             examples = @ExampleObject(value = """
                             {
                               "id": 1,
@@ -256,7 +240,7 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
-                    description = "Product deleted"
+                    description = "Product deleted successfully, no content returned"
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -291,7 +275,7 @@ public class ProductController {
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "201",
+                    responseCode = "200",
                     description = "Product updated successfully",
                     content =  @Content(
                             mediaType = "application/json",
@@ -341,23 +325,6 @@ public class ProductController {
     })
     @PutMapping("/{id}")
     ResponseEntity<?> replaceProduct(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Product to updated",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ProductDto.class),
-                            examples = @ExampleObject(value = """
-                                {
-                                    "productName": "Zlaty bazant",
-                                    "productPrice": 6.60,
-                                    "description": "Klasyczne słowackie piwo",
-                                    "productQuantity": 18,
-                                    "categoryId": 1
-                                }
-                                """)
-                    )
-            )
             @Valid @RequestBody ProductDto productDto,
             @Parameter(
                     description = "id of product to be updated",

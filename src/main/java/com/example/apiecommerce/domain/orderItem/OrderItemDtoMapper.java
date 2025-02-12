@@ -1,9 +1,10 @@
 package com.example.apiecommerce.domain.orderItem;
 
 import com.example.apiecommerce.domain.orderItem.dto.OrderItemDto;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
+@Component
 public class OrderItemDtoMapper {
 
     public OrderItemDto map(OrderItem orderItem){

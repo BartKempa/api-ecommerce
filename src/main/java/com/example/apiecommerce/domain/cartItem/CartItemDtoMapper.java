@@ -3,9 +3,10 @@ package com.example.apiecommerce.domain.cartItem;
 import com.example.apiecommerce.domain.cart.CartRepository;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemDto;
 import com.example.apiecommerce.domain.product.ProductRepository;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
+@Component
 public class CartItemDtoMapper {
     private final ProductRepository productRepository;
 

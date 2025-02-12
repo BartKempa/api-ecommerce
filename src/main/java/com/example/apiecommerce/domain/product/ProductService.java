@@ -77,14 +77,18 @@ public class ProductService {
     }
 
     @Transactional
-    public Optional<ProductDto> replaceProduct(Long productId, ProductDto productDto){
-        if (!productRepository.existsById(productId)){
-            return Optional.empty();
-        }
-        productDto.setId(productId);
-        Product productToUpdate = productDtoMapper.map(productDto);
-        Product updatedProduct = productRepository.save(productToUpdate);
-        return Optional.of(productDtoMapper.map(updatedProduct));
+    public Optional<ProductDto> replaceProduct(Long productId, ProductDto productDto) {
+        return productRepository.findById(productId).map(existingProduct -> {
+            existingProduct.setProductName(productDto.getProductName());
+            existingProduct.setProductPrice(productDto.getProductPrice());
+            existingProduct.setDescription(productDto.getDescription());
+            existingProduct.setProductQuantity(productDto.getProductQuantity());
+            existingProduct.setCategory(categoryRepository.findById(productDto.getCategoryId())
+                    .orElseThrow(() -> new EntityNotFoundException("Category not found")));
+
+            productRepository.save(existingProduct);
+            return productDtoMapper.map(existingProduct);
+        });
     }
 
     public Optional<Long> countQuantityOfProduct(Long productId){

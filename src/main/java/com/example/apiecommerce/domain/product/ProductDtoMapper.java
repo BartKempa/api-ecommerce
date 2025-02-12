@@ -1,20 +1,21 @@
 package com.example.apiecommerce.domain.product;
 
+import com.example.apiecommerce.domain.DateTimeProvider;
 import com.example.apiecommerce.domain.category.Category;
 import com.example.apiecommerce.domain.category.CategoryRepository;
 import com.example.apiecommerce.domain.product.dto.ProductDto;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
-@Service
+@Component
 class ProductDtoMapper {
     private final CategoryRepository categoryRepository;
+    private final DateTimeProvider dateTimeProvider;
 
-    ProductDtoMapper(CategoryRepository categoryRepository) {
+    ProductDtoMapper(CategoryRepository categoryRepository, DateTimeProvider dateTimeProvider) {
 
         this.categoryRepository = categoryRepository;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     ProductDto map(Product product){
@@ -38,11 +39,18 @@ class ProductDtoMapper {
             return null;
         }
         Product product = new Product();
+        if (productDto.getId() != null) {
+            product.setId(productDto.getId());
+        }
+        product.setId(productDto.getId());
         product.setProductName(productDto.getProductName());
         product.setProductPrice(productDto.getProductPrice());
         product.setDescription(productDto.getDescription());
-        product.setCreationDate(productDto.getCreationDate());
+        product.setCreationDate(dateTimeProvider.getCurrentTime());
         product.setProductQuantity(productDto.getProductQuantity());
+        if (productDto.getCategoryId() == null) {
+            throw new IllegalArgumentException("Category ID cannot be null");
+        }
         Category category = categoryRepository.findById(productDto.getCategoryId())
                 .orElseThrow(() -> new EntityNotFoundException("Category not found"));
         product.setCategory(category);

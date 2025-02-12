@@ -3,11 +3,12 @@ package com.example.apiecommerce.domain.order;
 import com.example.apiecommerce.domain.order.dto.OrderFullDto;
 import com.example.apiecommerce.domain.order.dto.OrderMainInfoDto;
 import com.example.apiecommerce.domain.orderItem.OrderItemDtoMapper;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
-@Service
+@Component
 public class OrderDtoMapper {
     private final OrderItemDtoMapper orderItemDtoMapper;
 

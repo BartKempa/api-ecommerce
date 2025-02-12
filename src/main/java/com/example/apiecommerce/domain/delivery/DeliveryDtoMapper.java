@@ -1,9 +1,10 @@
 package com.example.apiecommerce.domain.delivery;
 
 import com.example.apiecommerce.domain.delivery.dto.DeliveryDto;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
+@Component
 public class DeliveryDtoMapper {
 
     Delivery map(DeliveryDto deliveryDto){

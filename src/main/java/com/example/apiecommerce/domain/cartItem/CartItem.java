@@ -4,6 +4,8 @@ import com.example.apiecommerce.domain.cart.Cart;
 import com.example.apiecommerce.domain.product.Product;
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 public class CartItem {
     @Id
@@ -57,5 +59,17 @@ public class CartItem {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CartItem cartItem)) return false;
+        return id != null && id.equals(cartItem.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

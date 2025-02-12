@@ -42,8 +42,10 @@ public class SecurityConfig {
         BearerTokenFilter bearerTokenFilter = new BearerTokenFilter(jwtService);
         http.authorizeHttpRequests(request -> request
                         .requestMatchers("/api/v1/auth/register").permitAll()
-                        .requestMatchers(mvc.pattern(HttpMethod.POST, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
-                        .requestMatchers(mvc.pattern(HttpMethod.PUT, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
+                        .requestMatchers(mvc.pattern(HttpMethod.POST, "/api/v1/products/**")).hasRole(ADMIN_ROLE)
+                        .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/api/v1/products/**")).hasRole(ADMIN_ROLE)
+                        .requestMatchers(mvc.pattern(HttpMethod.PUT, "/api/v1/products/**")).hasRole(ADMIN_ROLE)
+                        .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/v1/products/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.PATCH, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/v1/users/{id}/addresses")).access(userSecurity)

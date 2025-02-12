@@ -2,11 +2,12 @@ package com.example.apiecommerce.domain.user;
 
 import com.example.apiecommerce.domain.DateTimeProvider;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.stream.Collectors;
 
-@Service
+@Component
 public class UserRegistrationDtoMapper {
     private static final String DEFAULT_USER_ROLE = "USER";
     private final UserRoleRepository userRoleRepository;

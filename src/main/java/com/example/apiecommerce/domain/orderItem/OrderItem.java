@@ -52,4 +52,15 @@ public class OrderItem {
         this.product = product;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof OrderItem orderItem)) return false;
+        return id != null && id.equals(orderItem.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
