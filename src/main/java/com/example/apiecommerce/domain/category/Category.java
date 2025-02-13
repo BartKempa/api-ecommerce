@@ -13,7 +13,7 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String categoryName;
-    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "category", cascade = CascadeType.REMOVE)
     private Set<Product> products = new HashSet<>();
 
     public Category() {
@@ -40,5 +40,11 @@ public class Category {
         this.categoryName = categoryName;
     }
 
+    public Set<Product> getProducts() {
+        return products;
+    }
 
+    public void setProducts(Set<Product> products) {
+        this.products = products;
+    }
 }

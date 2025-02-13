@@ -46,6 +46,11 @@ public class SecurityConfig {
                         .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/api/v1/products/**")).hasRole(ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.PUT, "/api/v1/products/**")).hasRole(ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/v1/products/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
+                        .requestMatchers(mvc.pattern(HttpMethod.POST, "/api/v1/categories/**")).hasRole(ADMIN_ROLE)
+                        .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/api/v1/categories/**")).hasRole(ADMIN_ROLE)
+                        .requestMatchers(mvc.pattern(HttpMethod.PUT, "/api/v1/categories/**")).hasRole(ADMIN_ROLE)
+                        .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/v1/categories/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
+
                         .requestMatchers(mvc.pattern(HttpMethod.PATCH, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.DELETE, "/api/v1/**")).hasAnyRole(USER_ROLE, ADMIN_ROLE)
                         .requestMatchers(mvc.pattern(HttpMethod.GET, "/api/v1/users/{id}/addresses")).access(userSecurity)

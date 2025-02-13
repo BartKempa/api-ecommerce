@@ -3,7 +3,6 @@ package com.example.apiecommerce.web;
 import com.example.apiecommerce.domain.address.AddressService;
 import com.example.apiecommerce.domain.address.dto.AddressDto;
 import com.example.apiecommerce.domain.address.dto.AddressUpdateDto;
-import com.example.apiecommerce.domain.product.dto.ProductDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -16,6 +15,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -73,24 +73,6 @@ public class AddressController {
     })
     @PostMapping
     ResponseEntity<AddressDto> addAddress(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Details of address to save.",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = AddressDto.class),
-                            examples = @ExampleObject(value = """
-                            {
-                                "streetName": "Pawia",
-                                "buildingNumber": "123",
-                                "apartmentNumber": "321",
-                                "zipCode": "80800",
-                                "city": "Sopot",
-                                "userId": 1
-                            }
-                            """)
-                    )
-            )
             @Valid @RequestBody AddressDto addressDto){
         AddressDto savedAddress = addressService.saveAddress(addressDto);
         URI savedAddressUri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -109,6 +91,20 @@ public class AddressController {
             @ApiResponse(
                     responseCode = "204",
                     description = "Address successfully deleted"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Address belongs to other user",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Address belongs to other user",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
@@ -132,8 +128,10 @@ public class AddressController {
                     required = true,
                     example = "1"
             )
-            @PathVariable Long id) {
-        addressService.deleteAddress(id);
+            @PathVariable Long id,
+            Authentication authentication) {
+        String username = authentication.getName();
+        addressService.deleteAddress(id, username);
         return ResponseEntity.noContent().build();
     }
 
@@ -163,13 +161,13 @@ public class AddressController {
             ),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Invalid input provided",
+                    description = "Address belongs to other user",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value = """
                     {
-                        "message": "Invalid input",
+                        "message": "Address belongs to other user",
                         "timestamp": "2025-01-21T14:45:00"
                     }
                     """)
@@ -184,26 +182,10 @@ public class AddressController {
                     example = "1"
             )
             @PathVariable Long id,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Details of the address to update. Only non-null fields will be updated.",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = AddressUpdateDto.class),
-                            examples = @ExampleObject(value = """
-                        {
-                                "streetName": "Pawia",
-                                "buildingNumber": "123",
-                                "apartmentNumber": "321",
-                                "zipCode": "80800",
-                                "city": "Sopot",
-                                "
-                        }
-                        """)
-                    )
-            )
-            @Valid @RequestBody AddressUpdateDto addressUpdateDto) {
-            addressService.updateAddress(id, addressUpdateDto);
+            @RequestBody AddressUpdateDto addressUpdateDto,
+            Authentication authentication) {
+            String username = authentication.getName();
+            addressService.updateAddress(id, addressUpdateDto, username);
             return ResponseEntity.noContent().build();
     }
 
@@ -232,6 +214,20 @@ public class AddressController {
                     )
             ),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "Address belongs to other user",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
+                    {
+                        "message": "Address belongs to other user",
+                        "timestamp": "2025-01-21T14:45:00"
+                    }
+                    """)
+                    )
+            ),
+            @ApiResponse(
                     responseCode = "404",
                     description = "Address not found",
                     content = @Content(
@@ -252,8 +248,10 @@ public class AddressController {
                     description = "Id of address to be searched.",
                     required = true,
                     example = "1")
-            @PathVariable @Min(1) Long id){
-        return addressService.findAddressById(id)
+            @PathVariable @Min(1) Long id,
+            Authentication authentication){
+        String username = authentication.getName();
+        return addressService.findAddressById(id, username)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new EntityNotFoundException("Address not found"));
     }

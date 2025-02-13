@@ -1,8 +1,6 @@
 package com.example.apiecommerce.domain.address.dto;
 
 public class AddressUpdateDto {
-    private Long id;
-
     private String streetName;
 
     private String buildingNumber;
@@ -12,14 +10,6 @@ public class AddressUpdateDto {
     private String zipCode;
 
     private String city;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getStreetName() {
         return streetName;

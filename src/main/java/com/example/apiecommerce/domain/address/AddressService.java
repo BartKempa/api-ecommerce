@@ -2,6 +2,8 @@ package com.example.apiecommerce.domain.address;
 
 import com.example.apiecommerce.domain.address.dto.AddressDto;
 import com.example.apiecommerce.domain.address.dto.AddressUpdateDto;
+import com.example.apiecommerce.domain.user.User;
+import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,12 +12,15 @@ import java.util.Optional;
 
 @Service
 public class AddressService {
+    private final Address noAddress = new Address();
     private final AddressRepository addressRepository;
     private final AddressDtoMapper addressDtoMapper;
+    private final UserRepository userRepository;
 
-    public AddressService(AddressRepository addressRepository, AddressDtoMapper addressDtoMapper) {
+    public AddressService(AddressRepository addressRepository, AddressDtoMapper addressDtoMapper, UserRepository userRepository) {
         this.addressRepository = addressRepository;
         this.addressDtoMapper = addressDtoMapper;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -26,17 +31,30 @@ public class AddressService {
     }
 
     @Transactional
-    public void deleteAddress(long id){
-        if (!addressRepository.existsById(id)){
-            throw new EntityNotFoundException("Address not found");
+    public void deleteAddress(long id, String userMail){
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+
+        User user = userRepository.findByEmail(userMail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (!address.getUser().equals(user)) {
+            throw new IllegalArgumentException("Address belongs to other user");
         }
-        addressRepository.deleteById(id);
+        address.setActive(false);
+        addressRepository.save(address);
     }
 
     @Transactional
-    public void updateAddress(long addressId, AddressUpdateDto addressUpdateDto){
+    public void updateAddress(long addressId, AddressUpdateDto addressUpdateDto, String userMail){
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+        User user = userRepository.findByEmail(userMail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (!address.getUser().equals(user)) {
+            throw new IllegalArgumentException("Address belongs to other user, you can not update it");
+        }
         if (addressUpdateDto.getStreetName() != null){
             address.setStreetName(addressUpdateDto.getStreetName());
         }
@@ -55,7 +73,14 @@ public class AddressService {
        addressRepository.save(address);
     }
 
-    public Optional<AddressDto> findAddressById(long addressId){
+    public Optional<AddressDto> findAddressById(long addressId, String userMail){
+        User user = userRepository.findByEmail(userMail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Address address = addressRepository.findById(addressId)
+                .orElseThrow(() -> new EntityNotFoundException("Address not found"));
+        if (!address.getUser().equals(user)) {
+            throw new IllegalArgumentException("Address belongs to other user, you can not get it");
+        }
         return addressRepository.findById(addressId)
                 .map(addressDtoMapper::map);
     }

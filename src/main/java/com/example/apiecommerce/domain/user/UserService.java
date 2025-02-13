@@ -1,6 +1,7 @@
 package com.example.apiecommerce.domain.user;
 
 import com.example.apiecommerce.domain.DateTimeProvider;
+import com.example.apiecommerce.domain.address.Address;
 import com.example.apiecommerce.domain.address.AddressDtoMapper;
 import com.example.apiecommerce.domain.address.dto.AddressDto;
 import com.example.apiecommerce.domain.user.dto.UserCredentialsDto;
@@ -60,7 +61,7 @@ public class UserService {
        if (!userRepository.existsById(userId)){
            return Optional.empty();
        }
-        return userRepository.findById(userId).map(userRegistrationDtoMapper::map);
+       return userRepository.findById(userId).map(userRegistrationDtoMapper::map);
     }
 
     @Transactional
@@ -97,13 +98,13 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public List<AddressDto> findAllUserAddresses(long userId){
+    public List<AddressDto> findAllActiveUserAddresses(long userId){
             return userRepository.findById(userId)
                     .map(User::getAddresses)
                     .orElse(Collections.emptySet())
                     .stream()
+                    .filter(Address::isActive)
                     .map(addressDtoMapper::map)
                     .toList();
     }
-
 }

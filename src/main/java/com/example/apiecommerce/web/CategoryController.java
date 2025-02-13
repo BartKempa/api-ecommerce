@@ -67,19 +67,6 @@ public class CategoryController {
     })
     @PostMapping
     ResponseEntity<CategoryDto> addCategory(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Category to created",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CategoryDto.class),
-                            examples = @ExampleObject(value = """
-                    {
-                        "categoryName":"Piwo"
-                    }
-                    """)
-                    )
-            )
             @Valid @RequestBody CategoryDto categoryDto){
         CategoryDto savedCategoryDto = categoryService.addCategory(categoryDto);
         URI savedCategoryDtoUri = ServletUriComponentsBuilder.fromCurrentRequest()
@@ -164,7 +151,7 @@ public class CategoryController {
                             schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value = """
                                     {
-                                        "message": "Address not found",
+                                        "message": "Category not found",
                                         "timestamp": "2025-01-21T14:45:00"
                                     }
                                     """)
@@ -173,20 +160,6 @@ public class CategoryController {
     })
     @PutMapping("/{id}")
     ResponseEntity<?> replaceCategory(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Category to updated",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CategoryDto.class),
-                            examples = @ExampleObject(value = """
-                            {
-                              "categoryName": "Wino"
-                            }
-                        """
-                            )
-                    )
-            )
             @RequestBody CategoryDto categoryDto,
             @Parameter(
                     description = "id of category to be updated",

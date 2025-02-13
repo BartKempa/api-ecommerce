@@ -5,6 +5,7 @@ import com.example.apiecommerce.domain.user.User;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -23,6 +24,7 @@ public class Address {
     private User user;
     @OneToMany(mappedBy = "address")
     private Set<Order> orders = new HashSet<>();
+    private boolean isActive = true;
 
     public Long getId() {
         return id;
@@ -86,5 +88,25 @@ public class Address {
 
     public void setOrders(Set<Order> orders) {
         this.orders = orders;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Address address)) return false;
+        return Objects.equals(id, address.id) && Objects.equals(streetName, address.streetName) && Objects.equals(buildingNumber, address.buildingNumber) && Objects.equals(apartmentNumber, address.apartmentNumber) && Objects.equals(zipCode, address.zipCode) && Objects.equals(city, address.city);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, streetName, buildingNumber, apartmentNumber, zipCode, city);
     }
 }

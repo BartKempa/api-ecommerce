@@ -21,6 +21,7 @@
                              referencedColumnNames="id"
                 />
             </column>
+            <column name="is_active" type="BOOLEAN" defaultValue="true"/>
         </createTable>
     </changeSet>
 </databaseChangeLog>

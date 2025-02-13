@@ -1,41 +1,43 @@
 package com.example.apiecommerce.domain.address.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+@Schema(description = "Data Transfer Object for Address")
 public class AddressDto {
+    @Schema(description = "Address ID")
     private Long id;
+
     @NotBlank
     @Size(min = 2, max = 50)
+    @Schema(description = "Street name")
     private String streetName;
+
     @NotBlank
     @Size(min = 1, max = 10)
+    @Schema(description = "Building number")
     private String buildingNumber;
+
     @NotBlank
     @Size(min = 1, max = 10)
+    @Schema(description = "Apartment number")
     private String apartmentNumber;
+
     @NotBlank
     @Size(max = 10)
+    @Schema(description = "Zip code")
     private String zipCode;
+
     @NotBlank
     @Size(min = 2, max = 50)
+    @Schema(description = "City name")
     private String city;
+
     @NotNull
+    @Schema(description = "User ID associated with the address")
     private Long userId;
-
-    public AddressDto() {
-    }
-
-    public AddressDto(Long id, String streetName, String buildingNumber, String apartmentNumber, String zipCode, String city, Long userId) {
-        this.id = id;
-        this.streetName = streetName;
-        this.buildingNumber = buildingNumber;
-        this.apartmentNumber = apartmentNumber;
-        this.zipCode = zipCode;
-        this.city = city;
-        this.userId = userId;
-    }
 
     public Long getId() {
         return id;

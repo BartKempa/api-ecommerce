@@ -291,7 +291,7 @@ public class UserController {
                     required = true,
                     example = "3")
             @PathVariable Long id){
-        var addresses = userService.findAllUserAddresses(id);
+        var addresses = userService.findAllActiveUserAddresses(id);
         return ResponseEntity.ok(addresses);
     }
 }
