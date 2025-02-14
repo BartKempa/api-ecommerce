@@ -124,8 +124,8 @@ public class OrderController {
 
 
     @Operation(
-            summary = "Get a order by its id",
-            description = "Retrieve a order by its id" )
+            summary = "Get aa order by its id",
+            description = "Retrieve aa order by its id" )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -182,8 +182,10 @@ public class OrderController {
                     required = true,
                     example = "1"
             )
-            @PathVariable @Min(1) Long id){
-        return orderService.findOrderById(id)
+            @PathVariable @Min(1) Long id,
+            Authentication authentication){
+        String userName = authentication.getName();
+        return orderService.findOrderById(id, userName)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

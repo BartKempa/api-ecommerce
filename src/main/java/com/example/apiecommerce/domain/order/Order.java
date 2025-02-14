@@ -8,12 +8,12 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "orders")
 public class Order {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,7 +31,6 @@ public class Order {
     private Address address;
     @OneToMany(mappedBy = "order", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<OrderItem> orderItems = new HashSet<>();
-
     @ManyToOne
     @JoinColumn(name = "delivery_id")
     private Delivery delivery;
@@ -107,5 +106,17 @@ public class Order {
 
     public void setOrderStatus(OrderStatus orderStatus) {
         this.orderStatus = orderStatus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Order order)) return false;
+        return Objects.equals(id, order.id) && Objects.equals(totalPrice, order.totalPrice) && Objects.equals(orderDate, order.orderDate) && paymentStatus == order.paymentStatus && orderStatus == order.orderStatus;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, totalPrice, orderDate, paymentStatus, orderStatus);
     }
 }

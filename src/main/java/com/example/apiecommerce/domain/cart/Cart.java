@@ -32,7 +32,6 @@ public class Cart {
         this.creationDate = creationDate;
     }
 
-
     public Set<CartItem> getCartItems() {
         return cartItems;
     }
@@ -40,5 +39,4 @@ public class Cart {
     public void setCartItems(Set<CartItem> cartItems) {
         this.cartItems = cartItems;
     }
-
 }

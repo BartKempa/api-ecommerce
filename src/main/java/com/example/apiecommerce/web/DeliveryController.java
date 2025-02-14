@@ -1,10 +1,8 @@
 package com.example.apiecommerce.web;
 
-import com.example.apiecommerce.domain.address.dto.AddressUpdateDto;
 import com.example.apiecommerce.domain.delivery.DeliveryService;
 import com.example.apiecommerce.domain.delivery.dto.DeliveryDto;
 import com.example.apiecommerce.domain.delivery.dto.DeliveryUpdateDto;
-import com.example.apiecommerce.domain.product.dto.ProductDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -111,7 +109,7 @@ public class DeliveryController {
     })
     @GetMapping
     ResponseEntity<List<DeliveryDto>> getAllDeliveries(){
-        return ResponseEntity.ok(deliveryService.findAllDeliveries());
+        return ResponseEntity.ok(deliveryService.findAllActiveDeliveries());
     }
 
 

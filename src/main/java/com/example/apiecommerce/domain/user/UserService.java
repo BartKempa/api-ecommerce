@@ -3,11 +3,12 @@ package com.example.apiecommerce.domain.user;
 import com.example.apiecommerce.domain.DateTimeProvider;
 import com.example.apiecommerce.domain.address.Address;
 import com.example.apiecommerce.domain.address.AddressDtoMapper;
+import com.example.apiecommerce.domain.address.AddressRepository;
 import com.example.apiecommerce.domain.address.dto.AddressDto;
-import com.example.apiecommerce.domain.user.dto.UserCredentialsDto;
-import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
-import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
-import com.example.apiecommerce.domain.user.dto.UserUpdatePasswordDto;
+import com.example.apiecommerce.domain.order.OrderDtoMapper;
+import com.example.apiecommerce.domain.order.OrderRepository;
+import com.example.apiecommerce.domain.order.dto.OrderFullDto;
+import com.example.apiecommerce.domain.user.dto.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,15 +27,22 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRegistrationDtoMapper userRegistrationDtoMapper;
     private final AddressDtoMapper addressDtoMapper;
+    private final OrderDtoMapper orderDtoMapper;
+    private final AddressRepository addressRepository;
+    private final OrderRepository orderRepository;
+    private final UserConfirmationRegistrationDtoMapper userConfirmationRegistrationDtoMapper;
 
-    public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DateTimeProvider dateTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper, AddressDtoMapper addressDtoMapper) {
+    public UserService(UserRepository userRepository, UserRoleRepository userRoleRepository, DateTimeProvider dateTimeProvider, PasswordEncoder passwordEncoder, UserRegistrationDtoMapper userRegistrationDtoMapper, AddressDtoMapper addressDtoMapper, OrderDtoMapper orderDtoMapper, AddressRepository addressRepository, OrderRepository orderRepository, UserConfirmationRegistrationDtoMapper userConfirmationRegistrationDtoMapper) {
             this.userRepository = userRepository;
             this.userRoleRepository = userRoleRepository;
             this.dateTimeProvider = dateTimeProvider;
             this.passwordEncoder = passwordEncoder;
             this.userRegistrationDtoMapper = userRegistrationDtoMapper;
             this.addressDtoMapper = addressDtoMapper;
-
+            this.orderDtoMapper = orderDtoMapper;
+            this.addressRepository = addressRepository;
+            this.orderRepository = orderRepository;
+            this.userConfirmationRegistrationDtoMapper = userConfirmationRegistrationDtoMapper;
     }
 
     public Optional<UserCredentialsDto> findCredentialsByEmail(String email){
@@ -43,7 +51,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserRegistrationDto registerWithDefaultRole(UserRegistrationDto userRegistrationDto){
+    public UserConfirmationRegistrationDto registerWithDefaultRole(UserRegistrationDto userRegistrationDto){
         User user = new User();
         user.setEmail(userRegistrationDto.getEmail());
         user.setPassword(passwordEncoder.encode(userRegistrationDto.getPassword()));
@@ -51,22 +59,20 @@ public class UserService {
         user.setLastName(userRegistrationDto.getLastName());
         user.setPhoneNumber(userRegistrationDto.getPhoneNumber());
         user.setCreationDate(dateTimeProvider.getCurrentTime());
-        UserRole userRole = userRoleRepository.findByName(DEFAULT_USER_ROLE).orElseThrow();
+        UserRole userRole = userRoleRepository.findByName(DEFAULT_USER_ROLE)
+                .orElseThrow(() -> new EntityNotFoundException("Role not found"));
         user.getRoles().add(userRole);
         userRepository.save(user);
-        return userRegistrationDtoMapper.map(user);
+        return userConfirmationRegistrationDtoMapper.map(user);
     }
 
     public Optional<UserRegistrationDto> findUserById(long userId){
-       if (!userRepository.existsById(userId)){
-           return Optional.empty();
-       }
        return userRepository.findById(userId).map(userRegistrationDtoMapper::map);
     }
 
     @Transactional
-    public void updateUser(long id, UserUpdateDto userUpdateDto){
-        User user = userRepository.findById(id)
+    public void updateUser(String userMail, UserUpdateDto userUpdateDto){
+        User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (userUpdateDto.getFirstName() != null){
                 user.setFirstName(userUpdateDto.getFirstName());
@@ -82,15 +88,16 @@ public class UserService {
 
     @Transactional
     public void deleteUser(long id){
-         if (!userRepository.existsById(id)){
-             throw new EntityNotFoundException("User not found");
-         }
-         userRepository.deleteById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        orderRepository.deleteAll(user.getOrders());
+        addressRepository.deleteAll(user.getAddresses());
+        userRepository.delete(user);
     }
 
     @Transactional
-    public void updateUserPassword(long id, UserUpdatePasswordDto userUpdatePasswordDto){
-        User user = userRepository.findById(id)
+    public void updateUserPassword(String userMail, UserUpdatePasswordDto userUpdatePasswordDto){
+        User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (userUpdatePasswordDto.getPassword() != null){
             user.setPassword(passwordEncoder.encode(userUpdatePasswordDto.getPassword()));
@@ -98,13 +105,22 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public List<AddressDto> findAllActiveUserAddresses(long userId){
-            return userRepository.findById(userId)
+    public List<AddressDto> findAllActiveUserAddresses(String userMail){
+            return userRepository.findByEmail(userMail)
                     .map(User::getAddresses)
                     .orElse(Collections.emptySet())
                     .stream()
                     .filter(Address::isActive)
                     .map(addressDtoMapper::map)
                     .toList();
+    }
+
+    public List<OrderFullDto> findAllUserOrders(String userMail){
+        return userRepository.findByEmail(userMail)
+                .map(User::getOrders)
+                .orElse(Collections.emptySet())
+                .stream()
+                .map(orderDtoMapper::map)
+                .toList();
     }
 }

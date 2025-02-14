@@ -1,10 +1,12 @@
 package com.example.apiecommerce.domain.cartItem;
 
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-@Service
+@Component
 public class CartItemFullDtoMapper {
+
     public CartItemFullDto map(CartItem cartItem) {
         return new CartItemFullDto(
                 cartItem.getId(),

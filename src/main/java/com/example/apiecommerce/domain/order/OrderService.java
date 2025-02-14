@@ -61,7 +61,7 @@ public class OrderService {
     public OrderFullDto createOrder(String userMail, long addressId, long deliveryId){
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        CartDetailsDto cart = cartService.findCartDetailsById(user.getCart().getId())
+        CartDetailsDto cart = cartService.findUserCart(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
         Address address = addressRepository.findById(addressId)
                 .orElseThrow(() -> new EntityNotFoundException("Address not found"));
@@ -84,8 +84,8 @@ public class OrderService {
         Order savedOrder = orderRepository.save(order);
 
         Set<OrderItem> orderItems = getOrderItems(order, cart, savedOrder);
-        cartService.deleteCartWithoutIncreasingStock(user.getCart().getId());
         orderItemRepository.saveAll(orderItems);
+        cartService.deleteCartWithoutIncreasingStock(userMail);
         return orderDtoMapper.map(savedOrder);
     }
 
@@ -105,8 +105,15 @@ public class OrderService {
         return orderItems;
     }
 
-    public Optional<OrderFullDto> findOrderById(Long orderId){
-        return orderRepository.findById(orderId).map(orderDtoMapper::map);
+    public Optional<OrderFullDto> findOrderById(Long orderId, String userMail){
+        User user = userRepository.findByEmail(userMail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+        if (!order.getUser().equals(user)){
+            throw new IllegalArgumentException("This order belongs to another user");
+        }
+        return Optional.of(orderDtoMapper.map(order));
     }
 
     @Transactional
@@ -114,8 +121,7 @@ public class OrderService {
         Order orderToDelete = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
         for (OrderItem orderItem : orderToDelete.getOrderItems()) {
-            Product product = orderItem.getProduct();
-            productService.updateProductQuantityInDb(product.getId(), -orderItem.getOrderItemQuantity());
+            productService.updateProductQuantityInDb(orderItem.getProduct().getId(), -orderItem.getOrderItemQuantity());
         }
         orderRepository.delete(orderToDelete);
     }

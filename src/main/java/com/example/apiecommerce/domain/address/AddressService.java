@@ -12,7 +12,6 @@ import java.util.Optional;
 
 @Service
 public class AddressService {
-    private final Address noAddress = new Address();
     private final AddressRepository addressRepository;
     private final AddressDtoMapper addressDtoMapper;
     private final UserRepository userRepository;

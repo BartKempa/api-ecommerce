@@ -39,7 +39,6 @@ public class CartItemService {
         this.productRepository = productRepository;
     }
 
-
     @Transactional
     public CartItemFullDto addCartItemToCart(String userMail, CartItemDto cartItemDto){
         User user = userRepository.findByEmail(userMail)
@@ -56,7 +55,8 @@ public class CartItemService {
     }
 
     @Transactional
-    public void deleteCartItem(Long cartItemId){
+    public void deleteCartItem(Long cartItemId, String userMail){
+        checkIsCartItemFromUserCart(cartItemId, userMail);
         if (!cartItemRepository.existsById(cartItemId)){
             throw new EntityNotFoundException("CartItem not found");
         }
@@ -66,8 +66,21 @@ public class CartItemService {
         cartItemRepository.deleteById(cartItemId);
     }
 
+    private void checkIsCartItemFromUserCart(Long cartItemId, String userMail) {
+        User user = userRepository.findByEmail(userMail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Cart cart = cartRepository.findById(user.getCart().getId())
+                .orElseThrow(() -> new EntityNotFoundException("User does not have a cart"));
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
+        if (!cart.getCartItems().contains(cartItem)){
+            throw new IllegalArgumentException("This cart item does not belong to your cart");
+        }
+    }
+
     @Transactional
-    public void updateCartItemQuantity(long cartItemId, CartItemUpdateQuantityDto cartItemUpdateQuantityDto){
+    public void updateCartItemQuantity(long cartItemId, CartItemUpdateQuantityDto cartItemUpdateQuantityDto, String userMail){
+        checkIsCartItemFromUserCart(cartItemId, userMail);
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
         Product product = productRepository.getProductByCartItemId(cartItemId)
@@ -80,7 +93,8 @@ public class CartItemService {
     }
 
     @Transactional
-    public void increaseCartItemQuantityByOne(long cartItemId){
+    public void increaseCartItemQuantityByOne(long cartItemId, String userMail){
+        checkIsCartItemFromUserCart(cartItemId, userMail);
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
         Product product = productRepository.getProductByCartItemId(cartItemId)
@@ -91,7 +105,8 @@ public class CartItemService {
     }
 
     @Transactional
-    public void reduceCartItemQuantityByOne(long cartItemId){
+    public void reduceCartItemQuantityByOne(long cartItemId, String userMail){
+        checkIsCartItemFromUserCart(cartItemId, userMail);
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart item not found"));
         Product product = productRepository.getProductByCartItemId(cartItemId)
@@ -104,7 +119,8 @@ public class CartItemService {
         cartItemRepository.save(cartItem);
     }
 
-    public Optional<CartItemFullDto> findCartItemById(Long cartItemId){
+    public Optional<CartItemFullDto> findCartItemById(Long cartItemId, String userMail){
+        checkIsCartItemFromUserCart(cartItemId, userMail);
         if (!cartItemRepository.existsById(cartItemId)){
             return Optional.empty();
         }

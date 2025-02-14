@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 @Service
 public class DeliveryService {
@@ -27,8 +26,10 @@ public class DeliveryService {
         return deliveryDtoMapper.map(savedDelivery);
     }
 
-    public List<DeliveryDto> findAllDeliveries(){
-        return StreamSupport.stream(deliveryRepository.findAll().spliterator(), false)
+    public List<DeliveryDto> findAllActiveDeliveries(){
+        return deliveryRepository.findAll()
+                .stream()
+                .filter(Delivery::isActive)
                 .map(deliveryDtoMapper::map)
                 .toList();
     }
@@ -40,10 +41,9 @@ public class DeliveryService {
 
     @Transactional
     public void deleteDelivery(Long deliveryId){
-        if (!deliveryRepository.existsById(deliveryId)){
-            throw new EntityNotFoundException("Delivery not found");
-        }
-        deliveryRepository.deleteById(deliveryId);
+        Delivery delivery = deliveryRepository.findById(deliveryId)
+                .orElseThrow(() -> new EntityNotFoundException("Delivery not found"));
+        delivery.setActive(false);
     }
 
     @Transactional

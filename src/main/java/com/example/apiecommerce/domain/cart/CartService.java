@@ -4,7 +4,6 @@ import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cart.dto.CartDto;
 import com.example.apiecommerce.domain.cartItem.CartItem;
 import com.example.apiecommerce.domain.cartItem.CartItemRepository;
-import com.example.apiecommerce.domain.cartItem.CartItemService;
 import com.example.apiecommerce.domain.product.Product;
 import com.example.apiecommerce.domain.product.ProductService;
 import com.example.apiecommerce.domain.user.User;
@@ -46,22 +45,23 @@ public class CartService {
         Cart savedCart = cartRepository.save(cart);
         user.setCart(savedCart);
         userRepository.save(user);
-
         return cartDtoMapper.map(savedCart);
     }
 
-    public Optional<CartDetailsDto> findCartDetailsById(Long id){
-        return cartRepository.findById(id)
+    public Optional<CartDetailsDto> findUserCart(String userMail) {
+        return userRepository.findByEmail(userMail)
+                .flatMap(user -> Optional.ofNullable(user.getCart()))
                 .map(cartDetailsDtoMapper::map);
     }
 
     @Transactional
-    public void deleteCartWithoutIncreasingStock(Long cartId){
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
+    public void deleteCartWithoutIncreasingStock(String userMail){
+        User user = userRepository.findByEmail(userMail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Cart cart = cartRepository.findById(user.getCart().getId())
+                .orElseThrow(() -> new EntityNotFoundException("User does not have a cart"));
 
-        Optional<User> userOpt = userRepository.findByCartId(cartId);
-
+        Optional<User> userOpt = userRepository.findByCartId(user.getCart().getId());
         userOpt.ifPresent(
                 u -> {
                     u.setCart(null);
@@ -71,22 +71,13 @@ public class CartService {
     }
 
     @Transactional
-    public void deleteCartWithIncreasingStock(Long cartId){
-        Cart cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
-        for (CartItem cartItem : cart.getCartItems()) {
-            Product product = cartItem.getProduct();
-            productService.updateProductQuantityInDb(product.getId(), -cartItem.getCartItemQuantity());
-            cartItemRepository.delete(cartItem);
-        }
-
-        Optional<User> userOpt = userRepository.findByCartId(cartId);
-
-        userOpt.ifPresent(
-                u -> {
-                    u.setCart(null);
-                    userRepository.save(u);
-                });
+    public void deleteCartWithIncreasingStock(String userMail){
+        User user = userRepository.findByEmail(userMail)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        Cart cart = cartRepository.findById(user.getCart().getId())
+                .orElseThrow(() -> new EntityNotFoundException("User does not have a cart"));
+        cartItemRepository.deleteAll(cart.getCartItems());
+        user.setCart(null);
         cartRepository.delete(cart);
     }
 
@@ -94,10 +85,8 @@ public class CartService {
     public void clearCart(String userMail){
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-
         Cart cart = Optional.ofNullable(user.getCart())
                 .orElseThrow(() -> new IllegalStateException("User does not have a cart"));
-
         cartItemRepository.deleteAllByCart_Id(cart.getId());
     }
 }

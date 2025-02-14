@@ -17,7 +17,7 @@ public class CartItemDtoMapper {
         this.productRepository = productRepository;
     }
 
-    CartItem map(CartItemDto cartItemDto){
+    public CartItem map(CartItemDto cartItemDto){
         if (cartItemDto == null){
             return null;
         }

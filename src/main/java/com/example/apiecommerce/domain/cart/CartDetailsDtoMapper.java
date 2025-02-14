@@ -4,7 +4,6 @@ import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cartItem.CartItemFullDtoMapper;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 

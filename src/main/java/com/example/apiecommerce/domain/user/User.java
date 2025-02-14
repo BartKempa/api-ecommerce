@@ -37,6 +37,7 @@ public class User {
     )
     private Set<UserRole> roles = new HashSet<>();
 
+
     public User(Long id, String email, String password, String firstName, String lastName, String phoneNumber, LocalDateTime creationDate, Set<UserRole> roles) {
         this.id = id;
         this.email = email;
@@ -138,6 +139,7 @@ public class User {
     public void setOrders(Set<Order> orders) {
         this.orders = orders;
     }
+
 
     @Override
     public boolean equals(Object o) {

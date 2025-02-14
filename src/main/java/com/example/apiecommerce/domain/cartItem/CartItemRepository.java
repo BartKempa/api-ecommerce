@@ -11,5 +11,4 @@ public interface CartItemRepository extends CrudRepository<CartItem, Long> {
     @Transactional
     @Query("DELETE FROM CartItem ci WHERE ci.cart.id = :cartId")
     void deleteAllByCart_Id(@Param("cartId") long cartId);
-
 }

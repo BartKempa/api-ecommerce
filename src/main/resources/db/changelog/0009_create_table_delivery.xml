@@ -12,6 +12,7 @@
             <column name="delivery_name" type="VARCHAR(50)"/>
             <column name="delivery_time" type="VARCHAR(50)"/>
             <column name="delivery_charge" type="DOUBLE"/>
+            <column name="is_active" type="BOOLEAN" defaultValue="true"/>
         </createTable>
 
     </changeSet>

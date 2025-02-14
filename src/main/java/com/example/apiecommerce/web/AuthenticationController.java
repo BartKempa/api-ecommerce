@@ -2,6 +2,7 @@ package com.example.apiecommerce.web;
 
 import com.example.apiecommerce.domain.user.UserService;
 import com.example.apiecommerce.domain.user.auth.AuthenticationRequest;
+import com.example.apiecommerce.domain.user.dto.UserConfirmationRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,7 +48,6 @@ public class AuthenticationController {
                             {
                                 "id": 1,
                                 "email": "bartek@mail.com",
-                                "password": "{bcrypt}$2a$10$YFlY0VgNX50aEElAjGlDfO7/LL8gX2jJudFP05tDHTpXMWL5P1rIy",
                                 "firstName": "Bartek",
                                 "lastName": "Kempiak",
                                 "phoneNumber": "123456789"
@@ -72,32 +72,14 @@ public class AuthenticationController {
             )
     })
     @PostMapping("/register")
-    ResponseEntity<UserRegistrationDto> registerUser(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Details of the user to register.",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = UserRegistrationDto.class),
-                            examples = @ExampleObject(value = """
-                    {
-                        "email" : "bartek@mail.com",
-                        "password" : "super",
-                        "firstName" : "Bartek",
-                        "lastName" : "Kempiak",
-                        "phoneNumber" : "123456789"
-                    }
-                    """
-                            )
-                    )
-            )
+    ResponseEntity<UserConfirmationRegistrationDto> registerUser(
             @Valid @RequestBody UserRegistrationDto userRegistrationDto){
-        UserRegistrationDto savedUserDto = userService.registerWithDefaultRole(userRegistrationDto);
+        UserConfirmationRegistrationDto userConfirmationRegistrationDto = userService.registerWithDefaultRole(userRegistrationDto);
         URI savedUserUri = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(savedUserDto.getId())
+                .buildAndExpand(userConfirmationRegistrationDto.getId())
                 .toUri();
-        return ResponseEntity.created(savedUserUri).body(savedUserDto);
+        return ResponseEntity.created(savedUserUri).body(userConfirmationRegistrationDto);
     }
 
 
@@ -124,21 +106,6 @@ public class AuthenticationController {
                     content = @Content) })
     @PostMapping("/login")
     public ResponseEntity<?> login(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "User credentials for login.",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = AuthenticationRequest.class),
-                            examples = @ExampleObject(value = """
-                            {
-                                "username" : "bartek@mail.com",
-                                "password" : "super"
-                            }
-                            """
-                            )
-                    )
-            )
             @RequestBody AuthenticationRequest authenticationRequest) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication.getName().equals(authenticationRequest.getUsername())) {

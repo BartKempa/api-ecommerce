@@ -16,6 +16,7 @@ public class Delivery {
     private Double deliveryCharge;
     @OneToMany(mappedBy = "delivery")
     private Set<Order> orders = new HashSet<>();
+    private boolean isActive = true;
 
     public Long getId() {
         return id;
@@ -55,5 +56,13 @@ public class Delivery {
 
     public void setOrders(Set<Order> orders) {
         this.orders = orders;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

@@ -85,18 +85,6 @@ public class CartItemController {
     })
     @PostMapping
     ResponseEntity<CartItemFullDto> addCartItemToCart(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "CartItem to create", required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CartItemDto.class),
-                            examples = @ExampleObject(value = """
-                                    {
-                                        "productId": 1
-                                    }
-                                    """)
-                    )
-            )
             @Valid @RequestBody CartItemDto cartItemDto,
             Authentication authentication){
         String username = authentication.getName();
@@ -136,8 +124,10 @@ public class CartItemController {
     @DeleteMapping("/{id}")
     ResponseEntity<?> deleteCartItemById(
             @Parameter(description = "ID of the cart item to be deleted", required = true, example = "1")
-            @PathVariable Long id){
-        cartItemService.deleteCartItem(id);
+            @PathVariable Long id,
+            Authentication authentication){
+        String username = authentication.getName();
+        cartItemService.deleteCartItem(id, username);
         return ResponseEntity.noContent().build();
     }
 
@@ -187,22 +177,11 @@ public class CartItemController {
                     required = true,
                     example = "1"
             )
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Details of the cart item to update. Only quantity field will be updated.",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CartItemUpdateQuantityDto.class),
-                            examples = @ExampleObject(value = """
-                                    {
-                                        "cartItemQuantity" : 5
-                                    }
-                                    """)
-                    )
-            )
             @PathVariable Long id,
+            Authentication authentication,
             @Valid @RequestBody CartItemUpdateQuantityDto cartItemUpdateQuantityDto){
-        cartItemService.updateCartItemQuantity(id, cartItemUpdateQuantityDto);
+        String username = authentication.getName();
+        cartItemService.updateCartItemQuantity(id, cartItemUpdateQuantityDto, username);
         return ResponseEntity.noContent().build();
     }
 
@@ -238,8 +217,10 @@ public class CartItemController {
                     required = true,
                     example = "1"
             )
-            @PathVariable Long id){
-        cartItemService.increaseCartItemQuantityByOne(id);
+            @PathVariable Long id,
+            Authentication authentication){
+        String username = authentication.getName();
+        cartItemService.increaseCartItemQuantityByOne(id, username);
         return ResponseEntity.noContent().build();
     }
 
@@ -275,8 +256,10 @@ public class CartItemController {
                     required = true,
                     example = "1"
             )
-            @PathVariable Long id){
-        cartItemService.reduceCartItemQuantityByOne(id);
+            @PathVariable Long id,
+            Authentication authentication){
+        String username = authentication.getName();
+        cartItemService.reduceCartItemQuantityByOne(id, username);
         return ResponseEntity.noContent().build();
     }
 
@@ -323,8 +306,10 @@ public class CartItemController {
                     required = true,
                     example = "1"
             )
-            @PathVariable @Min(1) Long id){
-        return cartItemService.findCartItemById(id)
+            @PathVariable @Min(1) Long id,
+            Authentication authentication){
+        String username = authentication.getName();
+        return cartItemService.findCartItemById(id, username)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

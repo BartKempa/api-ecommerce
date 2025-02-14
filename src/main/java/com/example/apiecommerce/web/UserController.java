@@ -1,6 +1,7 @@
 package com.example.apiecommerce.web;
 
 import com.example.apiecommerce.domain.address.dto.AddressDto;
+import com.example.apiecommerce.domain.order.dto.OrderFullDto;
 import com.example.apiecommerce.domain.user.UserService;
 import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
@@ -16,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,7 +71,7 @@ public class UserController {
                     )
             )
     })
-    @GetMapping("/{id}")
+    @GetMapping("/user/{id}")
     ResponseEntity<UserRegistrationDto> getUserById(
             @Parameter(
                     description = "id of user to be searched",
@@ -84,7 +86,7 @@ public class UserController {
 
     @Operation(
             summary = "Update details about a user",
-            description = "Partially update user details by its ID. Only provided fields will be updated."
+            description = "Partially update user details. Only provided fields will be updated."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -120,31 +122,13 @@ public class UserController {
                     )
             )
     })
-    @PatchMapping("/{id}")
+    @PatchMapping("/details")
     public ResponseEntity<?> updateUser(
-            @Parameter(
-                    description = "ID of the user to be updated",
-                    required = true,
-                    example = "4")
-            @PathVariable Long id,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Details of the user to update. Only non-null fields will be updated.",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = UserUpdateDto.class),
-                            examples = @ExampleObject(value = """
-                        {
-                            "firstName" : "Bartosz",
-                            "lastName" : "Kemp",
-                            "phoneNumber" : "506506506"
-                        }
-                        """)
-                    )
-            )
+            Authentication authentication,
             @Valid @RequestBody UserUpdateDto userUpdateDto) {
+        String userName = authentication.getName();
         try {
-            userService.updateUser(id, userUpdateDto);
+            userService.updateUser(userName, userUpdateDto);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         }
@@ -194,7 +178,7 @@ public class UserController {
 
     @Operation(
             summary = "Update user password",
-            description = "Update user password by its ID. Only password can be updated."
+            description = "Update user password. Only password can be updated."
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -216,35 +200,19 @@ public class UserController {
                     )
             )
     })
-    @PatchMapping("/password/{id}")
+    @PatchMapping("/password")
     public ResponseEntity<?> updateUserPassword(
-            @Parameter(
-                    description = "ID of the user to be updated",
-                    required = true,
-                    example = "1")
-            @PathVariable Long id,
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    description = "Password of the user to update.",
-                    required = true,
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = UserUpdatePasswordDto.class),
-                            examples = @ExampleObject(value = """
-                        {
-                            "password" : "P@ssw0rd123!"                      
-                        }
-                        """)
-                    )
-            )
+            Authentication authentication,
             @Valid @RequestBody UserUpdatePasswordDto userUpdatePasswordDto) {
-            userService.updateUserPassword(id, userUpdatePasswordDto);
+            String userName = authentication.getName();
+            userService.updateUserPassword(userName, userUpdatePasswordDto);
             return ResponseEntity.noContent().build();
     }
 
 
     @Operation(
-            summary = "Get user addresses by its id",
-            description = "Retrieve a list of user addresses by its id"
+            summary = "Get user addresses",
+            description = "Retrieve a list of user addresses"
     )
     @ApiResponses(value = {
             @ApiResponse(
@@ -268,30 +236,50 @@ public class UserController {
                                     """
                             )
                     )
-            ),
+            )
+    })
+    @GetMapping("/addresses")
+    ResponseEntity<List<AddressDto>> getUserAddresses(
+            Authentication authentication){
+        String userName = authentication.getName();
+        var addresses = userService.findAllActiveUserAddresses(userName);
+        return ResponseEntity.ok(addresses);
+    }
+
+
+    @Operation(
+            summary = "Get user orders",
+            description = "Retrieve a list of user orders"
+    )
+    @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found",
-                    content = @Content(
+                    responseCode = "200",
+                    description = "Found the list of user orders",
+                    content =  @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ApiError.class),
+                            schema = @Schema(implementation = OrderFullDto.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                        "message": "User not found",
-                                        "timestamp": "2025-01-21T14:45:00"
-                                    }
-                                    """)
+                                        [
+                                             {
+                                                 "id": 1,
+                                                 "streetName": "Pawia",
+                                                 "buildingNumber": "123",
+                                                 "apartmentNumber": "321",
+                                                 "zipCode": "80800",
+                                                 "city": "Sopot",
+                                                 "userId": 3
+                                             }
+                                         ]
+                                    """
+                            )
                     )
             )
     })
-    @GetMapping("/{id}/addresses")
-    ResponseEntity<List<AddressDto>> getUserAddresses(
-            @Parameter(
-                    description = "id of user to be searched",
-                    required = true,
-                    example = "3")
-            @PathVariable Long id){
-        var addresses = userService.findAllActiveUserAddresses(id);
-        return ResponseEntity.ok(addresses);
+    @GetMapping("/orders")
+    ResponseEntity<List<OrderFullDto>> getUserOrders(
+            Authentication authentication){
+        String userName = authentication.getName();
+        var orders = userService.findAllUserOrders(userName);
+        return ResponseEntity.ok(orders);
     }
 }

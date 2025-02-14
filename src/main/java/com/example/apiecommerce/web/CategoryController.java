@@ -30,182 +30,100 @@ public class CategoryController {
     }
 
 
-    @Operation(
-            summary = "Create a new category",
-            description = "Create a new category and add it to the database"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Category created successfully",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CategoryDto.class),
+    @Operation(summary = "Create a new category", description = "Create a new category and add it to the database")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Category created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CategoryDto.class),
                             examples = @ExampleObject(value = """
-                                {
-                                        "id": 1,
-                                        "categoryName": "Piwo"
-                                }
-                                """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid input provided",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ApiError.class),
-                            examples = @ExampleObject(value = """
-                    {
-                        "message": "Invalid input",
-                        "timestamp": "2025-01-21T14:45:00"
-                    }
-                    """)
-                    )
-            )
-    })
-    @PostMapping
-    ResponseEntity<CategoryDto> addCategory(
-            @Valid @RequestBody CategoryDto categoryDto){
-        CategoryDto savedCategoryDto = categoryService.addCategory(categoryDto);
-        URI savedCategoryDtoUri = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedCategoryDto.getId())
-                .toUri();
-        return ResponseEntity.created(savedCategoryDtoUri).body(savedCategoryDto);
-    }
-
-
-    @Operation(
-            summary = "Get all categories",
-            description = "Retrieve a list of all categories"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Got the list of all categories",
-                    content =  @Content(
-                            mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)),
-                            examples = @ExampleObject(value = """
-                            [
                                 {
                                     "id": 1,
                                     "categoryName": "Piwo"
-                                },
+                                }
+                                """))),
+            @ApiResponse(responseCode = "400", description = "Invalid input provided",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class),
+                            examples = @ExampleObject(value = """
                                 {
-                                    "id": 2,
-                                    "categoryName": "Wino"
-                                }                               
-                            ]
-                            """)
-                    )
-            )
+                                    "message": "Invalid input",
+                                    "timestamp": "2025-01-21T14:45:00"
+                                }
+                                """)))
     })
-    @GetMapping
-    List<CategoryDto> getAllCategories(){
-        return categoryService.findAllCategories();
+    @PostMapping
+    public ResponseEntity<CategoryDto> addCategory(@Valid @RequestBody CategoryDto categoryDto) {
+        CategoryDto savedCategory = categoryService.addCategory(categoryDto);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(savedCategory.getId())
+                .toUri();
+        return ResponseEntity.created(location).body(savedCategory);
     }
 
-
-    @Operation(
-            summary = "Replace a category",
-            description = "Update all details of category"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Category updated successfully",
-                    content =  @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = CategoryDto.class),
-                            examples = @ExampleObject(value = """
+    @Operation(summary = "Get all categories", description = "Retrieve a list of all categories")
+    @ApiResponse(responseCode = "200", description = "Got the list of all categories",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = CategoryDto.class),
+                    examples = @ExampleObject(value = """
+                        [
                             {
-                              "id": 1,
-                              "categoryName": "Wino"
+                                "id": 1,
+                                "categoryName": "Piwo"
+                            },
+                            {
+                                "id": 2,
+                                "categoryName": "Wino"
                             }
-                        """
-                            )
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid input provided",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ApiError.class),
+                        ]
+                        """)))
+    @GetMapping
+    public ResponseEntity<List<CategoryDto>> getAllCategories() {
+        return ResponseEntity.ok(categoryService.findAllCategories());
+    }
+
+    @Operation(summary = "Replace a category", description = "Update all details of a category")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Category updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid input provided",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value = """
-                    {
-                        "message": "Invalid input",
-                        "timestamp": "2025-01-21T14:45:00"
-                    }
-                    """)
-                    )
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Category not found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ApiError.class),
+                                {
+                                    "message": "Invalid input",
+                                    "timestamp": "2025-01-21T14:45:00"
+                                }
+                                """))),
+            @ApiResponse(responseCode = "404", description = "Category not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                        "message": "Category not found",
-                                        "timestamp": "2025-01-21T14:45:00"
-                                    }
-                                    """)
-                    )
-            )
+                                {
+                                    "message": "Category not found",
+                                    "timestamp": "2025-01-21T14:45:00"
+                                }
+                                """)))
     })
     @PutMapping("/{id}")
-    ResponseEntity<?> replaceCategory(
-            @RequestBody CategoryDto categoryDto,
-            @Parameter(
-                    description = "id of category to be updated",
-                    required = true,
-                    example = "1")
-            @PathVariable Long id){
+    public ResponseEntity<?> replaceCategory(@PathVariable Long id, @Valid @RequestBody CategoryDto categoryDto) {
         return categoryService.replaceCategory(id, categoryDto)
-                .map(c -> ResponseEntity.noContent().build())
+                .map(updated -> ResponseEntity.noContent().build())
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
-    @Operation(
-            summary = "Delete a category",
-            description = "Delete a category by its id"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "Category successfully deleted"
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Category not found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ApiError.class),
+    @Operation(summary = "Delete a category", description = "Delete a category by its id")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Category successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "Category not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value = """
-                                    {
-                                        "message": "Address not found",
-                                        "timestamp": "2025-01-21T14:45:00"
-                                    }
-                                    """)
-                    )
-            )
+                                {
+                                    "message": "Category not found",
+                                    "timestamp": "2025-01-21T14:45:00"
+                                }
+                                """)))
     })
     @DeleteMapping("/{id}")
-    ResponseEntity<?> deleteCategory(
-            @Parameter(
-                    description = "id of category to be deleted",
-                    required = true,
-                    example = "1")
-            @PathVariable Long id) {
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
 }
+
 
 
