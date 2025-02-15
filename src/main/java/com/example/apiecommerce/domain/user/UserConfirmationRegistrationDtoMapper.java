@@ -1,7 +1,6 @@
 package com.example.apiecommerce.domain.user;
 
 import com.example.apiecommerce.domain.user.dto.UserConfirmationRegistrationDto;
-import com.example.apiecommerce.domain.user.dto.UserRegistrationDto;
 import org.springframework.stereotype.Component;
 
 @Component

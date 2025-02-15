@@ -121,6 +121,9 @@ public class ProductService {
     public void updateProductQuantityInDb(Long productId, long quantityToChange){
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+        if (quantityToChange == 0) {
+            return;
+        }
         if (product.getProductQuantity() < quantityToChange){
             throw new IllegalArgumentException("Not enough quantity in stock");
         }

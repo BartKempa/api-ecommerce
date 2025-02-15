@@ -1,12 +1,5 @@
 package com.example.apiecommerce.domain.user.dto;
 
-import com.example.apiecommerce.domain.user.validation.PasswordCriteria;
-import com.example.apiecommerce.domain.user.validation.UniqueEmail;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Size;
-
 public class UserConfirmationRegistrationDto {
     private Long id;
     private String email;

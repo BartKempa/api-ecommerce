@@ -19,7 +19,6 @@ public class UserRegistrationDtoMapper {
         this.dateTimeProvider = dateTimeProvider;
     }
 
-
     UserRegistrationDto map(User user){
         return new UserRegistrationDto(
                 user.getId(),

@@ -358,7 +358,6 @@ class ProductServiceTest {
         assertThat(exc.getMessage(), is("Category not found"));
     }
 
-
     @Test
     void shouldFindProductById() {
         //given
@@ -376,7 +375,7 @@ class ProductServiceTest {
         product.setCategory(category);
         product.setCreationDate(now);
 
-        Mockito.when(productRepositoryMock.existsById(1L)).thenReturn(true);
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
         Mockito.when(productDtoMapperMock.map(product)).thenReturn(new ProductDto(1L, "Pilsner urquell", 8.60, "Klasyczne czeskie piwo", now, 20L, 1L, "Piwo"));
         Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
 
@@ -396,7 +395,7 @@ class ProductServiceTest {
     void shouldReturnEmptyOptionalWhenProductNotExist() {
         //given
         Long nonExistingProductId = 1L;
-        Mockito.when(productRepositoryMock.existsById(nonExistingProductId)).thenReturn(false);
+        Mockito.when(productRepositoryMock.findById(nonExistingProductId)).thenReturn(Optional.empty());
 
         //when
         Optional<ProductDto> result = productService.findProductById(nonExistingProductId);
@@ -437,7 +436,7 @@ class ProductServiceTest {
         //given
         ProductDto productDto = new ProductDto();
         Long nonExistingProductId = 1L;
-        Mockito.when(productRepositoryMock.existsById(nonExistingProductId)).thenReturn(false);
+        Mockito.when(productRepositoryMock.findById(nonExistingProductId)).thenReturn(Optional.empty());
 
         //when
         Optional<ProductDto> result = productService.replaceProduct(nonExistingProductId, productDto);
@@ -475,10 +474,9 @@ class ProductServiceTest {
 
         Product product = new Product(1L, "Zloty bazant", 6.60, "Klasyczne slowackie piwo", now2, 10L, category);
 
-        Mockito.when(productRepositoryMock.existsById(1L)).thenReturn(true);
-        Mockito.when(productDtoMapperMock.map(productDto)).thenReturn(product);
-        Mockito.when(productRepositoryMock.save(product)).thenReturn(product);
-        Mockito.when(productDtoMapperMock.map(product)).thenReturn(new ProductDto(1L, "Zloty bazant", 6.60, "Klasyczne slowackie piwo", now2, 10L, 1L, "Piwo"));
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product1));
+        Mockito.when(categoryRepositoryMock.findById(1L)).thenReturn(Optional.of(category));
+        Mockito.when(productDtoMapperMock.map(product)).thenReturn(productDto);
 
         //when
         Optional<ProductDto> result = productService.replaceProduct(1L, productDto);
@@ -486,6 +484,13 @@ class ProductServiceTest {
         //then
         ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
         Mockito.verify(productRepositoryMock).save(productArgumentCaptor.capture());
+
+        Product savedProduct = productArgumentCaptor.getValue();
+        assertEquals("Zloty bazant", savedProduct.getProductName());
+        assertEquals(6.60, savedProduct.getProductPrice());
+        assertEquals(10L, savedProduct.getProductQuantity());
+        assertEquals("Klasyczne slowackie piwo", savedProduct.getDescription());
+        assertEquals(1L, savedProduct.getCategory().getId());
 
         assertTrue(result.isPresent());
         ProductDto resultProductDto = result.get();
@@ -498,6 +503,45 @@ class ProductServiceTest {
     }
 
     @Test
+    void shouldThrowExceptionWhenCategoryNotFound() {
+        //given
+        ProductDto productDto = new ProductDto();
+        productDto.setProductName("Zloty bazant");
+        productDto.setProductPrice(6.60);
+        productDto.setDescription("Klasyczne slowackie piwo");
+        productDto.setProductQuantity(10L);
+        productDto.setCategoryId(2L);
+
+        Product existingProduct = new Product();
+        existingProduct.setId(1L);
+        existingProduct.setProductName("Pilsner urquell");
+
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(existingProduct));
+        Mockito.when(categoryRepositoryMock.findById(2L)).thenReturn(Optional.empty());
+
+        //when
+        //then
+        EntityNotFoundException exc = assertThrows(EntityNotFoundException.class, () -> productService.replaceProduct(1L, productDto));
+        assertEquals("Category not found", exc.getMessage());
+    }
+
+        @Test
+        void shouldReturnEmptyOptionalWhenProductNotFound() {
+            //given
+            ProductDto productDto = new ProductDto();
+            productDto.setProductName("Zloty bazant");
+
+            Mockito.when(productRepositoryMock.findById(99L)).thenReturn(Optional.empty());
+
+            //when
+            Optional<ProductDto> result = productService.replaceProduct(99L, productDto);
+
+            //then
+            assertTrue(result.isEmpty());
+            Mockito.verify(productRepositoryMock, Mockito.never()).save(Mockito.any(Product.class));
+    }
+
+        @Test
     void shouldReturnEmptyOptionalWhenCountQuantityNotExistProduct() {
         //given
         Long nonExistingProductId = 1L;
@@ -555,5 +599,313 @@ class ProductServiceTest {
 
         //then
         assertEquals(0L, result);
+    }
+
+    @Test
+    void shouldReduceProductQuantityInDbByOne() {
+        //given
+        Product product = new Product();
+        product.setId(1L);
+        product.setProductQuantity(5L);
+
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
+
+        //when
+        productService.reduceProductQuantityInDbByOne(1L);
+
+        //then
+        ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
+        Mockito.verify(productRepositoryMock).save(productArgumentCaptor.capture());
+
+        Product savedProduct = productArgumentCaptor.getValue();
+        assertEquals(4L, savedProduct.getProductQuantity());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenNotEnoughProductQuantityAndTryReduceQuantityByOne() {
+        //given
+        Product product = new Product();
+        product.setId(1L);
+        product.setProductQuantity(0L);
+
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
+
+        //when
+        //then
+        IllegalArgumentException exc = assertThrows(IllegalArgumentException.class, () -> productService.reduceProductQuantityInDbByOne(1L));
+        assertEquals("Product is unavailable", exc.getMessage());
+        Mockito.verify(productRepositoryMock, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldIncreaseProductQuantityInDbByOne() {
+        //given
+        Product product = new Product();
+        product.setId(1L);
+        product.setProductQuantity(5L);
+
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
+
+        //when
+        productService.increaseProductQuantityInDbByOne(1L);
+
+        //then
+        ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
+        Mockito.verify(productRepositoryMock).save(productArgumentCaptor.capture());
+
+        Product savedProduct = productArgumentCaptor.getValue();
+        assertEquals(6L, savedProduct.getProductQuantity());
+    }
+
+    @Test
+    void shouldUpdateProductQuantityByMinus5() {
+        //given
+        Product product = new Product();
+        product.setId(1L);
+        product.setProductQuantity(5L);
+
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
+
+        //when
+        productService.updateProductQuantityInDb(1L, 5);
+
+        //then
+        ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
+        Mockito.verify(productRepositoryMock).save(productArgumentCaptor.capture());
+
+        Product savedProduct = productArgumentCaptor.getValue();
+        assertEquals(0L, savedProduct.getProductQuantity());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenProductQuantityNotEnoughToUpdate() {
+        //given
+        Product product = new Product();
+        product.setId(1L);
+        product.setProductQuantity(5L);
+
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
+
+        //when & then
+        IllegalArgumentException exc = assertThrows(IllegalArgumentException.class, () ->
+                productService.updateProductQuantityInDb(1L, 6)
+        );
+        assertEquals("Not enough quantity in stock", exc.getMessage());
+        Mockito.verify(productRepositoryMock, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenProductNotFound() {
+        //given
+        Mockito.when(productRepositoryMock.findById(99L)).thenReturn(Optional.empty());
+
+        //when & then
+        EntityNotFoundException exc = assertThrows(EntityNotFoundException.class, () ->
+                productService.updateProductQuantityInDb(99L, 5));
+        assertEquals("Product not found", exc.getMessage());
+
+        Mockito.verify(productRepositoryMock, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldDoNothingWhenQuantityToChangeIsZero() {
+        //given
+        Product product = new Product();
+        product.setId(1L);
+        product.setProductQuantity(5L);
+
+        Mockito.when(productRepositoryMock.findById(1L)).thenReturn(Optional.of(product));
+
+        //when
+        productService.updateProductQuantityInDb(1L, 0);
+
+        //then
+        Mockito.verify(productRepositoryMock, Mockito.never()).save(Mockito.any());
+    }
+
+    @Test
+    void shouldFindTwoProductsByGivenTextPaginated() {
+        //given
+        Category category = new Category();
+        category.setId(1L);
+        category.setCategoryName("Piwo");
+
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setProductName("Pilsner urquell");
+        product1.setProductPrice(8.60);
+        product1.setDescription("Klasyczne czeskie piwo");
+        product1.setProductQuantity(20L);
+        LocalDateTime now = LocalDateTime.now();
+        product1.setCategory(category);
+        product1.setCreationDate(now);
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setProductName("Zloty bazant");
+        product2.setProductPrice(6.60);
+        product2.setDescription("Klasyczne slowackie piwo");
+        product2.setProductQuantity(10L);
+        product2.setCategory(category);
+        LocalDateTime now2 = LocalDateTime.now();
+        product2.setCreationDate(now2);
+
+        List<Product> productsList = new ArrayList<>();
+        productsList.add(product1);
+        productsList.add(product2);
+        productsList.sort(Comparator.comparing(Product::getProductPrice));
+        PageImpl<Product> page = new PageImpl<>(productsList);
+
+        String searchText = "piwo";
+
+        Mockito.when(productRepositoryMock.findProductsBySearchText(Mockito.eq(searchText), Mockito.any(Pageable.class))).thenReturn(page);
+
+        Mockito.when(productDtoMapperMock.map(product1)).thenReturn(new ProductDto(1L, "Pilsner urquell", 8.60, "Klasyczne czeskie piwo", now, 20L, 1L, "Piwo"));
+        Mockito.when(productDtoMapperMock.map(product2)).thenReturn(new ProductDto(2L, "Zloty bazant", 6.60, "Klasyczne slowackie piwo", now2, 10L, 1L, "Piwo"));
+
+        int pageNumber = 1;
+        int pageSize = 3;
+        String sortField = "productPrice";
+        String sortDirection = "ASC";
+
+
+        //when
+        Page<ProductDto> productsResultPaginated = productService.findProductsByTextPaginated(searchText, pageNumber, pageSize, sortField, sortDirection);
+
+        //then
+        assertThat(productsResultPaginated.getTotalElements(), is(2L));
+        assertThat(productsResultPaginated.getContent().get(0).getProductName(), is("Zloty bazant"));
+        assertThat(productsResultPaginated.getContent().get(1).getProductName(), is("Pilsner urquell"));
+    }
+
+    @Test
+    void shouldFindZeroProductsByGivenTextPaginated() {
+        //given
+        List<Product> productsList = new ArrayList<>();
+        PageImpl<Product> page = new PageImpl<>(productsList);
+
+        String searchText = "piwo";
+
+        Mockito.when(productRepositoryMock.findProductsBySearchText(Mockito.eq(searchText), Mockito.any(Pageable.class))).thenReturn(page);
+
+        int pageNumber = 1;
+        int pageSize = 3;
+        String sortField = "productPrice";
+        String sortDirection = "ASC";
+
+        //when
+        Page<ProductDto> productsResultPaginated = productService.findProductsByTextPaginated(searchText, pageNumber, pageSize, sortField, sortDirection);
+
+        //then
+        assertThat(productsResultPaginated.getTotalElements(), is(0L));
+        assertTrue(productsResultPaginated.getContent().isEmpty());
+    }
+
+    @Test
+    void shouldReturnOnlyPageSizeElements() {
+        //given
+        List<Product> productsList = new ArrayList<>();
+        for (long i = 1; i <= 10; i++) {
+            Product product = new Product();
+            product.setId(i);
+            product.setProductName("Product " + i);
+            product.setProductPrice(10.0 + i);
+            product.setDescription("Description " + i);
+            product.setProductQuantity(5L);
+            product.setCreationDate(LocalDateTime.now());
+            productsList.add(product);
+        }
+
+        PageImpl<Product> page = new PageImpl<>(productsList.subList(0, 3));
+
+        Mockito.when(productRepositoryMock.findProductsBySearchText(Mockito.anyString(), Mockito.any(Pageable.class))).thenReturn(page);
+        Mockito.when(productDtoMapperMock.map(Mockito.any(Product.class))).thenAnswer(invocation -> {
+            Product p = invocation.getArgument(0);
+            return new ProductDto(p.getId(), p.getProductName(), p.getProductPrice(), p.getDescription(), p.getCreationDate(), p.getProductQuantity(), 1L, "Piwo");
+        });
+
+        int pageNumber = 1;
+        int pageSize = 3;
+        String sortField = "productPrice";
+        String sortDirection = "ASC";
+
+        //when
+        Page<ProductDto> productsResultPaginated = productService.findProductsByTextPaginated("Product", pageNumber, pageSize, sortField, sortDirection);
+
+        //then
+        assertThat(productsResultPaginated.getContent().size(), is(3));
+    }
+
+
+    @Test
+    void shouldThrowExceptionWhenPageNumberIsZero() {
+        assertThrows(IllegalArgumentException.class, () ->
+                productService.findProductsByTextPaginated("piwo", 0, 3, "productPrice", "ASC")
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionWhenPageSizeIsZero() {
+        assertThrows(IllegalArgumentException.class, () ->
+                productService.findProductsByTextPaginated("piwo", 1, 0, "productPrice", "ASC")
+        );
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenSearchTextIsNull() {
+        Page<Product> emptyPage = Page.empty();
+        Mockito.when(productRepositoryMock.findProductsBySearchText(Mockito.isNull(), Mockito.any(Pageable.class))).thenReturn(emptyPage);
+
+        Page<ProductDto> result = productService.findProductsByTextPaginated(null, 1, 3, "productPrice", "ASC");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void shouldSortProductsByPriceDescending() {
+        //given
+        Category category = new Category();
+        category.setId(1L);
+        category.setCategoryName("Piwo");
+
+        Product product1 = new Product();
+        product1.setId(1L);
+        product1.setProductName("Pilsner urquell");
+        product1.setProductPrice(8.60);
+        product1.setDescription("Klasyczne czeskie piwo");
+        product1.setProductQuantity(20L);
+        product1.setCategory(category);
+        product1.setCreationDate(LocalDateTime.now());
+
+        Product product2 = new Product();
+        product2.setId(2L);
+        product2.setProductName("Zloty bazant");
+        product2.setProductPrice(6.60);
+        product2.setDescription("Klasyczne slowackie piwo");
+        product2.setProductQuantity(10L);
+        product2.setCategory(category);
+        product2.setCreationDate(LocalDateTime.now());
+
+        List<Product> productsList = List.of(product1, product2);
+        PageImpl<Product> page = new PageImpl<>(productsList);
+
+        String searchText = "piwo";
+
+        Mockito.when(productRepositoryMock.findProductsBySearchText(Mockito.eq(searchText), Mockito.any(Pageable.class))).thenReturn(page);
+        Mockito.when(productDtoMapperMock.map(product1)).thenReturn(new ProductDto(1L, "Pilsner urquell", 8.60, "Klasyczne czeskie piwo", product1.getCreationDate(), 20L, 1L, "Piwo"));
+        Mockito.when(productDtoMapperMock.map(product2)).thenReturn(new ProductDto(2L, "Zloty bazant", 6.60, "Klasyczne slowackie piwo", product2.getCreationDate(), 10L, 1L, "Piwo"));
+
+        int pageNumber = 1;
+        int pageSize = 3;
+        String sortField = "productPrice";
+        String sortDirection = "DESC";
+
+        //when
+        Page<ProductDto> productsResultPaginated = productService.findProductsByTextPaginated(searchText, pageNumber, pageSize, sortField, sortDirection);
+
+        //then
+        assertThat(productsResultPaginated.getTotalElements(), is(2L));
+        assertThat(productsResultPaginated.getContent().get(0).getProductName(), is("Pilsner urquell"));
+        assertThat(productsResultPaginated.getContent().get(1).getProductName(), is("Zloty bazant"));
     }
 }
