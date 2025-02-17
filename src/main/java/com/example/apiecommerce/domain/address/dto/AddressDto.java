@@ -39,6 +39,18 @@ public class AddressDto {
     @Schema(description = "User ID associated with the address")
     private Long userId;
 
+    public AddressDto() {
+    }
+
+    public AddressDto(String streetName, String buildingNumber, String apartmentNumber, String zipCode, String city, Long userId) {
+        this.streetName = streetName;
+        this.buildingNumber = buildingNumber;
+        this.apartmentNumber = apartmentNumber;
+        this.zipCode = zipCode;
+        this.city = city;
+        this.userId = userId;
+    }
+
     public Long getId() {
         return id;
     }

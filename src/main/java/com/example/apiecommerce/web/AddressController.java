@@ -128,7 +128,7 @@ public class AddressController {
                     required = true,
                     example = "1"
             )
-            @PathVariable Long id,
+            @PathVariable @Min(1) Long id,
             Authentication authentication) {
         String username = authentication.getName();
         addressService.deleteAddress(id, username);
@@ -181,7 +181,7 @@ public class AddressController {
                     required = true,
                     example = "1"
             )
-            @PathVariable Long id,
+            @PathVariable @Min(1) Long id,
             @RequestBody AddressUpdateDto addressUpdateDto,
             Authentication authentication) {
             String username = authentication.getName();

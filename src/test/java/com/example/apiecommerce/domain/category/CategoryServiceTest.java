@@ -28,7 +28,8 @@ class CategoryServiceTest {
 
     @BeforeEach
     void init(){
-    categoryService = new CategoryService(categoryRepositoryMock);
+
+        categoryService = new CategoryService(categoryRepositoryMock);
     }
 
 
@@ -156,7 +157,6 @@ class CategoryServiceTest {
         Mockito.verify(categoryRepositoryMock, Mockito.times(1)).existsById(nonExistingCategory);
         Mockito.verifyNoMoreInteractions(categoryRepositoryMock);
     }
-
 
     @Test
     void shouldThrowNotFoundExceptionTryDeleteNonExistCategory() {

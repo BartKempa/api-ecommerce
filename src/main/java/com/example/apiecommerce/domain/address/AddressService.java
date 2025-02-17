@@ -43,7 +43,6 @@ public class AddressService {
         address.setActive(false);
         addressRepository.save(address);
     }
-
     @Transactional
     public void updateAddress(long addressId, AddressUpdateDto addressUpdateDto, String userMail){
         Address address = addressRepository.findById(addressId)
@@ -80,7 +79,6 @@ public class AddressService {
         if (!address.getUser().equals(user)) {
             throw new IllegalArgumentException("Address belongs to other user, you can not get it");
         }
-        return addressRepository.findById(addressId)
-                .map(addressDtoMapper::map);
+        return Optional.of(addressDtoMapper.map(address));
     }
 }
