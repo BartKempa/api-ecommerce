@@ -158,7 +158,7 @@ public class CartController {
                             examples = @ExampleObject(value =
                                     """
                                     {
-                                        "message": "Cart not found",
+                                        "message": "User does not have a cart",
                                         "timestamp": "2025-01-21T14:45:00"
                                     }
                                     """)

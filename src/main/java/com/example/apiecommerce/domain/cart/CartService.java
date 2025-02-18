@@ -1,11 +1,9 @@
 package com.example.apiecommerce.domain.cart;
 
+import com.example.apiecommerce.domain.DateTimeProvider;
 import com.example.apiecommerce.domain.cart.dto.CartDetailsDto;
 import com.example.apiecommerce.domain.cart.dto.CartDto;
-import com.example.apiecommerce.domain.cartItem.CartItem;
 import com.example.apiecommerce.domain.cartItem.CartItemRepository;
-import com.example.apiecommerce.domain.product.Product;
-import com.example.apiecommerce.domain.product.ProductService;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,15 +20,16 @@ public class CartService {
     private final UserRepository userRepository;
     private final CartDetailsDtoMapper cartDetailsDtoMapper;
     private final CartItemRepository cartItemRepository;
-    private final ProductService productService;
+    private final DateTimeProvider dateTimeProvider;
 
-    public CartService(CartRepository cartRepository, CartDtoMapper cartDtoMapper, UserRepository userRepository, CartDetailsDtoMapper cartDetailsDtoMapper, CartItemRepository cartItemRepository, ProductService productService) {
+
+    public CartService(CartRepository cartRepository, CartDtoMapper cartDtoMapper, UserRepository userRepository, CartDetailsDtoMapper cartDetailsDtoMapper, CartItemRepository cartItemRepository, DateTimeProvider dateTimeProvider) {
         this.cartRepository = cartRepository;
         this.cartDtoMapper = cartDtoMapper;
         this.userRepository = userRepository;
         this.cartDetailsDtoMapper = cartDetailsDtoMapper;
         this.cartItemRepository = cartItemRepository;
-        this.productService = productService;
+        this.dateTimeProvider = dateTimeProvider;
     }
 
     @Transactional
@@ -41,7 +40,7 @@ public class CartService {
             throw new IllegalStateException("User already has a cart");
         }
         Cart cart = new Cart();
-        cart.setCreationDate(LocalDateTime.now());
+        cart.setCreationDate(dateTimeProvider.getCurrentTime());
         Cart savedCart = cartRepository.save(cart);
         user.setCart(savedCart);
         userRepository.save(user);
@@ -58,8 +57,12 @@ public class CartService {
     public void deleteCartWithoutIncreasingStock(String userMail){
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (user.getCart() == null) {
+            throw new EntityNotFoundException("User does not have a cart");
+        }
         Cart cart = cartRepository.findById(user.getCart().getId())
-                .orElseThrow(() -> new EntityNotFoundException("User does not have a cart"));
+                .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
 
         Optional<User> userOpt = userRepository.findByCartId(user.getCart().getId());
         userOpt.ifPresent(
@@ -74,8 +77,11 @@ public class CartService {
     public void deleteCartWithIncreasingStock(String userMail){
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (user.getCart() == null) {
+            throw new EntityNotFoundException("User does not have a cart");
+        }
         Cart cart = cartRepository.findById(user.getCart().getId())
-                .orElseThrow(() -> new EntityNotFoundException("User does not have a cart"));
+                .orElseThrow(EntityNotFoundException::new);
         cartItemRepository.deleteAll(cart.getCartItems());
         user.setCart(null);
         cartRepository.delete(cart);

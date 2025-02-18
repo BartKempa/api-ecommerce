@@ -13,7 +13,8 @@ public class CartDto {
     @Schema(description = "The date and time when the cart was created", example = "2025-02-13T10:15:30")
     private LocalDateTime creationDate;
 
-
+    public CartDto() {
+    }
 
     public CartDto(Long id, LocalDateTime creationDate) {
         this.id = id;
