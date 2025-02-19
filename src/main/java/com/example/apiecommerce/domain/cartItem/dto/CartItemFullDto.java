@@ -8,6 +8,7 @@ public class CartItemFullDto {
     private String productName;
     private double productPrice;
 
+
     public CartItemFullDto(Long id, Long cartItemQuantity, Long cartId, Long productId, String productName, double productPrice) {
         this.id = id;
         this.cartItemQuantity = cartItemQuantity;

@@ -43,10 +43,11 @@ public class CartItemService {
     public CartItemFullDto addCartItemToCart(String userMail, CartItemDto cartItemDto){
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        Long cardId = Optional.ofNullable(user.getCart().getId())
-                .orElseGet(() -> cartService.createCart(userMail).getId());
+        Long cartId = (user.getCart() != null)
+                ? user.getCart().getId()
+                : cartService.createCart(userMail).getId();
         CartItem cartItemToSave = cartItemDtoMapper.map(cartItemDto);
-        Cart cart = cartRepository.findById(cardId)
+        Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new EntityNotFoundException("Cart not found"));
         productService.reduceProductQuantityInDbByOne(cartItemDto.getProductId());
         cartItemToSave.setCart(cart);
@@ -69,6 +70,9 @@ public class CartItemService {
     private void checkIsCartItemFromUserCart(Long cartItemId, String userMail) {
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        if (user.getCart() == null) {
+            throw new EntityNotFoundException("User does not have a cart");
+        }
         Cart cart = cartRepository.findById(user.getCart().getId())
                 .orElseThrow(() -> new EntityNotFoundException("User does not have a cart"));
         CartItem cartItem = cartItemRepository.findById(cartItemId)
