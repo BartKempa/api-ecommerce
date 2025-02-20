@@ -35,8 +35,9 @@ public class DeliveryService {
     }
 
     public Optional<DeliveryDto> findDeliveryById(Long id){
-        return deliveryRepository.findById(id)
-                .map(deliveryDtoMapper::map);
+        Delivery delivery = deliveryRepository.findById(id).
+                orElseThrow(() -> new EntityNotFoundException("Delivery not found"));
+        return Optional.of(deliveryDtoMapper.map(delivery));
     }
 
     @Transactional
@@ -59,6 +60,5 @@ public class DeliveryService {
         if (deliveryUpdateDto.getDeliveryCharge() != null){
             delivery.setDeliveryCharge(deliveryUpdateDto.getDeliveryCharge());
         }
-        deliveryRepository.save(delivery);
     }
 }
