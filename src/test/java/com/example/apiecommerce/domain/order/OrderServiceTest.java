@@ -344,16 +344,253 @@ class OrderServiceTest {
         assertThat(allPaginatedOrders.getContent().get(1).getOrderTotalPrice(), is(34.90));
     }
 
-
     @Test
-    void processPayment() {
+    void shouldProcessPayment() {
+        // given
+        Order order = new Order();
+        order.setId(1L);
+        order.setTotalPrice(34.90);
+        order.setPaymentStatus(PaymentStatus.PENDING);
+        order.setOrderStatus(OrderStatus.NEW);
+
+        OrderFullDto orderFullDto = new OrderFullDto();
+        orderFullDto.setId(1L);
+        orderFullDto.setOrderTotalPrice(34.90);
+        orderFullDto.setOrderPaymentStatus(PaymentStatus.PENDING.name());
+        orderFullDto.setOrderStatus(OrderStatus.NEW.name());
+
+        Mockito.when(orderRepositoryMock.findById(1L)).thenReturn(Optional.of(order));
+        Mockito.when(orderDtoMapperMock.map(order)).thenReturn(orderFullDto);
+
+        //when
+        Optional<OrderFullDto> orderFullDtoResult = orderService.processPayment(1L);
+
+        //then
+        assertTrue(orderFullDtoResult.isPresent());
+        assertEquals(OrderStatus.NEW.name(), orderFullDtoResult.get().getOrderStatus());
+        assertEquals(34.90, orderFullDtoResult.get().getOrderTotalPrice());
     }
 
     @Test
-    void cancelOrderById() {
+    void shouldThrowExceptionWhenProcessPaymentAndOrderNotExist() {
+        // given
+        long nonExistingOrder = 111L;
+
+        Mockito.when(orderRepositoryMock.findById(nonExistingOrder)).thenReturn(Optional.empty());
+
+        //when
+        EntityNotFoundException exc = assertThrows(EntityNotFoundException.class,
+                () -> orderService.processPayment(nonExistingOrder));
+
+        //then
+        assertTrue(exc.getMessage().contains("Order not found"));
+    }
+
+    @Test
+    void shouldCancelOrderById() {
+        //given
+        Product product1 = new Product();
+        product1.setId(1L);
+
+        Product product2 = new Product();
+        product2.setId(2L);
+
+        OrderItem orderItem1 = new OrderItem();
+        orderItem1.setProduct(product1);
+        orderItem1.setOrderItemQuantity(2L);
+
+        OrderItem orderItem2 = new OrderItem();
+        orderItem2.setProduct(product2);
+        orderItem2.setOrderItemQuantity(3L);
+
+        Order order = new Order();
+        order.setId(1L);
+        order.setOrderStatus(OrderStatus.NEW);
+        order.setOrderItems(Set.of(orderItem1, orderItem2));
+
+        Mockito.when(orderRepositoryMock.findById(1L)).thenReturn(Optional.of(order));
+
+        // when
+        orderService.cancelOrderById(1L);
+
+        // then
+        Mockito.verify(productServiceMock).updateProductQuantityInDb(1L, -2L);
+        Mockito.verify(productServiceMock).updateProductQuantityInDb(2L, -3L);
+        assertEquals(order.getOrderStatus(), OrderStatus.CANCELLED);
+        assertEquals(0L, orderItem1.getOrderItemQuantity());
+        assertEquals(0L, orderItem2.getOrderItemQuantity());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCancelNotExistOrderById() {
+        // given
+        long nonExistingOrder = 111L;
+
+        Mockito.when(orderRepositoryMock.findById(nonExistingOrder)).thenReturn(Optional.empty());
+
+        //when
+        EntityNotFoundException exc = assertThrows(EntityNotFoundException.class,
+                () -> orderService.cancelOrderById(nonExistingOrder));
+
+        //then
+        assertTrue(exc.getMessage().contains("Order not found"));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCancelOrderWithStatusSuccess() {
+        //given
+        Product product1 = new Product();
+        product1.setId(1L);
+
+        Product product2 = new Product();
+        product2.setId(2L);
+
+        OrderItem orderItem1 = new OrderItem();
+        orderItem1.setProduct(product1);
+        orderItem1.setOrderItemQuantity(2L);
+
+        OrderItem orderItem2 = new OrderItem();
+        orderItem2.setProduct(product2);
+        orderItem2.setOrderItemQuantity(3L);
+
+        Order order = new Order();
+        order.setId(1L);
+        order.setOrderStatus(OrderStatus.SUCCESS);
+        order.setOrderItems(Set.of(orderItem1, orderItem2));
+
+        Mockito.when(orderRepositoryMock.findById(1L)).thenReturn(Optional.of(order));
+
+        // when
+        IllegalArgumentException exc = assertThrows(IllegalArgumentException.class,
+                () -> orderService.cancelOrderById(1L));
+
+        //then
+        assertTrue(exc.getMessage().contains("Only status 'NEW' can be changed into 'CANCELLED'"));
+    }
+
+    @Test
+    void shouldCancelOrderWithoutOrderItems() {
+        //given
+        Order order = new Order();
+        order.setId(1L);
+        order.setOrderStatus(OrderStatus.NEW);
+        order.setOrderItems(Collections.emptySet());
+
+        Mockito.when(orderRepositoryMock.findById(1L)).thenReturn(Optional.of(order));
+
+        // when
+        orderService.cancelOrderById(1L);
+
+        // then
+        assertEquals(OrderStatus.CANCELLED, order.getOrderStatus());
+        Mockito.verifyNoInteractions(productServiceMock);
+    }
+
+    @Test
+    void shouldThrowExceptionWhenCancelAlreadyCancelledOrder() {
+        //given
+        Order order = new Order();
+        order.setId(1L);
+        order.setOrderStatus(OrderStatus.CANCELLED);
+
+        Mockito.when(orderRepositoryMock.findById(1L)).thenReturn(Optional.of(order));
+
+        // when
+        IllegalArgumentException exc = assertThrows(IllegalArgumentException.class,
+                () -> orderService.cancelOrderById(1L));
+
+        //then
+        assertTrue(exc.getMessage().contains("Only status 'NEW' can be changed into 'CANCELLED'"));
     }
 
     @Test
     void successOrderById() {
+        //given
+        Order order = new Order();
+        order.setId(1L);
+        order.setOrderStatus(OrderStatus.NEW);
+        order.setPaymentStatus(PaymentStatus.COMPLETED);
+
+        Mockito.when(orderRepositoryMock.findById(1L)).thenReturn(Optional.of(order));
+
+        // when
+        orderService.successOrderById(1L);
+
+        // then
+        assertEquals(order.getOrderStatus(), OrderStatus.SUCCESS);
     }
+
+    @Test
+    void shouldThrowExceptionWhenSuccessNotExistOrderById() {
+        // given
+        long nonExistingOrder = 111L;
+
+        Mockito.when(orderRepositoryMock.findById(nonExistingOrder)).thenReturn(Optional.empty());
+
+        //when
+        EntityNotFoundException exc = assertThrows(EntityNotFoundException.class,
+                () -> orderService.successOrderById(nonExistingOrder));
+
+        //then
+        assertTrue(exc.getMessage().contains("Order not found"));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenOrderPaymentStatusIsNotCompleted() {
+        //given
+        Order order = new Order();
+        order.setId(1L);
+        order.setOrderStatus(OrderStatus.NEW);
+        order.setPaymentStatus(PaymentStatus.PENDING);
+
+        Mockito.when(orderRepositoryMock.findById(1L)).thenReturn(Optional.of(order));
+
+        // when
+        IllegalArgumentException exc = assertThrows(IllegalArgumentException.class,
+                () -> orderService.successOrderById(1L));
+
+        //then
+        assertTrue(exc.getMessage().contains("Only orders with payment status 'COMPLETED' can be marked as 'SUCCESS'"));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenOrderStatusIsNotNew() {
+        //given
+        Order order = new Order();
+        order.setId(1L);
+        order.setOrderStatus(OrderStatus.CANCELLED);
+        order.setPaymentStatus(PaymentStatus.COMPLETED);
+
+        Mockito.when(orderRepositoryMock.findById(1L)).thenReturn(Optional.of(order));
+
+        // when
+        IllegalArgumentException exc = assertThrows(IllegalArgumentException.class,
+                () -> orderService.successOrderById(1L));
+
+        //then
+        assertTrue(exc.getMessage().contains("Only orders with status 'NEW' can be changed into 'SUCCESS'"));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenOrderIsAlreadySuccess() {
+        //given
+        Order order = new Order();
+        order.setId(1L);
+        order.setOrderStatus(OrderStatus.SUCCESS); 
+        order.setPaymentStatus(PaymentStatus.COMPLETED);
+
+        Mockito.when(orderRepositoryMock.findById(1L)).thenReturn(Optional.of(order));
+
+        // when
+        IllegalArgumentException exc = assertThrows(IllegalArgumentException.class,
+                () -> orderService.successOrderById(1L));
+
+        //then
+        assertTrue(exc.getMessage().contains("Only orders with status 'NEW' can be changed into 'SUCCESS'"));
+    }
+
+
+
+
+
 }

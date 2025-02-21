@@ -145,8 +145,6 @@ public class OrderService {
 
         boolean isPaymentSuccessful = new Random().nextBoolean();
         order.setPaymentStatus(isPaymentSuccessful ? PaymentStatus.COMPLETED : PaymentStatus.FAILED);
-
-        orderRepository.save(order);
         
         return Optional.of(orderDtoMapper.map(order));
     }
@@ -165,7 +163,6 @@ public class OrderService {
             orderItem.setOrderItemQuantity(0L);
         }
         order.setOrderStatus(OrderStatus.CANCELLED);
-        orderRepository.save(order);
     }
 
     @Transactional
@@ -179,6 +176,5 @@ public class OrderService {
             throw new IllegalArgumentException("Only orders with status 'NEW' can be changed into 'SUCCESS'");
         }
         order.setOrderStatus(OrderStatus.SUCCESS);
-        orderRepository.save(order);
     }
 }
