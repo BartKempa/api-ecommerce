@@ -9,7 +9,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,10 +27,8 @@ class CategoryServiceTest {
 
     @BeforeEach
     void init(){
-
         categoryService = new CategoryService(categoryRepositoryMock);
     }
-
 
     @Test
     void addCategory() {
@@ -75,8 +72,6 @@ class CategoryServiceTest {
         List<Category> categories = new ArrayList<>();
         categories.add(category1);
         categories.add(category2);
-
-        PageImpl<Category> categoryPage = new PageImpl<>(categories);
 
         Mockito.when(categoryRepositoryMock.findAll()).thenReturn(categories);
 

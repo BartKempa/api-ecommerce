@@ -19,7 +19,6 @@ import com.example.apiecommerce.domain.product.ProductService;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,36 +28,48 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.*;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
-
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
 
     @Mock
     private UserRepository userRepositoryMock;
+
     @Mock
     private CartService cartServiceMock;
+
     @Mock
     private DateTimeProvider dateTimeProviderMock;
+
     @Mock
     private AddressRepository addressRepositoryMock;
+
     @Mock
     ProductRepository productRepositoryMock;
+
     @Mock
     private OrderDtoMapper orderDtoMapperMock;
+
     @Mock
     private OrderRepository orderRepositoryMock;
+
     @Mock
     private OrderItemRepository orderItemRepositoryMock;
+
     @Mock
     private DeliveryRepository deliveryRepositoryMock;
+
     @Mock
     private ProductService productServiceMock;
+
     private OrderService orderService;
 
     @BeforeEach
@@ -576,7 +587,7 @@ class OrderServiceTest {
         //given
         Order order = new Order();
         order.setId(1L);
-        order.setOrderStatus(OrderStatus.SUCCESS); 
+        order.setOrderStatus(OrderStatus.SUCCESS);
         order.setPaymentStatus(PaymentStatus.COMPLETED);
 
         Mockito.when(orderRepositoryMock.findById(1L)).thenReturn(Optional.of(order));
@@ -588,9 +599,4 @@ class OrderServiceTest {
         //then
         assertTrue(exc.getMessage().contains("Only orders with status 'NEW' can be changed into 'SUCCESS'"));
     }
-
-
-
-
-
 }

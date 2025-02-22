@@ -10,7 +10,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -43,7 +42,6 @@ public class CartService {
         cart.setCreationDate(dateTimeProvider.getCurrentTime());
         Cart savedCart = cartRepository.save(cart);
         user.setCart(savedCart);
-        userRepository.save(user);
         return cartDtoMapper.map(savedCart);
     }
 

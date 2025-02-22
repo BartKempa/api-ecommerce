@@ -41,7 +41,6 @@ public class AddressService {
             throw new IllegalArgumentException("Address belongs to other user");
         }
         address.setActive(false);
-        addressRepository.save(address);
     }
     @Transactional
     public void updateAddress(long addressId, AddressUpdateDto addressUpdateDto, String userMail){
@@ -68,7 +67,6 @@ public class AddressService {
         if (addressUpdateDto.getCity() != null){
             address.setCity(addressUpdateDto.getCity());
         }
-       addressRepository.save(address);
     }
 
     public Optional<AddressDto> findAddressById(long addressId, String userMail){

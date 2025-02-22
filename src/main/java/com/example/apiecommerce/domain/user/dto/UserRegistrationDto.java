@@ -2,25 +2,36 @@ package com.example.apiecommerce.domain.user.dto;
 
 import com.example.apiecommerce.domain.user.validation.PasswordCriteria;
 import com.example.apiecommerce.domain.user.validation.UniqueEmail;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 
+@Schema(description = "Data Transfer Object for User")
 public class UserRegistrationDto {
+    @Schema(description = "Unique identifier of the user", example = "1")
     private Long id;
+    @Schema(description = "Email address", example = "email@email.com")
     @NotBlank
     @Email
     @UniqueEmail
     private String email;
+    @Schema(description = "Password to the account", example = "Password123#")
     @NotBlank
     @PasswordCriteria
     private String password;
+    @Schema(description = "User firstname", example = "Bartek")
     @NotBlank
     @Size(min = 2, max = 100)
     private String firstName;
+    @Schema(description = "User lastname", example = "Kowalski")
     @NotBlank
     @Size(min = 2, max = 100)
     private String lastName;
+    @Schema(description = "User phone number", example = "Kowalski")
     @NotEmpty
     private String phoneNumber;
+
+    public UserRegistrationDto() {
+    }
 
     public UserRegistrationDto(Long id, String email, String password, String firstName, String lastName, String phoneNumber) {
         this.id = id;

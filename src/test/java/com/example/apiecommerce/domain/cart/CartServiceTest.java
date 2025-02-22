@@ -58,6 +58,7 @@ class CartServiceTest {
         User user = new User();
         user.setId(1L);
         user.setEmail("test@mail.com");
+        user.setCart(null);
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -78,9 +79,8 @@ class CartServiceTest {
         ArgumentCaptor<Cart> cartArgumentCaptor = ArgumentCaptor.forClass(Cart.class);
         Mockito.verify(cartRepositoryMock).save(cartArgumentCaptor.capture());
         assertEquals(now, resultCartDto.getCreationDate());
-        Mockito.verify(userRepositoryMock).save(user);
-        Cart capturedCart = cartArgumentCaptor.getValue();
-        assertEquals(now, capturedCart.getCreationDate());
+        Mockito.verify(userRepositoryMock).findByEmail("test@mail.com");
+        assertEquals(1L, user.getCart().getId());
     }
 
     @Test
@@ -219,7 +219,6 @@ class CartServiceTest {
         EntityNotFoundException exc = assertThrows(EntityNotFoundException.class,
                 () -> cartService.deleteCartWithoutIncreasingStock("notExist@mail.com"));
 
-
         //then
         assertEquals("User not found", exc.getMessage());
     }
@@ -279,7 +278,6 @@ class CartServiceTest {
         assertFalse(cartItemArgumentCaptor.getValue().isEmpty());
     }
 
-
     @Test
     void shouldThrowExceptionWhenDeleteCartWithIncreasingStockAndUserNotExists() {
         //given
@@ -313,7 +311,6 @@ class CartServiceTest {
         //then
         assertEquals("User does not have a cart", exc.getMessage());
     }
-
 
     @Test
     void shouldClearCart() {
@@ -374,10 +371,7 @@ class CartServiceTest {
         EntityNotFoundException exc = assertThrows(EntityNotFoundException.class,
                 () -> cartService.clearCart("notExist@mail.com"));
 
-
         //then
         assertEquals("User not found", exc.getMessage());
     }
-
-
 }

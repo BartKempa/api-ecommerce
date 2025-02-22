@@ -26,24 +26,34 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+
 @ExtendWith(MockitoExtension.class)
 class CartItemServiceTest {
+
     @Mock
     private CartItemRepository cartItemRepositoryMock;
+
     @Mock
     private CartItemDtoMapper cartItemDtoMapperMock;
+
     @Mock
     private UserRepository userRepositoryMock;
+
     @Mock
     private CartService cartServiceMock;
+
     @Mock
     private CartRepository cartRepositoryMock;
+
     @Mock
     private CartItemFullDtoMapper cartItemFullDtoMapperCart;
+
     @Mock
     private ProductService productServiceMock;
+
     @Mock
     private ProductRepository productRepositoryMock;
+
     private CartItemService cartItemService;
 
     @BeforeEach
@@ -330,10 +340,8 @@ class CartItemServiceTest {
         cartItemService.updateCartItemQuantity(1L, cartItemUpdateQuantityDto, "test@mail.com");
 
         //then
-        ArgumentCaptor<CartItem> cartItemArgumentCaptor = ArgumentCaptor.forClass(CartItem.class);
-        Mockito.verify(cartItemRepositoryMock).save(cartItemArgumentCaptor.capture());
-        CartItem captorValue = cartItemArgumentCaptor.getValue();
-        assertEquals(5L, captorValue.getCartItemQuantity());
+        assertEquals(5L, cartItem.getCartItemQuantity());
+        Mockito.verify(cartItemRepositoryMock, Mockito.times(2)).findById(1L);
         Mockito.verify(productServiceMock).updateProductQuantityInDb(1L, 3L);
     }
 
@@ -510,10 +518,8 @@ class CartItemServiceTest {
         cartItemService.increaseCartItemQuantityByOne(1L, "test@mail.com");
 
         //then
-        ArgumentCaptor<CartItem> cartItemArgumentCaptor = ArgumentCaptor.forClass(CartItem.class);
-        Mockito.verify(cartItemRepositoryMock).save(cartItemArgumentCaptor.capture());
-        CartItem captorValue = cartItemArgumentCaptor.getValue();
-        assertEquals(3L, captorValue.getCartItemQuantity());
+        Mockito.verify(cartItemRepositoryMock, Mockito.times(2)).findById(1L);
+        assertEquals(3L, cartItem.getCartItemQuantity());
         Mockito.verify(productServiceMock).reduceProductQuantityInDbByOne(1L);
     }
 
@@ -710,12 +716,9 @@ class CartItemServiceTest {
         cartItemService.reduceCartItemQuantityByOne(1L, "test@mail.com");
 
         //then
-        ArgumentCaptor<CartItem> cartItemArgumentCaptor = ArgumentCaptor.forClass(CartItem.class);
-        Mockito.verify(cartItemRepositoryMock).save(cartItemArgumentCaptor.capture());
-        CartItem captorValue = cartItemArgumentCaptor.getValue();
-        assertEquals(1L, captorValue.getCartItemQuantity());
+        Mockito.verify(cartItemRepositoryMock, Mockito.times(2)).findById(1L);
+        assertEquals(1L, cartItem.getCartItemQuantity());
         Mockito.verify(productServiceMock).increaseProductQuantityInDbByOne(1L);
-        Mockito.verify(cartItemRepositoryMock).save(cartItem);
     }
 
     @Test
@@ -900,7 +903,6 @@ class CartItemServiceTest {
         product.setProductQuantity(10L);
         cartItem.setProduct(product);
         CartItemFullDto cartItemFullDto = new CartItemFullDto(1L, 2L, 1L, 1L, "Pillsner", 10.80);
-
 
         Mockito.when(userRepositoryMock.findByEmail("test@mail.com")).thenReturn(Optional.of(user));
         Mockito.when(cartRepositoryMock.findById(1L)).thenReturn(Optional.of(cart));

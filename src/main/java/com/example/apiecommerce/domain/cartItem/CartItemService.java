@@ -93,7 +93,6 @@ public class CartItemService {
         if (cartItemUpdateQuantityDto.getCartItemQuantity() != null){
             cartItem.setCartItemQuantity(cartItemUpdateQuantityDto.getCartItemQuantity());
         }
-        cartItemRepository.save(cartItem);
     }
 
     @Transactional
@@ -105,7 +104,6 @@ public class CartItemService {
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         productService.reduceProductQuantityInDbByOne(product.getId());
         cartItem.setCartItemQuantity(cartItem.getCartItemQuantity() + 1);
-        cartItemRepository.save(cartItem);
     }
 
     @Transactional
@@ -120,7 +118,6 @@ public class CartItemService {
         if (cartItem.getCartItemQuantity() <= 0){
             throw new IllegalArgumentException("Quantity cannot be less than 1");
         }
-        cartItemRepository.save(cartItem);
     }
 
     public Optional<CartItemFullDto> findCartItemById(Long cartItemId, String userMail){

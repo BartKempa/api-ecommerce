@@ -8,6 +8,9 @@ public class UserConfirmationRegistrationDto {
     private String lastName;
     private String phoneNumber;
 
+    public UserConfirmationRegistrationDto() {
+    }
+
     public UserConfirmationRegistrationDto(Long id, String email, String firstName, String lastName, String phoneNumber) {
         this.id = id;
         this.email = email;

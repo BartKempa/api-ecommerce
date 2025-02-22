@@ -43,12 +43,10 @@ class ProductServiceTest {
 
     private ProductService productService;
 
-
     @BeforeEach
     void init(){
         productService = new ProductService(productRepositoryMock, categoryRepositoryMock, productDtoMapperMock, dateTimeProviderMock);
     }
-
 
     @Test
     void shouldAddNewProduct() {
@@ -119,7 +117,6 @@ class ProductServiceTest {
         assertThat(exc.getStatusCode(), is(HttpStatus.NOT_FOUND));
         assertEquals("Category not found", exc.getReason());
     }
-
 
     @Test
     void shouldThrowExceptionWhenRepositoryFails() {
@@ -247,7 +244,6 @@ class ProductServiceTest {
         Mockito.when(productDtoMapperMock.map(product1)).thenReturn(new ProductDto(1L, "Pilsner urquell", 8.60, "Klasyczne czeskie piwo", now, 20L, 1L, "Piwo"));
         Mockito.when(productDtoMapperMock.map(product2)).thenReturn(new ProductDto(2L, "Zloty bazant", 6.60, "Klasyczne slowackie piwo", now2, 10L, 1L, "Piwo"));
 
-
         int pageNumber = 1;
         int pageSize = 3;
         String sortField = "productPrice";
@@ -340,7 +336,6 @@ class ProductServiceTest {
         assertThat(paginatedProducts.getTotalElements(), is(0L));
         assertThat(paginatedProducts.getContent(), is(empty()));
     }
-
 
     @Test
     void shouldThrowExceptionWhenCategoryNotExist() {
@@ -482,16 +477,6 @@ class ProductServiceTest {
         Optional<ProductDto> result = productService.replaceProduct(1L, productDto);
 
         //then
-        ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
-        Mockito.verify(productRepositoryMock).save(productArgumentCaptor.capture());
-
-        Product savedProduct = productArgumentCaptor.getValue();
-        assertEquals("Zloty bazant", savedProduct.getProductName());
-        assertEquals(6.60, savedProduct.getProductPrice());
-        assertEquals(10L, savedProduct.getProductQuantity());
-        assertEquals("Klasyczne slowackie piwo", savedProduct.getDescription());
-        assertEquals(1L, savedProduct.getCategory().getId());
-
         assertTrue(result.isPresent());
         ProductDto resultProductDto = result.get();
         assertEquals("Zloty bazant", resultProductDto.getProductName());
@@ -525,23 +510,23 @@ class ProductServiceTest {
         assertEquals("Category not found", exc.getMessage());
     }
 
-        @Test
-        void shouldReturnEmptyOptionalWhenProductNotFound() {
-            //given
-            ProductDto productDto = new ProductDto();
-            productDto.setProductName("Zloty bazant");
+    @Test
+    void shouldReturnEmptyOptionalWhenProductNotFound() {
+        //given
+        ProductDto productDto = new ProductDto();
+        productDto.setProductName("Zloty bazant");
 
-            Mockito.when(productRepositoryMock.findById(99L)).thenReturn(Optional.empty());
+        Mockito.when(productRepositoryMock.findById(99L)).thenReturn(Optional.empty());
 
-            //when
-            Optional<ProductDto> result = productService.replaceProduct(99L, productDto);
+        //when
+        Optional<ProductDto> result = productService.replaceProduct(99L, productDto);
 
-            //then
-            assertTrue(result.isEmpty());
-            Mockito.verify(productRepositoryMock, Mockito.never()).save(Mockito.any(Product.class));
+        //then
+        assertTrue(result.isEmpty());
+        Mockito.verify(productRepositoryMock, Mockito.never()).save(Mockito.any(Product.class));
     }
 
-        @Test
+    @Test
     void shouldReturnEmptyOptionalWhenCountQuantityNotExistProduct() {
         //given
         Long nonExistingProductId = 1L;
@@ -614,11 +599,8 @@ class ProductServiceTest {
         productService.reduceProductQuantityInDbByOne(1L);
 
         //then
-        ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
-        Mockito.verify(productRepositoryMock).save(productArgumentCaptor.capture());
-
-        Product savedProduct = productArgumentCaptor.getValue();
-        assertEquals(4L, savedProduct.getProductQuantity());
+        Mockito.verify(productRepositoryMock, Mockito.times(1)).findById(1L);
+        assertEquals(4L, product.getProductQuantity());
     }
 
     @Test
@@ -650,11 +632,8 @@ class ProductServiceTest {
         productService.increaseProductQuantityInDbByOne(1L);
 
         //then
-        ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
-        Mockito.verify(productRepositoryMock).save(productArgumentCaptor.capture());
-
-        Product savedProduct = productArgumentCaptor.getValue();
-        assertEquals(6L, savedProduct.getProductQuantity());
+        Mockito.verify(productRepositoryMock, Mockito.times(1)).findById(1L);
+        assertEquals(6L, product.getProductQuantity());
     }
 
     @Test
@@ -670,11 +649,8 @@ class ProductServiceTest {
         productService.updateProductQuantityInDb(1L, 5);
 
         //then
-        ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
-        Mockito.verify(productRepositoryMock).save(productArgumentCaptor.capture());
-
-        Product savedProduct = productArgumentCaptor.getValue();
-        assertEquals(0L, savedProduct.getProductQuantity());
+        Mockito.verify(productRepositoryMock, Mockito.times(1)).findById(1L);
+        assertEquals(0L, product.getProductQuantity());
     }
 
     @Test
@@ -767,7 +743,6 @@ class ProductServiceTest {
         int pageSize = 3;
         String sortField = "productPrice";
         String sortDirection = "ASC";
-
 
         //when
         Page<ProductDto> productsResultPaginated = productService.findProductsByTextPaginated(searchText, pageNumber, pageSize, sortField, sortDirection);

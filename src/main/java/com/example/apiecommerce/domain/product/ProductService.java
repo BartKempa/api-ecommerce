@@ -85,8 +85,6 @@ public class ProductService {
             existingProduct.setProductQuantity(productDto.getProductQuantity());
             existingProduct.setCategory(categoryRepository.findById(productDto.getCategoryId())
                     .orElseThrow(() -> new EntityNotFoundException("Category not found")));
-
-            productRepository.save(existingProduct);
             return productDtoMapper.map(existingProduct);
         });
     }
@@ -106,7 +104,6 @@ public class ProductService {
             throw new IllegalArgumentException("Product is unavailable");
         }
         product.setProductQuantity(product.getProductQuantity() - 1);
-        productRepository.save(product);
     }
 
     @Transactional
@@ -114,7 +111,6 @@ public class ProductService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         product.setProductQuantity(product.getProductQuantity() + 1);
-        productRepository.save(product);
     }
 
     @Transactional
@@ -128,7 +124,6 @@ public class ProductService {
             throw new IllegalArgumentException("Not enough quantity in stock");
         }
         product.setProductQuantity(product.getProductQuantity() - quantityToChange);
-        productRepository.save(product);
     }
 
     public Page<ProductDto>findProductsByTextPaginated(String searchText, int pageNumber, int pageSize, String sortField, String sortDirection){

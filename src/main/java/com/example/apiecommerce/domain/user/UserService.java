@@ -46,8 +46,12 @@ public class UserService {
     }
 
     public Optional<UserCredentialsDto> findCredentialsByEmail(String email){
-        return userRepository.findByEmail(email)
-                .map(UserCredentialDtoMapper::map);
+        if (email == null) {
+            throw new IllegalArgumentException("Email cannot be null");
+        }
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return Optional.of(UserCredentialDtoMapper.map(user));
     }
 
     @Transactional
@@ -67,7 +71,9 @@ public class UserService {
     }
 
     public Optional<UserRegistrationDto> findUserById(long userId){
-       return userRepository.findById(userId).map(userRegistrationDtoMapper::map);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        return Optional.of(userRegistrationDtoMapper.map(user));
     }
 
     @Transactional
@@ -75,24 +81,14 @@ public class UserService {
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (userUpdateDto.getFirstName() != null){
-                user.setFirstName(userUpdateDto.getFirstName());
-            }
+            user.setFirstName(userUpdateDto.getFirstName());
+        }
         if (userUpdateDto.getLastName() != null){
             user.setLastName(userUpdateDto.getLastName());
         }
         if (userUpdateDto.getPhoneNumber() != null){
             user.setPhoneNumber(userUpdateDto.getPhoneNumber());
         }
-        userRepository.save(user);
-    }
-
-    @Transactional
-    public void deleteUser(long id){
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
-        orderRepository.deleteAll(user.getOrders());
-        addressRepository.deleteAll(user.getAddresses());
-        userRepository.delete(user);
     }
 
     @Transactional
@@ -102,7 +98,15 @@ public class UserService {
         if (userUpdatePasswordDto.getPassword() != null){
             user.setPassword(passwordEncoder.encode(userUpdatePasswordDto.getPassword()));
         }
-        userRepository.save(user);
+    }
+
+    @Transactional
+    public void deleteUser(long id){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+        orderRepository.deleteAll(user.getOrders());
+        addressRepository.deleteAll(user.getAddresses());
+        userRepository.delete(user);
     }
 
     public List<AddressDto> findAllActiveUserAddresses(String userMail){

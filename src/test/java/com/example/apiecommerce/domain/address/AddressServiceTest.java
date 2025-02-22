@@ -143,9 +143,9 @@ class AddressServiceTest {
         addressService.deleteAddress(1L, "tes@email.com");
 
         // then
-        ArgumentCaptor<Address> addressArgumentCaptor = ArgumentCaptor.forClass(Address.class);
-        Mockito.verify(addressRepositoryMock).save(addressArgumentCaptor.capture());
-        assertFalse(addressArgumentCaptor.getValue().isActive());
+        Mockito.verify(addressRepositoryMock).findById(1L);
+        Mockito.verify(userRepositoryMock).findByEmail("tes@email.com");
+        assertFalse(address.isActive());
     }
 
     @Test
@@ -236,7 +236,8 @@ class AddressServiceTest {
         addressService.deleteAddress(1L, "tes@email.com");
 
         // then
-        Mockito.verify(addressRepositoryMock, Mockito.times(1)).save(address);
+        Mockito.verify(addressRepositoryMock, Mockito.times(1)).findById(1L);
+        Mockito.verify(userRepositoryMock, Mockito.times(1)).findByEmail("tes@email.com");
         assertFalse(address.isActive());
     }
 
@@ -334,15 +335,14 @@ class AddressServiceTest {
         addressService.updateAddress(1L, addressUpdateDto, "tes@email.com");
 
         //then
-        ArgumentCaptor<Address> addressArgumentCaptor = ArgumentCaptor.forClass(Address.class);
-        Mockito.verify(addressRepositoryMock).save(addressArgumentCaptor.capture());
+        Mockito.verify(addressRepositoryMock).findById(1L);
+        Mockito.verify(userRepositoryMock).findByEmail("tes@email.com");
 
-        Address captorValue = addressArgumentCaptor.getValue();
-        assertEquals("Dluga", captorValue.getStreetName());
-        assertEquals("99", captorValue.getBuildingNumber());
-        assertEquals("11", captorValue.getApartmentNumber());
-        assertEquals("12-123", captorValue.getZipCode());
-        assertEquals("Kraków", captorValue.getCity());
+        assertEquals("Dluga", address.getStreetName());
+        assertEquals("99", address.getBuildingNumber());
+        assertEquals("11", address.getApartmentNumber());
+        assertEquals("12-123", address.getZipCode());
+        assertEquals("Kraków", address.getCity());
     }
 
     @Test
@@ -371,15 +371,14 @@ class AddressServiceTest {
         addressService.updateAddress(1L, addressUpdateDto, "tes@email.com");
 
         // then
-        ArgumentCaptor<Address> addressArgumentCaptor = ArgumentCaptor.forClass(Address.class);
-        Mockito.verify(addressRepositoryMock).save(addressArgumentCaptor.capture());
+        Mockito.verify(addressRepositoryMock).findById(1L);
+        Mockito.verify(userRepositoryMock).findByEmail("tes@email.com");
 
-        Address captorValue = addressArgumentCaptor.getValue();
-        assertEquals("Dluga", captorValue.getStreetName());
-        assertEquals("10", captorValue.getBuildingNumber());
-        assertEquals("5A", captorValue.getApartmentNumber());
-        assertEquals("00-001", captorValue.getZipCode());
-        assertEquals("Warszawa", captorValue.getCity());
+        assertEquals("Dluga", address.getStreetName());
+        assertEquals("10", address.getBuildingNumber());
+        assertEquals("5A", address.getApartmentNumber());
+        assertEquals("00-001", address.getZipCode());
+        assertEquals("Warszawa", address.getCity());
     }
 
     @Test
@@ -472,5 +471,4 @@ class AddressServiceTest {
         assertEquals("User not found", exc.getMessage());
         Mockito.verify(userRepositoryMock).findByEmail(nonExistingUser);
     }
-
 }
