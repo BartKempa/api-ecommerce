@@ -18,7 +18,7 @@ public class DeliveryUpdateDto {
 
     @PositiveOrZero
     @Schema(description = "Charge for the delivery service", example = "10.50")
-    private Double deliveryCharge;
+    private double deliveryCharge;
 
     public Long getId() {
         return id;

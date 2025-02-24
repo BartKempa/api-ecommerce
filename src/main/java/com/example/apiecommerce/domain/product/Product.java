@@ -16,10 +16,10 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String productName;
-    private Double productPrice;
+    private double productPrice;
     private String description;
     private LocalDateTime creationDate;
-    private Long productQuantity;
+    private long productQuantity;
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;

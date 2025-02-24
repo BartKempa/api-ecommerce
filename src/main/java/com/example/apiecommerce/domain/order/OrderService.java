@@ -105,7 +105,7 @@ public class OrderService {
         return orderItems;
     }
 
-    public Optional<OrderFullDto> findOrderById(Long orderId, String userMail){
+    public Optional<OrderFullDto> findOrderById(long orderId, String userMail){
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         Order order = orderRepository.findById(orderId)
@@ -117,7 +117,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void deleteOrderById(Long orderId){
+    public void deleteOrderById(long orderId){
         Order orderToDelete = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
         for (OrderItem orderItem : orderToDelete.getOrderItems()) {
@@ -139,7 +139,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Optional<OrderFullDto> processPayment(Long orderId){
+    public Optional<OrderFullDto> processPayment(long orderId){
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
 
@@ -150,7 +150,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void cancelOrderById(Long orderId){
+    public void cancelOrderById(long orderId){
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
         if (!order.getOrderStatus().equals(OrderStatus.NEW)){
@@ -166,7 +166,7 @@ public class OrderService {
     }
 
     @Transactional
-    public void successOrderById(Long orderId){
+    public void successOrderById(long orderId){
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new EntityNotFoundException("Order not found"));
         if (!order.getPaymentStatus().equals(PaymentStatus.COMPLETED)) {

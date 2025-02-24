@@ -10,10 +10,14 @@
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column name="product_name" type="VARCHAR(100)"/>
-            <column name="product_price" type="DOUBLE"/>
+            <column name="product_price" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
             <column name="description" type="VARCHAR(2000)"/>
             <column name="creation_date" type="DATETIME"/>
-            <column name="product_quantity" type="BIGINT"/>
+            <column name="product_quantity" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="category_id" type="BIGINT">
                 <constraints nullable="false"
                              foreignKeyName="fk_product_category"

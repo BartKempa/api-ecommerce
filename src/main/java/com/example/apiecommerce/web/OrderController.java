@@ -124,8 +124,8 @@ public class OrderController {
 
 
     @Operation(
-            summary = "Get aa order by its id",
-            description = "Retrieve aa order by its id" )
+            summary = "Get an order by its id",
+            description = "Retrieve an order by its id" )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",

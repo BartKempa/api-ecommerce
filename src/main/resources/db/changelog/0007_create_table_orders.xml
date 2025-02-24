@@ -9,7 +9,9 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="total_price" type="DOUBLE"/>
+            <column name="total_price" type="DOUBLE">
+                <constraints nullable="false"/>
+            </column>
             <column name="order_date" type="DATETIME"/>
             <column name="payment_status" type="ENUM('PENDING', 'COMPLETED', 'FAILED')"/>
             <column name="order_status" type="ENUM('NEW', 'SUCCESS', 'CANCELLED')"/>

@@ -31,7 +31,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public Optional<CategoryDto> replaceCategory(Long categoryId, CategoryDto categoryDto){
+    public Optional<CategoryDto> replaceCategory(long categoryId, CategoryDto categoryDto){
         if (!categoryRepository.existsById(categoryId)){
             return Optional.empty();
         }
@@ -42,7 +42,7 @@ public class CategoryService {
     }
 
     @Transactional
-    public void deleteCategory(Long categoryId) {
+    public void deleteCategory(long categoryId) {
         if (!categoryRepository.existsById(categoryId)) {
             throw new EntityNotFoundException("Category not found");
         }

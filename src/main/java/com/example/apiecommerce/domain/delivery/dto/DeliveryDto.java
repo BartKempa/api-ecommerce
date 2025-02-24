@@ -23,7 +23,7 @@ public class DeliveryDto {
     @NotNull
     @PositiveOrZero
     @Schema(description = "Charge for the delivery service", example = "12.50")
-    private Double deliveryCharge;
+    private double deliveryCharge;
 
     public Long getId() {
         return id;

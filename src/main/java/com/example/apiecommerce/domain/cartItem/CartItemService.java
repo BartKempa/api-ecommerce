@@ -56,7 +56,7 @@ public class CartItemService {
     }
 
     @Transactional
-    public void deleteCartItem(Long cartItemId, String userMail){
+    public void deleteCartItem(long cartItemId, String userMail){
         checkIsCartItemFromUserCart(cartItemId, userMail);
         if (!cartItemRepository.existsById(cartItemId)){
             throw new EntityNotFoundException("CartItem not found");
@@ -67,7 +67,7 @@ public class CartItemService {
         cartItemRepository.deleteById(cartItemId);
     }
 
-    private void checkIsCartItemFromUserCart(Long cartItemId, String userMail) {
+    private void checkIsCartItemFromUserCart(long cartItemId, String userMail) {
         User user = userRepository.findByEmail(userMail)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         if (user.getCart() == null) {
@@ -120,7 +120,7 @@ public class CartItemService {
         }
     }
 
-    public Optional<CartItemFullDto> findCartItemById(Long cartItemId, String userMail){
+    public Optional<CartItemFullDto> findCartItemById(long cartItemId, String userMail){
         checkIsCartItemFromUserCart(cartItemId, userMail);
         if (!cartItemRepository.existsById(cartItemId)){
             return Optional.empty();

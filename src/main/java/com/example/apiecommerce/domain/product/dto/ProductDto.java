@@ -19,7 +19,7 @@ public class ProductDto {
     @Schema(description = "Price of the product", example = "10.99")
     @NotNull
     @Positive
-    private Double productPrice;
+    private double productPrice;
 
     @Schema(description = "Product description", example = "Piwo górnej fermentacji, charakteryzujące się mocnym chmielowym smakiem i wyrazistą goryczką.")
     @NotBlank(message = "Product description cannot be empty")
@@ -32,11 +32,11 @@ public class ProductDto {
     @Schema(description = "Available quantity of the product", example = "50")
     @NotNull
     @PositiveOrZero
-    private Long productQuantity;
+    private long productQuantity;
 
     @Schema(description = "Category ID to which the product belongs", example = "3")
     @NotNull
-    private Long categoryId;
+    private long categoryId;
 
     @Schema(description = "Category name", example = "Piwo")
     private String categoryName;

@@ -63,13 +63,13 @@ public class ProductService {
                 .map(productDtoMapper::map);
     }
 
-    public Optional<ProductDto> findProductById(Long productId){
+    public Optional<ProductDto> findProductById(long productId){
         return productRepository.findById(productId)
                 .map(productDtoMapper::map);
     }
 
     @Transactional
-    public void deleteProduct(Long productId){
+    public void deleteProduct(long productId){
         if (!productRepository.existsById(productId)){
             throw new EntityNotFoundException("Product not found");
         }
@@ -77,7 +77,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Optional<ProductDto> replaceProduct(Long productId, ProductDto productDto) {
+    public Optional<ProductDto> replaceProduct(long productId, ProductDto productDto) {
         return productRepository.findById(productId).map(existingProduct -> {
             existingProduct.setProductName(productDto.getProductName());
             existingProduct.setProductPrice(productDto.getProductPrice());
@@ -89,7 +89,7 @@ public class ProductService {
         });
     }
 
-    public Optional<Long> countQuantityOfProduct(Long productId){
+    public Optional<Long> countQuantityOfProduct(long productId){
         if (!productRepository.existsById(productId)){
             return Optional.empty();
         }
@@ -97,7 +97,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void reduceProductQuantityInDbByOne(Long productId){
+    public void reduceProductQuantityInDbByOne(long productId){
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         if (product.getProductQuantity() < 1){
@@ -107,14 +107,14 @@ public class ProductService {
     }
 
     @Transactional
-    public void increaseProductQuantityInDbByOne(Long productId){
+    public void increaseProductQuantityInDbByOne(long productId){
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         product.setProductQuantity(product.getProductQuantity() + 1);
     }
 
     @Transactional
-    public void updateProductQuantityInDb(Long productId, long quantityToChange){
+    public void updateProductQuantityInDb(long productId, long quantityToChange){
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         if (quantityToChange == 0) {

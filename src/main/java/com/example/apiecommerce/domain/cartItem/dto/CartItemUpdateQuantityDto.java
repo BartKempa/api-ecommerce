@@ -6,7 +6,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 public class CartItemUpdateQuantityDto {
     @NotNull
     @PositiveOrZero
-    private Long cartItemQuantity;
+    private long cartItemQuantity;
 
     public Long getCartItemQuantity() {
         return cartItemQuantity;

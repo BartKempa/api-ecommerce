@@ -34,21 +34,21 @@ public class DeliveryService {
                 .toList();
     }
 
-    public Optional<DeliveryDto> findDeliveryById(Long id){
+    public Optional<DeliveryDto> findDeliveryById(long id){
         Delivery delivery = deliveryRepository.findById(id).
                 orElseThrow(() -> new EntityNotFoundException("Delivery not found"));
         return Optional.of(deliveryDtoMapper.map(delivery));
     }
 
     @Transactional
-    public void deleteDelivery(Long deliveryId){
+    public void deleteDelivery(long deliveryId){
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new EntityNotFoundException("Delivery not found"));
         delivery.setActive(false);
     }
 
     @Transactional
-    public void updateDelivery(Long deliveryId, DeliveryUpdateDto deliveryUpdateDto){
+    public void updateDelivery(long deliveryId, DeliveryUpdateDto deliveryUpdateDto){
         Delivery delivery = deliveryRepository.findById(deliveryId)
                 .orElseThrow(() -> new EntityNotFoundException("Delivery not found"));
         if (deliveryUpdateDto.getDeliveryName() != null){

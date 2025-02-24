@@ -13,7 +13,7 @@ public class Delivery {
     private Long id;
     private String deliveryName;
     private String deliveryTime;
-    private Double deliveryCharge;
+    private double deliveryCharge;
     @OneToMany(mappedBy = "delivery")
     private Set<Order> orders = new HashSet<>();
     private boolean isActive = true;

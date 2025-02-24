@@ -37,7 +37,7 @@ public class AddressDto {
 
     @NotNull
     @Schema(description = "User ID associated with the address")
-    private Long userId;
+    private long userId;
 
     public AddressDto() {
     }

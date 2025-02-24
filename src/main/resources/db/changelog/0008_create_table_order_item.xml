@@ -9,7 +9,9 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
-            <column name="order_item_quantity" type="BIGINT"/>
+            <column name="order_item_quantity" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
             <column name="order_id" type="BIGINT">
                 <constraints nullable="false"
                              foreignKeyName="fk_order_item_order"
