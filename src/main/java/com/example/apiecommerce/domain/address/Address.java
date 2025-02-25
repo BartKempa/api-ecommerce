@@ -24,6 +24,7 @@ public class Address {
     private User user;
     @OneToMany(mappedBy = "address")
     private Set<Order> orders = new HashSet<>();
+    @Column(columnDefinition = "TINYINT(1)")
     private boolean isActive = true;
 
     public Long getId() {

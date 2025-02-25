@@ -14,7 +14,7 @@
             <column name="delivery_charge" type="DOUBLE">
                 <constraints nullable="false"/>
             </column>
-            <column name="is_active" type="BOOLEAN" defaultValue="true"/>
+            <column name="is_active" type="TINYINT(1)" defaultValue="1"/>
         </createTable>
 
     </changeSet>
