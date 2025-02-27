@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -40,15 +44,14 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException exc) {
-        Map<String, String> errors = exc.getBindingResult().getFieldErrors()
-                .stream()
-                .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
-        logger.error("Validation errors: {}", errors);
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(errors);
+    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        Map<String, List<String>> errors = new HashMap<>();
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            errors.computeIfAbsent(error.getField(), key -> new ArrayList<>()).add(error.getDefaultMessage());
+        }
+
+        ApiError apiError = new ApiError("Invalid input", errors, LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
