@@ -1,8 +1,10 @@
 package com.example.apiecommerce.web;
 
+import com.example.apiecommerce.domain.address.Address;
+import com.example.apiecommerce.domain.address.AddressRepository;
 import com.example.apiecommerce.domain.address.dto.AddressDto;
+import com.example.apiecommerce.domain.address.dto.AddressUpdateDto;
 import com.example.apiecommerce.domain.user.User;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -23,6 +26,9 @@ class AddressControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -85,14 +91,150 @@ class AddressControllerTest {
     }
 
     @Test
-    void deleteAddress() {
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldDeleteAddress() throws Exception {
+        //given
+        long addressIdToDelete = 2L;
+        assertTrue(addressRepository.existsById(addressIdToDelete));
+        assertTrue(addressRepository.findById(addressIdToDelete).get().isActive());
+
+        //when
+        mockMvc.perform(delete("/api/v1/addresses/{id}", addressIdToDelete)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        //then
+        assertFalse(addressRepository.findById(addressIdToDelete).get().isActive());
     }
 
     @Test
-    void updateAddress() {
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldFailWhenDeleteOtherUserAddress() throws Exception {
+        //given
+        long otherUserAddressIdToDelete = 5L;
+        assertTrue(addressRepository.existsById(otherUserAddressIdToDelete));
+        assertTrue(addressRepository.findById(otherUserAddressIdToDelete).get().isActive());
+
+        //when & then
+        mockMvc.perform(delete("/api/v1/addresses/{id}", otherUserAddressIdToDelete)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Address belongs to other user"));
     }
 
     @Test
-    void getAddressById() {
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldFailWhenAddressNotFound() throws Exception {
+        //given
+        long nonExistentAddressId = 999L;
+        assertFalse(addressRepository.existsById(nonExistentAddressId));
+
+        //when & then
+        mockMvc.perform(delete("/api/v1/addresses/{id}", nonExistentAddressId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Address not found"));
     }
+
+    @Test
+    void shouldFailWhenUserNotAuthenticated() throws Exception {
+        //given
+        long addressId = 2L;
+        assertTrue(addressRepository.existsById(addressId));
+
+        //when & then
+        mockMvc.perform(delete("/api/v1/addresses/{id}", addressId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldUpdateAddress() throws Exception {
+        //given
+        long addressId = 2L;
+        AddressUpdateDto addressUpdateDto = new AddressUpdateDto();
+        addressUpdateDto.setStreetName("Nowa");
+        addressUpdateDto.setBuildingNumber("50");
+        addressUpdateDto.setApartmentNumber("5");
+        addressUpdateDto.setZipCode("30-003");
+
+        //when
+        mockMvc.perform(patch("/api/v1/addresses/{id}", addressId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(addressUpdateDto)))
+                .andExpect(status().isNoContent());
+
+        //then
+        Address address = addressRepository.findById(addressId).orElseThrow();
+        assertEquals("Kraków", address.getCity());
+        assertEquals("Nowa", address.getStreetName());
+        assertEquals("50", address.getBuildingNumber());
+        assertEquals("5", address.getApartmentNumber());
+        assertEquals("30-003", address.getZipCode());
+    }
+
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldReturnBadRequestWhenUpdatingAddressOfAnotherUser() throws Exception {
+        // given
+        long otherUserAddressIdToDelete = 5L;
+        AddressUpdateDto addressUpdateDto = new AddressUpdateDto();
+        addressUpdateDto.setStreetName("Nowa");
+
+        // when & then
+        mockMvc.perform(patch("/api/v1/addresses/{id}", otherUserAddressIdToDelete)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addressUpdateDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Address belongs to other user, you can not update it"));
+    }
+
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldGetAddressById() throws Exception {
+        //given
+        long addressId = 2L;
+        assertTrue(addressRepository.existsById(addressId));
+
+        //when & then
+        mockMvc.perform(get("/api/v1/addresses/{id}", addressId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value("2"))
+                .andExpect(jsonPath("$.streetName").value("Krakowska"))
+                .andExpect(jsonPath("$.buildingNumber").value("15"))
+                .andExpect(jsonPath("$.apartmentNumber").doesNotExist())
+                .andExpect(jsonPath("$.zipCode").value("30-002"))
+                .andExpect(jsonPath("$.city").value("Kraków"));
+    }
+
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldReturnNotFoundWhenAddressDoesNotExist() throws Exception {
+        // given
+        long nonExistentAddressId = 999L;
+        assertFalse(addressRepository.existsById(nonExistentAddressId));
+
+        // when & then
+        mockMvc.perform(get("/api/v1/addresses/{id}", nonExistentAddressId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Address not found"));
+    }
+
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldReturnBadRequestWhenAddressBelongsToAnotherUser() throws Exception {
+        // given
+        long existingAddressId = 1L;
+        assertTrue(addressRepository.existsById(existingAddressId));
+
+        // when & then
+        mockMvc.perform(get("/api/v1/addresses/{id}", existingAddressId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Address belongs to other user, you can not get it"));
+    }
+
 }
