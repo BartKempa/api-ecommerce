@@ -145,7 +145,7 @@ class AddressControllerTest {
         //when & then
         mockMvc.perform(delete("/api/v1/addresses/{id}", addressId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
