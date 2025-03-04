@@ -38,6 +38,7 @@ The following tools and technologies were used for the implementation:
 * Update product quantity in the cart, increase/decrease products by one.
 * Create an order from the cart.
 * Display an order.
+* HATEOAS for Products: Added HATEOAS support for product-related endpoints. 
 
 ### Admins have access to the following functionalities:
 
@@ -154,11 +155,11 @@ The API has not been hosted or deployed yet. It runs on localhost for now. To us
 
 ## Testing
 
-The application includes unit tests using JUnit, Mockito, and AssertJ. Tests cover various functionalities such as user registration, cart management, order management, product management, and more.
+The application includes unit and integration tests using JUnit, Mockito, and AssertJ. Tests cover various functionalities such as user registration, cart management, order management, product management, and more.
 
 ## Future Work / Improvements
 
 1. User account activation via email after registration.
 2. Register/Login via social networks.
-3. Implementing HATEOAS.
-4. Adding integration tests.
+
+

@@ -57,7 +57,7 @@ public class DeliveryService {
         if (deliveryUpdateDto.getDeliveryTime() != null){
             delivery.setDeliveryTime(deliveryUpdateDto.getDeliveryTime());
         }
-        if (deliveryUpdateDto.getDeliveryCharge() != null){
+        if (deliveryUpdateDto.getDeliveryCharge() > 0){
             delivery.setDeliveryCharge(deliveryUpdateDto.getDeliveryCharge());
         }
     }
