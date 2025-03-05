@@ -1,6 +1,6 @@
 # API for *E-Commerce Application*
 
-E-commerce API built with Java, Spring Boot, Hibernate, MySQL, OpenAPI, and JWT. The main purpose of creating this application was to learn Java, API development, Spring, and unit testing.
+E-commerce API built with Java, Spring Boot, Hibernate, MySQL, OpenAPI, and JWT. The main purpose of creating this application was to learn Java, API development, Spring, and unit and integration testing.
 
 ## Used Tools
 
@@ -160,6 +160,5 @@ The application includes unit and integration tests using JUnit, Mockito, and As
 ## Future Work / Improvements
 
 1. User account activation via email after registration.
-2. Register/Login via social networks.
 
 

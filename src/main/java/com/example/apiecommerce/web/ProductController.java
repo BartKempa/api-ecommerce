@@ -437,8 +437,8 @@ public class ProductController {
         return productService.findProductById(id)
                 .map(productDto -> {
                     EntityModel<ProductDto> productDtoEntityModel = EntityModel.of(productDto);
-                    productDtoEntityModel.add(linkTo(methodOn(ProductController.class)).slash(productDto.getId()).withSelfRel());
-                    productDtoEntityModel.add(linkTo(methodOn(ProductController.class)).withRel("all-products"));
+                    productDtoEntityModel.add(linkTo(methodOn(ProductController.class).getProductById(productDto.getId())).withSelfRel());
+                    productDtoEntityModel.add(linkTo(methodOn(ProductController.class).getAllProducts()).withRel("all-products"));
                     return ResponseEntity.ok(productDtoEntityModel);
                 })
                 .orElse(ResponseEntity.notFound().build());
