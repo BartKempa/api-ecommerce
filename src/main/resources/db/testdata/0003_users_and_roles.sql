@@ -8,7 +8,8 @@ values
     ('fourthUser@mail.com', '{noop}userpass4', 'Jola', 'Fifi', '502112233', '2024-02-18T11:33:54.478613800', '5'),
     ('fifthUser@mail.com', '{noop}userpass5', 'Olo', 'Serek', '501501501', '2024-02-19T11:33:54.478613800', '6'),
     ('sixthUser@mail.com', '{noop}userpass6', 'Adam', 'Adamski', '508508508', '2024-02-20T11:33:54.478613800', '7'),
-    ('seventhUser@mail.com', '{noop}userpass7', 'Darek', 'Darecki', '606606606', '2024-02-21T11:33:54.478613800', '1');
+    ('seventhUser@mail.com', '{noop}userpass7', 'Darek', 'Darecki', '606606606', '2024-02-21T11:33:54.478613800', '1'),
+    ('eighthUser@mail.com', '{noop}userpass8', 'Piotr', 'Piotrula', '666666666', '2024-02-22T11:33:54.478613800', null);
 
 
 insert into

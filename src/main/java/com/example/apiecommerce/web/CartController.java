@@ -19,7 +19,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 
-@Validated
 @RestController
 @RequestMapping("/api/v1/carts")
 public class CartController {
@@ -182,15 +181,15 @@ public class CartController {
                     description = "Cart is empty"
             ),
             @ApiResponse(
-                    responseCode = "404",
-                    description = "Cart not found",
+                    responseCode = "400",
+                    description = "User does not have a cart",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ApiError.class),
                             examples = @ExampleObject(value =
                                     """
                                     {
-                                        "message": "Cart not found",
+                                        "message": "User does not have a cart",
                                         "timestamp": "2025-01-21T14:45:00"
                                     }
                                     """)
