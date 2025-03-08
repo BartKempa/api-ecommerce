@@ -4,7 +4,6 @@ import com.example.apiecommerce.domain.cartItem.CartItemService;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemFullDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemUpdateQuantityDto;
-import com.example.apiecommerce.domain.product.dto.ProductDto;
 import com.example.apiecommerce.exception.ApiError;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -277,9 +276,11 @@ public class CartItemController {
                             examples = @ExampleObject(value = """
                                         {
                                           "id": 1,
-                                          "cartItemQuantity": 1,
+                                          "cartItemQuantity": 2,
                                           "cartId": 1,
-                                          "productId": 1
+                                          "productId": 1,
+                                          "productName" : "Pilsner",
+                                          "productPrice" : 8.8
                                         }
                                     """)
                     )

@@ -3,6 +3,7 @@ package com.example.apiecommerce.domain.cartItem;
 import com.example.apiecommerce.domain.cart.CartRepository;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemDto;
 import com.example.apiecommerce.domain.product.ProductRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,8 @@ public class CartItemDtoMapper {
         }
         CartItem cartItem = new CartItem();
         cartItem.setCartItemQuantity(startCartItemQuantity);
-        cartItem.setProduct(productRepository.findById(cartItemDto.getProductId()).orElseThrow());
+        cartItem.setProduct(productRepository.findById(cartItemDto.getProductId())
+                .orElseThrow(() -> new EntityNotFoundException("Product not found")));
         return cartItem;
     }
 
