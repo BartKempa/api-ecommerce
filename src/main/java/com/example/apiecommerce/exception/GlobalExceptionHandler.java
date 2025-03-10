@@ -20,16 +20,6 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    ResponseEntity<ApiError> handleNotFound(EntityNotFoundException exc) {
-        logger.error("Entity not found: {}", exc.getMessage());
-        ApiError apiError = new ApiError(exc.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(apiError);
-    }
-
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     ResponseEntity<ApiError> handleException(Exception exc) {
@@ -37,6 +27,16 @@ public class GlobalExceptionHandler {
         ApiError apiError = new ApiError("An unexpected error occurred: " + exc.getMessage());
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(apiError);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    ResponseEntity<ApiError> handleNotFound(EntityNotFoundException exc) {
+        logger.error("Entity not found: {}", exc.getMessage());
+        ApiError apiError = new ApiError(exc.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
                 .body(apiError);
     }
 
