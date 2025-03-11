@@ -12,7 +12,9 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -113,12 +115,12 @@ class OrderControllerTest {
 
         @Test
         void shouldReturnForbidden_whenUserIsNotAuthenticated() throws Exception {
-            // given
+            //given
             OrderDto orderDto = new OrderDto();
             orderDto.setAddressId(2L);
             orderDto.setDeliveryId(1L);
 
-            // when & then
+            //when & then
             mockMvc.perform(post("/api/v1/orders")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(orderDto)))
@@ -126,7 +128,55 @@ class OrderControllerTest {
         }
 
     @Test
-    void getOrderById() {
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldUserGetOrderById() throws Exception {
+        //given
+        long orderId = 2L;
+
+        //when & then
+        mockMvc.perform(get("/api/v1/orders/{id}", orderId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.orderItems[0].productName").value("Merlot"))
+                .andExpect(jsonPath("$.orderTotalPrice").value(120));
+    }
+
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldFailedWhenUserTryGetOtherUsersOrderById() throws Exception {
+        //given
+        long orderId = 1L;
+
+        //when & then
+        mockMvc.perform(get("/api/v1/orders/{id}", orderId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("This order belongs to another user"));
+    }
+
+    @Test
+    void shouldReturnForbidden_whenUserGetOrderByIdAndIsNotAuthenticated() throws Exception {
+        //given
+        long orderId = 1L;
+
+        //when & then
+        mockMvc.perform(get("/api/v1/orders/{id}", orderId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "eighthUser@mail.com", roles = "USER")
+    void shouldFailedWhenUserTryGetNotExistsOrder() throws Exception {
+        //given
+        long orderId = 999L;
+
+        //when & then
+        mockMvc.perform(get("/api/v1/orders/{id}", orderId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Order not found"));
     }
 
     @Test
