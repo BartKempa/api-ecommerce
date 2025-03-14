@@ -504,7 +504,6 @@ class ProductControllerTest {
                         .param("sortDirection", "ASC")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andDo(print())
                 .andReturn();
 
         String contentAsString = mvcResult.getResponse().getContentAsString();
