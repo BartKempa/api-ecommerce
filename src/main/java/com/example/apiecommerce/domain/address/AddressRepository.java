@@ -2,6 +2,8 @@ package com.example.apiecommerce.domain.address;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface AddressRepository extends CrudRepository<Address, Long> {
+import java.util.List;
 
+public interface AddressRepository extends CrudRepository<Address, Long> {
+    List<Address> findAllByUserId(long userId);
 }

@@ -1,24 +1,26 @@
 package com.example.apiecommerce.web;
 
+import com.example.apiecommerce.domain.address.AddressRepository;
+import com.example.apiecommerce.domain.order.OrderRepository;
 import com.example.apiecommerce.domain.user.User;
 import com.example.apiecommerce.domain.user.UserRepository;
 import com.example.apiecommerce.domain.user.dto.UserUpdateDto;
+import com.example.apiecommerce.domain.user.dto.UserUpdatePasswordDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -35,6 +37,15 @@ class UserControllerTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
+
+    @Autowired
+    private AddressRepository addressRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Test
     @WithMockUser(username = "admin@mail.com", roles = "ADMIN")
@@ -192,19 +203,86 @@ class UserControllerTest {
     }
 
     @Test
-    void deleteUser() {
+    @WithMockUser(username = "admin@mail.com", roles = "ADMIN")
+    void shouldAdminDeleteUser() throws Exception {
+        //given
+        long userId = 2L;
+        assertTrue(userRepository.existsById(userId));
 
+        //when
+        mockMvc.perform(delete("/api/v1/users/{id}", userId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        //then
+        assertFalse(userRepository.existsById(userId));
     }
 
     @Test
-    void updateUserPassword() {
+    @WithMockUser(username = "admin@mail.com", roles = "ADMIN")
+    void shouldFailedWhenAdminDeleteNonExistingUser() throws Exception {
+        //given
+        long nonExistingUserId = 999L;
+        assertFalse(userRepository.existsById(nonExistingUserId));
+
+        //when & then
+        mockMvc.perform(delete("/api/v1/users/{id}", nonExistingUserId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void getUserAddresses() {
+    void shouldFailedWhenDeleteUserWithoutAuthentication() throws Exception {
+        //given
+        long nonExistingUserId = 2L;
+
+        //when & then
+        mockMvc.perform(delete("/api/v1/users/{id}", nonExistingUserId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
-    void getUserOrders() {
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldFailedWhenDeleteUserWithoutAuthorization() throws Exception {
+        //given
+        long nonExistingUserId = 2L;
+
+        //when & then
+        mockMvc.perform(delete("/api/v1/users/{id}", nonExistingUserId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockUser(username = "admin@mail.com", roles = "ADMIN")
+    void shouldDeleteUserWithOrdersAndAddresses() throws Exception {
+        //given
+        long userId = 2L;
+        assertTrue(userRepository.existsById(userId));
+        assertFalse(orderRepository.findAllByUserId(userId).isEmpty());
+        assertFalse(addressRepository.findAllByUserId(userId).isEmpty());
+
+        //when
+        mockMvc.perform(delete("/api/v1/users/{id}", userId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        //then
+        assertFalse(userRepository.existsById(userId));
+        assertTrue(orderRepository.findAllByUserId(userId).isEmpty());
+        assertTrue(addressRepository.findAllByUserId(userId).isEmpty());
+    }
+
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldFailWhenUserTriesToDeleteHimself() throws Exception {
+        //given
+        long selfUserId = 2L;
+
+        //when & then
+        mockMvc.perform(delete("/api/v1/users/{id}", selfUserId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden());
     }
 }

@@ -12,7 +12,7 @@ public class UserRegistrationDto {
     @Schema(description = "Email address", example = "email@email.com")
     @NotBlank
     @Email
-    @UniqueEmail
+    @UniqueEmail(message = "Email already exists")
     private String email;
     @Schema(description = "Password to the account", example = "Password123#")
     @NotBlank

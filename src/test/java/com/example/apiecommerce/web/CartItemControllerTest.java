@@ -1,6 +1,5 @@
 package com.example.apiecommerce.web;
 
-import com.example.apiecommerce.domain.cart.CartRepository;
 import com.example.apiecommerce.domain.cartItem.CartItemRepository;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemDto;
 import com.example.apiecommerce.domain.cartItem.dto.CartItemUpdateQuantityDto;
