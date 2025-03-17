@@ -285,4 +285,80 @@ class UserControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
     }
+
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldUpdateUserPassword() throws Exception {
+        //given
+        UserUpdatePasswordDto userUpdatePasswordDto = new UserUpdatePasswordDto();
+        userUpdatePasswordDto.setPassword("NewPass123#");
+
+        //when
+        mockMvc.perform(patch("/api/v1/users/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userUpdatePasswordDto)))
+                .andExpect(status().isNoContent());
+
+        //when
+        User updatedUser = userRepository.findByEmail("user@mail.com").orElseThrow();
+        assertThat(passwordEncoder.matches("NewPass123#", updatedUser.getPassword())).isTrue();
+    }
+
+    @Test
+    void shouldFailedWhenUpdateUserPasswordWithoutAuthentication() throws Exception {
+        //given
+        UserUpdatePasswordDto userUpdatePasswordDto = new UserUpdatePasswordDto();
+        userUpdatePasswordDto.setPassword("NewPass123#");
+
+        //when
+        mockMvc.perform(patch("/api/v1/users/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userUpdatePasswordDto)))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldFailedWhenUpdateUserPasswordAndValidationFailed() throws Exception {
+        //given
+        UserUpdatePasswordDto userUpdatePasswordDto = new UserUpdatePasswordDto();
+        userUpdatePasswordDto.setPassword("pass");
+
+        //when
+        mockMvc.perform(patch("/api/v1/users/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userUpdatePasswordDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid input"));
+    }
+
+    @Test
+    @WithMockUser(username = "nonexistent@mail.com", roles = "USER")
+    void shouldReturnNotFoundWhenUserDoesNotExist() throws Exception {
+        //given
+        UserUpdatePasswordDto userUpdatePasswordDto = new UserUpdatePasswordDto();
+        userUpdatePasswordDto.setPassword("NewPass123#");
+
+        //when
+        mockMvc.perform(patch("/api/v1/users/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userUpdatePasswordDto)))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("User not found"));
+    }
+
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldFailWhenPasswordIsNull() throws Exception {
+        //given
+        UserUpdatePasswordDto userUpdatePasswordDto = new UserUpdatePasswordDto();
+
+        //when
+        mockMvc.perform(patch("/api/v1/users/password")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userUpdatePasswordDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Invalid input"));
+    }
+
 }
