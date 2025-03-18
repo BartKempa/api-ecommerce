@@ -360,5 +360,42 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Invalid input"));
     }
-
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldGetUserAddresses() throws Exception {
+        //given & when & then
+        mockMvc.perform(get("/api/v1/users/addresses")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$").isArray());
+    }
+    @Test
+    @WithMockUser(username = "eighthUser@mail.com", roles = "USER")
+    void shouldGetEmptyListWhenUserHasNoAddresses() throws Exception {
+        //given & when & then
+        mockMvc.perform(get("/api/v1/users/addresses")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty())
+                .andExpect(jsonPath("$").isArray());
+    }
+    @Test
+    void shouldFailWhenUserGetAddressesWithoutAuthentication() throws Exception {
+        //given & when & then
+        mockMvc.perform(get("/api/v1/users/addresses")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldNotGetInactiveAddresses() throws Exception {
+        //given & when & then
+        mockMvc.perform(get("/api/v1/users/addresses")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[?(@.streetName == 'Toruńska')]").doesNotExist());
+    }
 }
