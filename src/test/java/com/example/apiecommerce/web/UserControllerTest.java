@@ -398,4 +398,31 @@ class UserControllerTest {
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[?(@.streetName == 'Toruńska')]").doesNotExist());
     }
+    @Test
+    @WithMockUser(username = "user@mail.com", roles = "USER")
+    void shouldGetUserOrders() throws Exception {
+        //given & when & then
+        mockMvc.perform(get("/api/v1/users/orders")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+    @Test
+    void shouldFailWhenUserGetOrdersWithoutAuthentication() throws Exception {
+        //given & when & then
+        mockMvc.perform(get("/api/v1/users/orders")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+    @Test
+    @WithMockUser(username = "eighthUser@mail.com", roles = "USER")
+    void shouldGetEmptyListWhenUserHasNoOrders() throws Exception {
+        //given & when & then
+        mockMvc.perform(get("/api/v1/users/orders")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty())
+                .andExpect(jsonPath("$").isArray());
+    }
 }
