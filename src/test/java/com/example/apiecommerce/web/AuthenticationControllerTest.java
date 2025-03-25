@@ -71,7 +71,6 @@ public class AuthenticationControllerTest {
         assertTrue(contentAsString.contains("567567567"));
         assertTrue(contentAsString.contains("567567567"));
     }
-
     @Test
     void shouldFailWhenRegisterUserAndValidationFail() throws Exception {
         //given
@@ -90,7 +89,6 @@ public class AuthenticationControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.email[0]").value("must be a well-formed email address"));
     }
-
     @Test
     void shouldFailWhenRegisteringUserWithExistingEmail() throws Exception {
         //given
@@ -109,7 +107,6 @@ public class AuthenticationControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.email[0]").value("Email already exists"));
     }
-
     @Test
     void shouldFailWhenRegisteringUserWithoutEmail() throws Exception {
         //given
@@ -128,7 +125,6 @@ public class AuthenticationControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.email[0]").value("must not be blank"));
     }
-
     @Test
     void shouldFailWhenRegisteringUserWithoutPassword() throws Exception {
         //given
@@ -145,7 +141,6 @@ public class AuthenticationControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
-
     @Test
     void shouldSaveUserWithEncodedPassword() {
         //given
@@ -165,5 +160,24 @@ public class AuthenticationControllerTest {
         assertNotEquals("Password123!@#", savedUser.get().getPassword());
         assertTrue(passwordEncoder.matches("Password123!@#", savedUser.get().getPassword()));
     }
-    
+    @Test
+    public void shouldLoginSuccessfullyAndReturnToken() throws Exception {
+        AuthenticationRequest request = new AuthenticationRequest("admin@mail.com", "adminpass");
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists());
+    }
+    @Test
+    public void shouldFailLoginWithInvalidPassword() throws Exception {
+        AuthenticationRequest request = new AuthenticationRequest("admin@mail.com", "wrongpassword");
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.token").doesNotExist());
+    }
 }
