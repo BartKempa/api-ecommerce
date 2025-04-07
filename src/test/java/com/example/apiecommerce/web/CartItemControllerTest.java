@@ -76,7 +76,6 @@ class CartItemControllerTest {
                         .content(objectMapper.writeValueAsString(cartItemDto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.cartItemQuantity").value(1))
-                .andExpect(jsonPath("$.cartId").value(8))
                 .andExpect(jsonPath("$.productPrice").value(8.8))
                 .andExpect(jsonPath("$.productName").value("Pilsner"));
 

@@ -1,0 +1,7 @@
+.gitignore
+.dockerignore
+target
+mvnw.cmd
+README.md
+HELP.md
+Dockerfile

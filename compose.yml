@@ -1,0 +1,37 @@
+services:
+  mysql:
+    image: mysql:8.4.0
+    container_name: mysql
+    environment:
+      - "MYSQL_ROOT_PASSWORD=${DB_PASSWORD}"
+      - "MYSQL_DATABASE=${DB_NAME}"
+    volumes:
+      - mysqldbEcommerce:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD}" ]
+      interval: 5s
+      timeout: 1s
+      retries: 3
+      start_period: 5s
+
+  application:
+    build: .
+    image: ecommerce
+    pull_policy: build
+    container_name: ecommerce
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: wget --spider localhost:8080
+      interval: 5s
+      timeout: 1s
+      retries: 3
+      start_period: 5s
+
+  volumes:
+    mysqldb:
