@@ -7,7 +7,7 @@ spring:
     change-log: classpath:db/changelog/master.xml
 
 jws:
-  sharedKey: ${JWS_KEY}
+  sharedKey: bdc6e4de-a1b9-49d4-bdec-39c2f0c62261
 
 
 

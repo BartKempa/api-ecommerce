@@ -1,14 +1,14 @@
 services:
   mysql:
     image: mysql:8.4.0
-    container_name: mysql
+    container_name: mysql_api
     environment:
       - "MYSQL_ROOT_PASSWORD=${DB_PASSWORD}"
       - "MYSQL_DATABASE=${DB_NAME}"
     volumes:
-      - mysqldbEcommerce:/var/lib/mysql
+      - mysqldb_api:/var/lib/mysql_api
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD}" ]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD}" ]
       interval: 5s
       timeout: 1s
       retries: 3
@@ -33,5 +33,5 @@ services:
       retries: 3
       start_period: 5s
 
-  volumes:
-    mysqldb:
+volumes:
+  mysqldb_api:
