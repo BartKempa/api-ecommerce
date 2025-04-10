@@ -12,6 +12,7 @@ The following tools and technologies were used for the implementation:
 * Spring Security
 * JWT Authentication
 * Maven v4.0.0
+* Docker & Docker Compose
 * MySQL
 * H2 Database
 * Hibernate
@@ -131,27 +132,42 @@ The following tools and technologies were used for the implementation:
 
 This API can be used by anyone interested in working with it.
 
-## How to Use It?
+##  How to Run the App
 
-The API has not been hosted or deployed yet. It runs on localhost for now. To use it:
+### Option 1: Using Docker (production profile)
 
-1. Install MySQL.
-2. Open Git Bash.
-3. Navigate to the directory where you want to clone the repository.
-4. Execute the command:
+1. Install Docker
+2. Clone the project:
    ```bash
    git clone https://github.com/BartKempa/api-ecommerce.git
+   cd api-ecommerce
    ```
-5. Press Enter to create your local clone.
-6. To use the production profile, configure the datasource in `src/main/resources/application-prod.yml`:
-   ```yaml
-   spring:
-     datasource:
-       url: jdbc:mysql://localhost:3306/apiecommerce
-       username: root
-       password: password
+3. Create a `.env` file in the root of the project with the following content:
+   ```env
+   DB_PORT=3306
+   DB_NAME= api-ecommerce
+   DB_URL=jdbc:mysql://mysql:${DB_PORT}/${DB_NAME}
+   DB_USERNAME=root
+   DB_PASSWORD=pass
+   SPRING_PROFILES_ACTIVE=prod
    ```
-7. The server runs on `localhost:8080`.
+4. Run the application:
+   ```bash
+   docker compose up
+   ```
+5. Visit the app at [http://localhost:8080](http://localhost:8080)
+
+---
+
+### Option 2: Using IDE (developer profile)
+
+1. Open the project in your favorite IDE (e.g. IntelliJ)
+2. Make sure the `dev` profile is active (H2 in-memory DB)
+3. Run the application from your IDE
+4. Visit [http://localhost:8080](http://localhost:8080)
+
+---
+
 
 ## Testing
 
